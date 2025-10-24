@@ -1,13 +1,69 @@
-#공유했을때 에러가 발생할 요소 제거
-/src/test/java
-target
-.metadata
-.recommenders
-.settings
-.git
+# =========================================
+# 빌드 결과물 (Gradle)
+# =========================================
+build/
+!gradle/wrapper/gradle-wrapper.jar
+.gradle/
+
+# =========================================
+# IDE 설정 파일
+# =========================================
+# Eclipse
 .classpath
 .project
+.settings/
 .springBeans
-.gitignore
-**/log4j2.xml
-README.md
+.metadata/
+.recommenders/
+
+# =========================================
+# OS 자동 생성 파일
+# =========================================
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+desktop.ini
+
+# Linux
+*~
+
+# =========================================
+# Spring Boot 설정 관련
+# =========================================
+src/main/resources/application-*.yml
+src/main/resources/application-*.properties
+
+# 선택적으로 무시할 수 있는 로그 설정 파일
+# src/main/resources/log4j2.xml
+
+# 로그 폴더
+logs/
+*.log
+
+# =========================================
+# 의존성 캐시
+# =========================================
+# Gradle 캐시
+.gradle/
+# 로컬 빌드 캐시 (필요시)
+.gradle-build-cache/
+
+# =========================================
+# 테스트 / 문서
+# =========================================
+# 테스트 코드는 공유해야 하므로 커밋 포함
+# /src/test/java/
+
+# 문서 파일은 버전 관리 필요
+# README.md (무시 금지)
+
+# =========================================
+# 절대 무시 금지
+# =========================================
+# .git          (저장소 자체)
+# .gitignore    (규칙 파일)
