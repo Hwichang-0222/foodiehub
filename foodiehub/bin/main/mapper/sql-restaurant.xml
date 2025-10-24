@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.embed.mapper.RestaurantMapper">
+ 
+    <!-- 1. 전체 맛집 조회 -->
+    <select id="findAll" resultType="org.embed.dto.RestaurantDTO">
+        <![CDATA[
+            SELECT 
+            	* 
+            FROM 
+            	restaurant
+            ORDER BY created_at DESC
+        ]]>
+    </select>
+
+    <!-- 2. 개별 맛집 조회 -->
+    <select id="findById" parameterType="long" resultType="org.embed.dto.RestaurantDTO">
+        <![CDATA[
+            SELECT
+            	*
+            FROM 
+            	restaurant
+            WHERE id = #{id}
+        ]]>
+    </select>
+
+    <!-- 3. 맛집 등록 -->
+    <insert id="insertRestaurant" parameterType="org.embed.dto.RestaurantDTO" useGeneratedKeys="true" keyProperty="id">
+        <![CDATA[
+            INSERT INTO restaurant (
+                name, 
+                description, 
+                address, 
+                region, 
+                category, 
+                latitude, 
+                longitude, 
+                main_image_url
+            ) VALUES (
+                #{name}, 
+                #{description}, 
+                #{address}, 
+                #{region}, 
+                #{category},
+                #{latitude}, 
+                #{longitude}, 
+                #{mainImageUrl}
+            )
+        ]]>
+    </insert>
+
+    <!-- 4. 맛집 수정 -->
+    <update id="updateRestaurant" parameterType="org.embed.dto.RestaurantDTO">
+        <![CDATA[
+            UPDATE 
+            	restaurant
+            SET
+                name = #{name},
+                description = #{description},
+                address = #{address},
+                region = #{region},
+                category = #{category},
+                latitude = #{latitude},
+                longitude = #{longitude},
+                main_image_url = #{mainImageUrl}
+            WHERE id = #{id}
+        ]]>
+    </update>
+
+    <!-- 5. 맛집 삭제 -->
+    <delete id="deleteRestaurant" parameterType="long">
+        <![CDATA[
+            DELETE FROM 
+            	restaurant 
+            WHERE id = #{id}
+        ]]>
+    </delete>
+
+    <!-- 6. 지역별 조회 -->
+    <select id="findByRegion" parameterType="string" resultType="org.embed.dto.RestaurantDTO">
+        <![CDATA[
+            SELECT 
+            	* 
+            FROM 
+            	restaurant
+            WHERE region = #{region}
+            ORDER BY created_at DESC
+        ]]>
+    </select>
+
+    <!-- 7. 카테고리별 조회 -->
+    <select id="findByCategory" parameterType="string" resultType="org.embed.dto.RestaurantDTO">
+        <![CDATA[
+            SELECT 
+            	* 
+            FROM 
+            	restaurant
+            WHERE category = #{category}
+            ORDER BY created_at DESC
+        ]]>
+    </select>
+    
+    <!-- 8. 이름으로 검색 (부분 검색) -->
+	<select id="findByName" parameterType="string" resultType="org.embed.dto.RestaurantDTO">
+	    <![CDATA[
+	        SELECT 
+	        	*
+	        FROM 
+	        	restaurant
+	        WHERE name LIKE CONCAT('%', #{keyword}, '%')
+	        ORDER BY created_at DESC
+	    ]]>
+	</select>
+	
+</mapper>
+  

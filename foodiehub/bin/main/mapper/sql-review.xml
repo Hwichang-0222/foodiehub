@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.embed.mapper.UserMapper">
+
+	<!-- 1. 전체 유저 조회 (삭제 안 된 사용자만) -->
+	<select id="findAllActiveUsers" resultType="org.embed.dto.UserDTO">
+		<![CDATA[
+			SELECT
+				*
+			FROM
+				user
+			WHERE is_deleted = 'N'
+			ORDER BY created_at DESC
+		]]>
+	</select>
+
+	<!-- 2. 개별 유저 조회 (id 기준) -->
+	<select id="findById" parameterType="long" resultType="org.embed.dto.UserDTO">
+		<![CDATA[
+			SELECT
+				*
+			FROM
+				user
+			WHERE id = #{id}
+			  AND is_deleted = 'N'
+		]]>
+	</select>
+
+	<!-- 3. 이메일로 조회 (로그인용) -->
+	<select id="findByEmail" parameterType="string" resultType="org.embed.dto.UserDTO">
+		<![CDATA[
+			SELECT
+				*
+			FROM
+				user
+			WHERE email = #{email}
+			  AND is_deleted = 'N'
+		]]>
+	</select>
+
+	<!-- 4. 새 유저 등록 -->
+	<insert id="insertUser" parameterType="org.embed.dto.UserDTO"
+			useGeneratedKeys="true" keyProperty="id">
+		<![CDATA[
+			INSERT INTO user (
+				email,
+				password,
+				name,
+				profile_image_url,
+				provider,
+				role,
+				is_deleted
+			)
+			VALUES (
+				#{email},
+				#{password},
+				#{name},
+				#{profileImageUrl},
+				#{provider},
+				#{role},
+				'N'
+			)
+		]]>
+	</insert>
+
+	<!-- 5. 유저 정보 수정 (본인용) -->
+	<update id="updateUser" parameterType="org.embed.dto.UserDTO">
+		<![CDATA[
+			UPDATE user
+			SET
+				password = #{password},
+				name = #{name},
+				profile_image_url = #{profileImageUrl}
+			WHERE id = #{id}
+			  AND is_deleted = 'N'
+		]]>
+	</update>
+
+	<!-- 6. 논리 삭제 (is_deleted = 'Y') -->
+	<update id="softDeleteUser" parameterType="long">
+		<![CDATA[
+			UPDATE user
+			SET is_deleted = 'Y'
+			WHERE id = #{id}
+		]]>
+	</update>
+
+	<!-- 7. 관리자 전용: 유저 권한(Role) 변경 -->
+	<update id="updateUserRole">
+		<![CDATA[
+			UPDATE user
+			SET role = #{role}
+			WHERE id = #{id}
+			  AND is_deleted = 'N'
+		]]>
+	</update>
+
+</mapper>
+  
