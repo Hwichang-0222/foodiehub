@@ -1,4 +1,4 @@
-package org.embed;
+package org.embed.mappertest;
 
 import java.util.List;
 
@@ -95,21 +95,16 @@ class RestaurantMapperTest {
     @Test
     @Order(6)
     void testFindByRegion() {
-        System.out.println("[6] 지역 검색 테스트");
-        List<RestaurantDTO> list = restaurantMapper.findByRegion("서울");
+        System.out.println("[6] 필터 검색 테스트");
+        List<RestaurantDTO> list = restaurantMapper.findByFilter("서울","");
+        list.forEach(r -> System.out.println("지역 결과: " + r.getName() + " / " + r.getRegion()));
+        list = restaurantMapper.findByFilter("","한식");
+        list.forEach(r -> System.out.println("지역 결과: " + r.getName() + " / " + r.getRegion()));
+        list = restaurantMapper.findByFilter("서울","한식");
         list.forEach(r -> System.out.println("지역 결과: " + r.getName() + " / " + r.getRegion()));
     }
 
-    // 7. 카테고리별 검색
-    @Test
-    @Order(7)
-    void testFindByCategory() {
-        System.out.println("[7] 카테고리 검색 테스트");
-        List<RestaurantDTO> list = restaurantMapper.findByCategory("양식");
-        list.forEach(r -> System.out.println("카테고리 결과: " + r.getName() + " / " + r.getCategory()));
-    }
-
-    // 8. 삭제 테스트
+    // 7. 삭제 테스트
     @Test
     @Order(8)
     void testDeleteRestaurant() {

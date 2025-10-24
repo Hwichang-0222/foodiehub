@@ -29,5 +29,13 @@ public interface UserMapper {
 	
 	// 7. 관리자 전용: 유저권한(Role) 변경
 	int updateUserRole(@Param("id") Long id, @Param("role") String role);
+	
+	// 8. 이메일 중복 확인용
+	int countByEmail(String email);
 
+	// 9. 로그인 검증용
+	UserDTO validateLogin(@Param("email") String email, @Param("password") String password);
+
+	// 10. 권한별 유저 조회 (관리자 전용)
+	List<UserDTO> findUsersByRole(String role);
 }

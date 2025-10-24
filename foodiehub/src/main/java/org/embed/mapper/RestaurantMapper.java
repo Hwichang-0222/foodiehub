@@ -24,11 +24,8 @@ public interface RestaurantMapper {
 	int deleteRestaurant(Long id);
 
 	// 6️. 지역별 검색
-	List<RestaurantDTO> findByRegion(@Param("region") String region);
-
-	// 7️. 카테고리별 검색
-	List<RestaurantDTO> findByCategory(@Param("category") String category);
+	List<RestaurantDTO> findByFilter(@Param("region") String region, @Param("category") String category);
 	
-	// 8. 이름으로 검색 (부분 검색 포함)
+	// 7. 이름으로 검색 (부분 검색 포함)
 	List<RestaurantDTO> findByName(@Param("keyword") String keyword);
 }

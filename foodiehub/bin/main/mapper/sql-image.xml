@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.embed.mapper.ImageMapper">
+
+    <!-- 1. 리뷰 ID 기준 이미지 조회 -->
+    <select id="findByReviewId" parameterType="long" resultType="org.embed.dto.ImageDTO">
+        <![CDATA[
+            SELECT 
+                i.id,
+                i.review_id,
+                i.file_name,
+                i.file_url,
+                i.file_type,
+                i.created_at
+            FROM image i
+            WHERE i.review_id = #{reviewId}
+            ORDER BY i.created_at ASC
+        ]]>
+    </select>
+
+    <!-- 2. 특정 레스토랑의 전체 리뷰 이미지 조회 -->
+    <select id="findAllByRestaurantId" parameterType="long" resultType="org.embed.dto.ImageDTO">
+        <![CDATA[
+            SELECT 
+                i.id,
+                i.review_id,
+                r.restaurant_id,
+                i.file_name,
+                i.file_url,
+                i.file_type,
+                i.created_at
+            FROM image i
+            INNER JOIN review r ON i.review_id = r.id
+            WHERE r.restaurant_id = #{restaurantId}
+            ORDER BY i.created_at DESC
+        ]]>
+    </select>
+
+    <!-- 3. 특정 레스토랑의 최신 10장만 조회 (메인 썸네일용) -->
+    <select id="findRecent10ByRestaurantId" parameterType="long" resultType="org.embed.dto.ImageDTO">
+        <![CDATA[
+            SELECT 
+                i.id,
+                i.review_id,
+                r.restaurant_id,
+                i.file_name,
+                i.file_url,
+                i.file_type,
+                i.created_at
+            FROM image i
+            INNER JOIN review r ON i.review_id = r.id
+            WHERE r.restaurant_id = #{restaurantId}
+            ORDER BY i.created_at DESC
+            LIMIT 10
+        ]]>
+    </select>
+
+    <!-- 4. 이미지 등록 -->
+    <insert id="insertImage" parameterType="org.embed.dto.ImageDTO" useGeneratedKeys="true" keyProperty="id">
+        <![CDATA[
+            INSERT INTO image (
+                review_id,
+                file_name,
+                file_url,
+                file_type
+            ) VALUES (
+                #{reviewId},
+                #{fileName},
+                #{fileUrl},
+                #{fileType}
+            )
+        ]]>
+    </insert>
+    
+    <!-- 5. 이미지 교체 (수정) -->
+    <update id="updateImage" parameterType="org.embed.dto.ImageDTO">
+        <![CDATA[
+            UPDATE image
+            SET 
+                file_name = #{fileName},
+                file_url = #{fileUrl},
+                file_type = #{fileType},
+                created_at = CURRENT_TIMESTAMP
+            WHERE id = #{id}
+        ]]>
+    </update>
+
+    <!-- 6. 단일 이미지 삭제 -->
+    <delete id="deleteImageById" parameterType="long">
+        <![CDATA[
+            DELETE FROM image
+            WHERE id = #{id}
+        ]]>
+    </delete>
+
+    <!-- 7. 특정 리뷰의 모든 이미지 삭제 -->
+    <delete id="deleteImagesByReviewId" parameterType="long">
+        <![CDATA[
+            DELETE FROM image
+            WHERE review_id = #{reviewId}
+        ]]>
+    </delete>
+
+</mapper>

@@ -1,4 +1,4 @@
-package org.embed;
+package org.embed.mappertest;
 
 import java.util.List;
 

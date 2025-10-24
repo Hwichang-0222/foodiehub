@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.embed.mapper.BoardMapper">
+
+    <!-- 전체 게시글 목록 (공지 상단 고정) -->
+    <select id="findAll" resultType="org.embed.dto.BoardDTO">
+        <![CDATA[
+            SELECT 
+                b.*, 
+                u.name AS user_name
+            FROM board b
+            INNER JOIN user u ON b.user_id = u.id
+            WHERE b.parent_id IS NULL
+            ORDER BY 
+                CASE WHEN b.category = 'NOTICE' THEN 0 ELSE 1 END,
+                b.created_at DESC
+            LIMIT #{offset}, #{limit}
+        ]]>
+    </select>
+
+    <!-- 단일 게시글 조회 -->
+    <select id="findById" parameterType="long" resultType="org.embed.dto.BoardDTO">
+        <![CDATA[
+            SELECT 
+                b.*, 
+                u.name AS user_name
+            FROM board b
+            INNER JOIN user u ON b.user_id = u.id
+            WHERE b.id = #{id}
+        ]]>
+    </select>
+
+    <!-- 특정 사용자의 게시글 목록 -->
+    <select id="findByUserId" parameterType="long" resultType="org.embed.dto.BoardDTO">
+        <![CDATA[
+            SELECT 
+                b.*, 
+                u.name AS user_name
+            FROM board b
+            INNER JOIN user u ON b.user_id = u.id
+            WHERE b.user_id = #{userId}
+            ORDER BY b.created_at DESC
+        ]]>
+    </select>
+
+    <!-- 게시글 등록 -->
+    <insert id="insertBoard" parameterType="org.embed.dto.BoardDTO" useGeneratedKeys="true" keyProperty="id">
+        <![CDATA[
+            INSERT INTO board (
+                user_id, 
+                title, 
+                content, 
+                category, 
+                is_private
+            ) VALUES (
+                #{userId}, 
+                #{title}, 
+                #{content}, 
+                #{category}, 
+                #{isPrivate}
+            )
+        ]]>
+    </insert>
+
+    <!-- 게시글 수정 (작성자만 가능) -->
+    <update id="updateBoard" parameterType="org.embed.dto.BoardDTO">
+        <![CDATA[
+            UPDATE board
+            SET 
+                title = #{title},
+                content = #{content},
+                category = #{category},
+                updated_at = CURRENT_TIMESTAMP
+            WHERE id = #{id}
+              AND user_id = #{userId}
+        ]]>
+    </update>
+
+    <!-- 게시글 삭제 -->
+    <delete id="deleteBoard" parameterType="long">
+        <![CDATA[
+            DELETE FROM board
+            WHERE id = #{id}
+        ]]>
+    </delete>
+
+    <!-- 관리자 답변 등록 (댓글 구조) -->
+    <insert id="insertAdminReply" parameterType="org.embed.dto.BoardDTO">
+        <![CDATA[
+            INSERT INTO board (
+                user_id, 
+                parent_id, 
+                title, 
+                content, 
+                category
+            ) VALUES (
+                #{userId}, 
+                #{parentId}, 
+                '관리자 답변', 
+                #{content}, 
+                'NOTICE'
+            )
+        ]]>
+    </insert>
+
+    <!-- 게시글 검색 (카테고리, 제목, 작성자명) -->
+    <select id="searchBoard" resultType="org.embed.dto.BoardDTO">
+        <![CDATA[
+            SELECT 
+                b.*, 
+                u.name AS user_name
+            FROM board b
+            INNER JOIN user u ON b.user_id = u.id
+            WHERE b.parent_id IS NULL
+              AND (#{category} IS NULL OR b.category = #{category})
+              AND (
+                    b.title LIKE CONCAT('%', #{keyword}, '%')
+                    OR u.name LIKE CONCAT('%', #{keyword}, '%')
+                  )
+            ORDER BY 
+                CASE WHEN b.category = 'NOTICE' THEN 0 ELSE 1 END,
+                b.created_at DESC
+            LIMIT #{offset}, #{limit}
+        ]]>
+    </select>
+
+    <!-- 게시글 총 개수 (페이지네이션용) -->
+    <select id="countBoards" resultType="int">
+        <![CDATA[
+            SELECT COUNT(*)
+            FROM board b
+            INNER JOIN user u ON b.user_id = u.id
+            WHERE b.parent_id IS NULL
+              AND (#{category} IS NULL OR b.category = #{category})
+              AND (
+                    b.title LIKE CONCAT('%', #{keyword}, '%')
+                    OR u.name LIKE CONCAT('%', #{keyword}, '%')
+                  )
+        ]]>
+    </select>
+
+</mapper>

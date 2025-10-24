@@ -1,4 +1,4 @@
-package org.embed;
+package org.embed.mappertest;
 
 import org.embed.dto.BoardDTO;
 import org.embed.mapper.BoardMapper;
