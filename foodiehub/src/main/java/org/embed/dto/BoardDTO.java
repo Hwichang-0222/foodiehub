@@ -14,7 +14,7 @@ public class BoardDTO {
     private Boolean isPrivate;    // 문의/건의 비공개 여부
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-
+    private int viewCount;
     // join용
     private String userName;
 }
