@@ -31,7 +31,7 @@ class UserMapperTest {
     @Order(1)
     void testInsertUser() {
         UserDTO user = new UserDTO();
-        user.setEmail("mapper_test@example.com");
+        user.setEmail("3mapper_test@example.com");
         user.setPassword("1234");
         user.setName("매퍼테스트유저");
         user.setProfileImageUrl("https://example.com/test.png");
@@ -51,7 +51,7 @@ class UserMapperTest {
     void testFindById() {
         UserDTO user = userMapper.findById(testUserId);
         assertNotNull(user);
-        assertEquals("mapper_test@example.com", user.getEmail());
+        assertEquals("3mapper_test@example.com", user.getEmail());
         System.out.println("findById 결과: " + user);
     }
 
@@ -59,7 +59,7 @@ class UserMapperTest {
     @Test
     @Order(3)
     void testFindByEmail() {
-        UserDTO user = userMapper.findByEmail("mapper_test@example.com");
+        UserDTO user = userMapper.findByEmail("3mapper_test@example.com");
         assertNotNull(user);
         assertEquals("매퍼테스트유저", user.getName());
         System.out.println("findByEmail 결과: " + user);
@@ -91,7 +91,7 @@ class UserMapperTest {
     @Test
     @Order(6)
     void testCountByEmail() {
-        int count = userMapper.countByEmail("mapper_test@example.com");
+        int count = userMapper.countByEmail("3mapper_test@example.com");
         assertTrue(count > 0);
         System.out.println("countByEmail 결과: " + count);
     }
@@ -100,9 +100,9 @@ class UserMapperTest {
     @Test
     @Order(7)
     void testValidateLogin() {
-        UserDTO user = userMapper.validateLogin("mapper_test@example.com", "1234");
+        UserDTO user = userMapper.validateLogin("3mapper_test@example.com", "1234");
         assertNotNull(user);
-        assertEquals("mapper_test@example.com", user.getEmail());
+        assertEquals("3mapper_test@example.com", user.getEmail());
         System.out.println("validateLogin 결과: " + user.getEmail());
     }
 

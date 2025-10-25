@@ -19,7 +19,7 @@ class ImageMapperTest {
     @Autowired
     private ImageMapper imageMapper;
 
-    private static Long testReviewId = 14L; // 실제 존재하는 리뷰 ID
+    private static Long testReviewId = 7L; // 실제 존재하는 리뷰 ID
     private static Long testRestaurantId = 1L; // 실제 존재하는 레스토랑 ID
     private static Long insertedImageId;
 

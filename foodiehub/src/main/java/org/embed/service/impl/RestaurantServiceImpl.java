@@ -1,21 +1,22 @@
 package org.embed.service.impl;
 
-import java.util.List;
+import lombok.RequiredArgsConstructor;
 import org.embed.dto.RestaurantDTO;
 import org.embed.mapper.RestaurantMapper;
 import org.embed.service.RestaurantService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
+@RequiredArgsConstructor
 public class RestaurantServiceImpl implements RestaurantService {
 
-    @Autowired
-    private RestaurantMapper restaurantMapper;
+    private final RestaurantMapper restaurantMapper;
 
     @Override
-    public List<RestaurantDTO> findAll() {
-        return restaurantMapper.findAll();
+    public List<RestaurantDTO> findAll(int offset, int limit) {
+        return restaurantMapper.findAll(offset, limit);
     }
 
     @Override
@@ -39,12 +40,17 @@ public class RestaurantServiceImpl implements RestaurantService {
     }
 
     @Override
-    public List<RestaurantDTO> findByFilter(String region, String category) {
-        return restaurantMapper.findByFilter(region, category);
+    public List<RestaurantDTO> findByFilter(String region, String category, int offset, int limit) {
+        return restaurantMapper.findByFilter(region, category, offset, limit);
     }
-    
+
     @Override
-    public List<RestaurantDTO> findByName(String keyword) {
-        return restaurantMapper.findByName(keyword);
+    public List<RestaurantDTO> findByName(String keyword, int offset, int limit) {
+        return restaurantMapper.findByName(keyword, offset, limit);
+    }
+
+    @Override
+    public int countRestaurants() {
+        return restaurantMapper.countRestaurants();
     }
 }

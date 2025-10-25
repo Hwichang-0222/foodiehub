@@ -36,4 +36,7 @@ public interface ReviewMapper {
     List<ReviewDTO> findPagedReviews(@Param("restaurantId") Long restaurantId,
                                      @Param("offset") int offset,
                                      @Param("limit") int limit);
+
+    // 10. 맛집별 평균 별점
+    Double findAverageRating(@Param("restaurantId") Long restaurantId);
 }

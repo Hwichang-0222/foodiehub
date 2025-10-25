@@ -8,24 +8,36 @@ import org.embed.dto.RestaurantDTO;
 @Mapper
 public interface RestaurantMapper {
 
-	// 1️. 전체 맛집 목록 조회
-	List<RestaurantDTO> findAll();
+    // 1. 전체 맛집 조회 (페이지네이션)
+    List<RestaurantDTO> findAll(@Param("offset") int offset, @Param("limit") int limit);
 
-	// 2️. 개별 맛집 조회 (id)
-	RestaurantDTO findById(Long id);
+    // 2. 개별 맛집 조회
+    RestaurantDTO findById(@Param("id") Long id);
 
-	// 3️. 맛집 등록
-	int insertRestaurant(RestaurantDTO restaurant);
+    // 3. 맛집 등록
+    int insertRestaurant(RestaurantDTO restaurant);
 
-	// 4️. 맛집 수정
-	int updateRestaurant(RestaurantDTO restaurant);
+    // 4. 맛집 수정
+    int updateRestaurant(RestaurantDTO restaurant);
 
-	// 5️. 맛집 삭제
-	int deleteRestaurant(Long id);
+    // 5. 맛집 삭제
+    int deleteRestaurant(@Param("id") Long id);
 
-	// 6️. 지역별 검색
-	List<RestaurantDTO> findByFilter(@Param("region") String region, @Param("category") String category);
-	
-	// 7. 이름으로 검색 (부분 검색 포함)
-	List<RestaurantDTO> findByName(@Param("keyword") String keyword);
+    // 6. 지역 / 카테고리 기반 검색 (페이지네이션)
+    List<RestaurantDTO> findByFilter(
+            @Param("region") String region,
+            @Param("category") String category,
+            @Param("offset") int offset,
+            @Param("limit") int limit
+    );
+
+    // 7. 이름 검색 (페이지네이션)
+    List<RestaurantDTO> findByName(
+            @Param("keyword") String keyword,
+            @Param("offset") int offset,
+            @Param("limit") int limit
+    );
+
+    // 8. 총 개수 조회
+    int countRestaurants();
 }

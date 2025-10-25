@@ -23,7 +23,7 @@ class ImageServiceTest {
     private ImageService imageService;
 
     private static Long testImageId;
-    private static Long testReviewId = 1L;       // DB에 존재하는 리뷰 ID 사용
+    private static Long testReviewId = 7L;       // DB에 존재하는 리뷰 ID 사용
     private static Long testRestaurantId = 1L;   // DB에 존재하는 식당 ID 사용
 
     @Test

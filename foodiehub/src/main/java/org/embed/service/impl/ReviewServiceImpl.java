@@ -1,18 +1,17 @@
 package org.embed.service.impl;
 
-import java.util.List;
-
+import lombok.RequiredArgsConstructor;
 import org.embed.dto.ReviewDTO;
 import org.embed.mapper.ReviewMapper;
 import org.embed.service.ReviewService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class ReviewServiceImpl implements ReviewService {
 
-    @Autowired
-    private ReviewMapper reviewMapper;
+    private final ReviewMapper reviewMapper;
 
     @Override
     public List<ReviewDTO> findByRestaurantId(Long restaurantId) {
@@ -20,8 +19,13 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
-    public ReviewDTO findById(Long id) {
-        return reviewMapper.findById(id);
+    public ReviewDTO findReviewWithUser(Long id) {
+        return reviewMapper.findReviewWithUser(id);
+    }
+
+    @Override
+    public List<ReviewDTO> findRepliesByParentId(Long parentId) {
+        return reviewMapper.findRepliesByParentId(parentId);
     }
 
     @Override
@@ -30,8 +34,8 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
-    public int insertReply(ReviewDTO review) {
-        return reviewMapper.insertReply(review);
+    public int insertReply(ReviewDTO reply) {
+        return reviewMapper.insertReply(reply);
     }
 
     @Override
@@ -45,17 +49,17 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
-    public List<ReviewDTO> findRepliesByParentId(Long parentId) {
-        return reviewMapper.findRepliesByParentId(parentId);
-    }
-
-    @Override
     public List<ReviewDTO> findTop5Reviews(Long restaurantId) {
         return reviewMapper.findTop5Reviews(restaurantId);
     }
 
     @Override
-    public List<ReviewDTO> findPagedReviews(Long restaurantId, int offset) {
-        return reviewMapper.findPagedReviews(restaurantId, offset);
+    public List<ReviewDTO> findPagedReviews(Long restaurantId, int offset, int limit) {
+        return reviewMapper.findPagedReviews(restaurantId, offset, limit);
+    }
+
+    @Override
+    public Double findAverageRating(Long restaurantId) {
+        return reviewMapper.findAverageRating(restaurantId);
     }
 }

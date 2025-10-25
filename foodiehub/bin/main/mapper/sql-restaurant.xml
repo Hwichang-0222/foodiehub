@@ -109,7 +109,7 @@
     </select>
 
     <!-- 7. 이름으로 검색 (페이지네이션 적용) -->
-    <select id="findByName" parameterType="string" resultType="org.embed.dto.RestaurantDTO">
+    <select id="findByName" resultType="org.embed.dto.RestaurantDTO">
         <![CDATA[
             SELECT 
                 *

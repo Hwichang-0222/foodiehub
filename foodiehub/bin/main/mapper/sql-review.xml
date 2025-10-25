@@ -148,4 +148,15 @@
         ]]>
     </select>
 
+    <!-- 10. 맛집별 평균 별점 -->
+    <select id="findAverageRating" parameterType="long" resultType="double">
+        <![CDATA[
+	        SELECT ROUND(AVG(rating), 1)
+	        FROM review
+	        WHERE restaurant_id = #{restaurantId}
+	          AND is_reply = 0
+	          AND rating IS NOT NULL
+		]]>
+    </select>
+
 </mapper>
