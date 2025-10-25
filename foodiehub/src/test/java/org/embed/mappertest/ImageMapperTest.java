@@ -27,7 +27,7 @@ class ImageMapperTest {
     @Test
     @Order(1)
     void testInsertImage() {
-        System.out.println("🧩 [1] 이미지 등록 테스트");
+        System.out.println("[1] 이미지 등록 테스트");
 
         ImageDTO image = new ImageDTO();
         image.setReviewId(testReviewId);
@@ -46,7 +46,7 @@ class ImageMapperTest {
     @Test
     @Order(2)
     void testFindByReviewId() {
-        System.out.println("🧩 [2] 리뷰별 이미지 조회 테스트");
+        System.out.println("[2] 리뷰별 이미지 조회 테스트");
         List<ImageDTO> images = imageMapper.findByReviewId(testReviewId);
 
         for (ImageDTO img : images) {
@@ -60,7 +60,7 @@ class ImageMapperTest {
     @Test
     @Order(3)
     void testFindAllByRestaurantId() {
-        System.out.println("🧩 [3] 특정 식당의 전체 이미지 조회 테스트");
+        System.out.println("[3] 특정 식당의 전체 이미지 조회 테스트");
         List<ImageDTO> images = imageMapper.findAllByRestaurantId(testRestaurantId);
 
         for (ImageDTO img : images) {
@@ -74,7 +74,7 @@ class ImageMapperTest {
     @Test
     @Order(4)
     void testFindRecent10ByRestaurantId() {
-        System.out.println("🧩 [4] 특정 식당의 최신 이미지 10장 조회 테스트");
+        System.out.println("[4] 특정 식당의 최신 이미지 10장 조회 테스트");
         List<ImageDTO> images = imageMapper.findRecent10ByRestaurantId(testRestaurantId);
 
         for (ImageDTO img : images) {
@@ -98,11 +98,11 @@ class ImageMapperTest {
         Assertions.assertEquals(1, result);
     }
 
-//    @Test
-//    @Order(6)
-//    void testDeleteImageById() {
-//        int result = imageMapper.deleteImageById(insertedImageId);
-//        Assertions.assertEquals(1, result);
-//    }
+    @Test
+    @Order(6)
+    void testDeleteImageById() {
+        int result = imageMapper.deleteImageById(insertedImageId);
+        Assertions.assertEquals(1, result);
+    }
 
 }

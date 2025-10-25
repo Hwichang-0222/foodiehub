@@ -1,18 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper
-	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="org.embed.mapper.RestaurantMapper">
- 
-    <!-- 1. 전체 맛집 조회 -->
+
+    <!-- 1. 전체 맛집 조회 (페이지네이션 적용) -->
     <select id="findAll" resultType="org.embed.dto.RestaurantDTO">
         <![CDATA[
             SELECT 
-            	* 
+                * 
             FROM 
-            	restaurant
+                restaurant
             ORDER BY created_at DESC
+            LIMIT #{offset}, #{limit}
         ]]>
     </select>
 
@@ -20,9 +21,9 @@
     <select id="findById" parameterType="long" resultType="org.embed.dto.RestaurantDTO">
         <![CDATA[
             SELECT
-            	*
+                *
             FROM 
-            	restaurant
+                restaurant
             WHERE id = #{id}
         ]]>
     </select>
@@ -55,8 +56,7 @@
     <!-- 4. 맛집 수정 -->
     <update id="updateRestaurant" parameterType="org.embed.dto.RestaurantDTO">
         <![CDATA[
-            UPDATE 
-            	restaurant
+            UPDATE restaurant
             SET
                 name = #{name},
                 description = #{description},
@@ -73,13 +73,12 @@
     <!-- 5. 맛집 삭제 -->
     <delete id="deleteRestaurant" parameterType="long">
         <![CDATA[
-            DELETE FROM 
-            	restaurant 
+            DELETE FROM restaurant 
             WHERE id = #{id}
         ]]>
     </delete>
 
-    <!-- 지역 / 카테고리 기반 동시 검색 -->
+    <!-- 6. 지역 / 카테고리 기반 검색 (페이지네이션 적용) -->
     <select id="findByFilter" resultType="org.embed.dto.RestaurantDTO">
         <![CDATA[
             SELECT
@@ -105,20 +104,28 @@
         </where>
         <![CDATA[
             ORDER BY created_at DESC
+            LIMIT #{offset}, #{limit}
         ]]>
     </select>
-    
-    <!-- 8. 이름으로 검색 (부분 검색) -->
-	<select id="findByName" parameterType="string" resultType="org.embed.dto.RestaurantDTO">
-	    <![CDATA[
-	        SELECT 
-	        	*
-	        FROM 
-	        	restaurant
-	        WHERE name LIKE CONCAT('%', #{keyword}, '%')
-	        ORDER BY created_at DESC
-	    ]]>
-	</select>
-	
+
+    <!-- 7. 이름으로 검색 (페이지네이션 적용) -->
+    <select id="findByName" parameterType="string" resultType="org.embed.dto.RestaurantDTO">
+        <![CDATA[
+            SELECT 
+                *
+            FROM 
+                restaurant
+            WHERE name LIKE CONCAT('%', #{keyword}, '%')
+            ORDER BY created_at DESC
+            LIMIT #{offset}, #{limit}
+        ]]>
+    </select>
+
+    <!-- 8. 총 개수 조회 (페이지네이션용) -->
+    <select id="countRestaurants" resultType="int">
+        <![CDATA[
+            SELECT COUNT(*) FROM restaurant
+        ]]>
+    </select>
+
 </mapper>
-  

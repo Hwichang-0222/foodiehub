@@ -5,7 +5,7 @@
 
 <mapper namespace="org.embed.mapper.BoardMapper">
 
-    <!-- 전체 게시글 목록 (공지 상단 고정) -->
+    <!-- 1. 전체 게시글 목록 (공지 상단 고정 + 페이지네이션) -->
     <select id="findAll" resultType="org.embed.dto.BoardDTO">
         <![CDATA[
             SELECT 
@@ -21,7 +21,7 @@
         ]]>
     </select>
 
-    <!-- 단일 게시글 조회 -->
+    <!-- 2. 단일 게시글 조회 -->
     <select id="findById" parameterType="long" resultType="org.embed.dto.BoardDTO">
         <![CDATA[
             SELECT 
@@ -33,7 +33,7 @@
         ]]>
     </select>
 
-    <!-- 특정 사용자의 게시글 목록 -->
+    <!-- 3. 특정 사용자 게시글 목록 -->
     <select id="findByUserId" parameterType="long" resultType="org.embed.dto.BoardDTO">
         <![CDATA[
             SELECT 
@@ -46,7 +46,7 @@
         ]]>
     </select>
 
-    <!-- 게시글 등록 -->
+    <!-- 4. 게시글 등록 -->
     <insert id="insertBoard" parameterType="org.embed.dto.BoardDTO" useGeneratedKeys="true" keyProperty="id">
         <![CDATA[
             INSERT INTO board (
@@ -65,7 +65,7 @@
         ]]>
     </insert>
 
-    <!-- 게시글 수정 (작성자만 가능) -->
+    <!-- 5. 게시글 수정 (작성자만 가능) -->
     <update id="updateBoard" parameterType="org.embed.dto.BoardDTO">
         <![CDATA[
             UPDATE board
@@ -79,7 +79,7 @@
         ]]>
     </update>
 
-    <!-- 게시글 삭제 -->
+    <!-- 6. 게시글 삭제 -->
     <delete id="deleteBoard" parameterType="long">
         <![CDATA[
             DELETE FROM board
@@ -87,7 +87,7 @@
         ]]>
     </delete>
 
-    <!-- 관리자 답변 등록 (댓글 구조) -->
+    <!-- 7. 관리자 답변 등록 (댓글 구조) -->
     <insert id="insertAdminReply" parameterType="org.embed.dto.BoardDTO">
         <![CDATA[
             INSERT INTO board (
@@ -106,7 +106,7 @@
         ]]>
     </insert>
 
-    <!-- 게시글 검색 (카테고리, 제목, 작성자명) -->
+    <!-- 8. 게시글 검색 (탭별 카테고리 + 제목/내용/작성자 검색) -->
     <select id="searchBoard" resultType="org.embed.dto.BoardDTO">
         <![CDATA[
             SELECT 
@@ -115,30 +115,47 @@
             FROM board b
             INNER JOIN user u ON b.user_id = u.id
             WHERE b.parent_id IS NULL
-              AND (#{category} IS NULL OR b.category = #{category})
+              AND b.category = #{category}     -- 탭별 구분 (NOTICE, QUESTION, GENERAL, SUGGESTION 등)
               AND (
                     b.title LIKE CONCAT('%', #{keyword}, '%')
+                    OR b.content LIKE CONCAT('%', #{keyword}, '%')
                     OR u.name LIKE CONCAT('%', #{keyword}, '%')
                   )
-            ORDER BY 
-                CASE WHEN b.category = 'NOTICE' THEN 0 ELSE 1 END,
-                b.created_at DESC
+            ORDER BY b.created_at DESC
             LIMIT #{offset}, #{limit}
         ]]>
     </select>
 
-    <!-- 게시글 총 개수 (페이지네이션용) -->
+    <!-- 9. 게시글 총 개수 (검색 포함, 페이지네이션용) -->
     <select id="countBoards" resultType="int">
         <![CDATA[
             SELECT COUNT(*)
             FROM board b
             INNER JOIN user u ON b.user_id = u.id
             WHERE b.parent_id IS NULL
-              AND (#{category} IS NULL OR b.category = #{category})
+              AND b.category = #{category}
               AND (
                     b.title LIKE CONCAT('%', #{keyword}, '%')
+                    OR b.content LIKE CONCAT('%', #{keyword}, '%')
                     OR u.name LIKE CONCAT('%', #{keyword}, '%')
                   )
+        ]]>
+    </select>
+
+    <!-- 10. 카테고리별 게시글 조회 (탭 전환 시 사용) -->
+    <select id="findByCategory" resultType="org.embed.dto.BoardDTO">
+        <![CDATA[
+            SELECT 
+                b.*, 
+                u.name AS user_name
+            FROM board b
+            INNER JOIN user u ON b.user_id = u.id
+            WHERE b.parent_id IS NULL
+              AND b.category = #{category}
+            ORDER BY 
+                CASE WHEN b.category = 'NOTICE' THEN 0 ELSE 1 END,
+                b.created_at DESC
+            LIMIT #{offset}, #{limit}
         ]]>
     </select>
 

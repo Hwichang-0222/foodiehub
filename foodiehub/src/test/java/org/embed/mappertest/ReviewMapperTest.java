@@ -22,11 +22,11 @@ class ReviewMapperTest {
     private static Long testReviewId;
     private static Long testReplyId;
 
-    // ✅ 1. 리뷰 등록 (최상위)
+    // 1. 리뷰 등록 (최상위)
     @Test
     @Order(1)
     void testInsertReview() {
-        System.out.println("🧩 [1] 리뷰 등록 테스트");
+        System.out.println("[1] 리뷰 등록 테스트");
 
         ReviewDTO review = new ReviewDTO();
         review.setRestaurantId(1L); // 존재하는 맛집 ID로 교체
@@ -43,11 +43,11 @@ class ReviewMapperTest {
         Assertions.assertEquals(1, result);
     }
 
-    // ✅ 2. 댓글 등록 (부모는 리뷰)
+    // 2. 댓글 등록 (부모는 리뷰)
     @Test
     @Order(2)
     void testInsertReply() {
-        System.out.println("🧩 [2] 댓글 등록 테스트");
+        System.out.println("[2] 댓글 등록 테스트");
 
         ReviewDTO reply = new ReviewDTO();
         reply.setRestaurantId(1L);
@@ -64,11 +64,11 @@ class ReviewMapperTest {
         Assertions.assertEquals(1, result);
     }
 
-    // ✅ 3. 대댓글 등록 (부모는 댓글)
+    // 3. 대댓글 등록 (부모는 댓글)
     @Test
     @Order(3)
     void testInsertReplyToReply() {
-        System.out.println("🧩 [3] 대댓글 등록 테스트 (2단계까지만 허용)");
+        System.out.println("[3] 대댓글 등록 테스트 (2단계까지만 허용)");
 
         ReviewDTO replyToReply = new ReviewDTO();
         replyToReply.setRestaurantId(1L);
@@ -83,11 +83,11 @@ class ReviewMapperTest {
         Assertions.assertEquals(1, result);
     }
 
-    // ✅ 4. 대대댓글 시도 (차단되어야 함)
+    // 4. 대대댓글 시도 (차단되어야 함)
     @Test
     @Order(4)
     void testInsertReplyToReplyOfReply() {
-        System.out.println("🧩 [4] 대대댓글 등록 테스트 (차단되어야 함)");
+        System.out.println("[4] 대대댓글 등록 테스트 (차단되어야 함)");
 
         // 대댓글의 ID를 가져와 부모로 설정 (3단계)
         ReviewDTO deepReply = new ReviewDTO();
@@ -102,11 +102,11 @@ class ReviewMapperTest {
         Assertions.assertEquals(0, result, "3단계 댓글은 차단되어야 합니다.");
     }
 
-    // ✅ 5. 맛집별 리뷰 조회
+    // 5. 맛집별 리뷰 조회
     @Test
     @Order(5)
     void testFindByRestaurantId() {
-        System.out.println("🧩 [5] 맛집별 리뷰 조회 테스트");
+        System.out.println("[5] 맛집별 리뷰 조회 테스트");
 
         List<ReviewDTO> reviews = reviewMapper.findByRestaurantId(1L);
         reviews.forEach(r ->
@@ -116,11 +116,11 @@ class ReviewMapperTest {
         Assertions.assertFalse(reviews.isEmpty());
     }
 
-    // ✅ 6. 댓글 조회
+    // 6. 댓글 조회
     @Test
     @Order(6)
     void testFindRepliesByParentId() {
-        System.out.println("🧩 [6] 댓글 조회 테스트");
+        System.out.println("[6] 댓글 조회 테스트");
 
         List<ReviewDTO> replies = reviewMapper.findRepliesByParentId(testReviewId);
         replies.forEach(r ->
@@ -129,11 +129,11 @@ class ReviewMapperTest {
         Assertions.assertFalse(replies.isEmpty());
     }
 
-    // ✅ 7. 최신 리뷰 5개 (뷰용)
+    // 7. 최신 리뷰 5개 (뷰용)
     @Test
     @Order(7)
     void testFindTop5Reviews() {
-        System.out.println("🧩 [7] 최신 리뷰 5개 조회 테스트");
+        System.out.println("[7] 최신 리뷰 5개 조회 테스트");
         List<ReviewDTO> topReviews = reviewMapper.findTop5Reviews(1L);
         topReviews.forEach(r ->
                 System.out.printf("리뷰 ID: %d, 작성자: %s, 별점: %d%n",
@@ -141,11 +141,11 @@ class ReviewMapperTest {
         );
     }
 
-    // ✅ 8. 리뷰 수정
+    // 8. 리뷰 수정
     @Test
     @Order(8)
     void testUpdateReview() {
-        System.out.println("🧩 [8] 리뷰 수정 테스트");
+        System.out.println("[8] 리뷰 수정 테스트");
 
         ReviewDTO review = new ReviewDTO();
         review.setId(testReviewId);
@@ -157,14 +157,14 @@ class ReviewMapperTest {
         Assertions.assertEquals(1, result);
     }
 
-//    // ✅ 9. 리뷰 삭제
-//    @Test
-//    @Order(9)
-//    void testDeleteReview() {
-//        System.out.println("🧩 [9] 리뷰 삭제 테스트");
-//
-//        int result = reviewMapper.deleteReview(testReviewId);
-//        System.out.println("삭제 결과: " + result);
-//        Assertions.assertEquals(1, result);
-//    }
+    // 9. 리뷰 삭제
+    @Test
+    @Order(9)
+    void testDeleteReview() {
+        System.out.println("[9] 리뷰 삭제 테스트");
+
+        int result = reviewMapper.deleteReview(testReviewId);
+        System.out.println("삭제 결과: " + result);
+        Assertions.assertEquals(1, result);
+    }
 }
