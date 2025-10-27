@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${restaurant.name} + ' - 상세 정보'">맛집 상세</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+	
+	<!-- 공통 헤더 -->
+	<div th:replace="layout/header :: header"></div>
+
+	<div class="restaurant-detail">
+
+	    <!-- 왼쪽: 이미지 + 기본 정보 -->
+	    <div class="detail-left">
+	        <img th:src="${restaurant.mainImageUrl}" alt="대표 이미지">
+	        <div class="basic-info">
+	            <h2 th:text="${restaurant.name}"></h2>
+	            <p><strong>카테고리:</strong> <span th:text="${restaurant.category}"></span></p>
+	            <p><strong>지역:</strong> <span th:text="${restaurant.region}"></span></p>
+	            <p><strong>주소:</strong> <span th:text="${restaurant.address}"></span></p>
+	            <div class="stats">
+	                ⭐ 평균 별점: <span th:text="${restaurant.avgRating}">0.0</span><br>
+	                💬 리뷰 수: <span th:text="${restaurant.reviewCount}">0</span>
+	            </div>
+	        </div>
+	    </div>
+	
+	    <!-- 오른쪽: 탭 구조 -->
+	    <div class="detail-right">
+	        <div class="tabs">
+	            <div class="tab active" data-tab="detail">상세</div>
+		        <div class="tab" data-tab="reviews">리뷰</div>
+		        <div class="tab" data-tab="write">리뷰작성</div>
+		        <div class="tab" data-tab="gallery">이미지</div>
+		        <div class="tab" data-tab="map">지도</div>
+	        </div>
+	
+			<!-- 상세 -->
+		    <div id="detail" class="tab-content active">
+		        <div class="detail-box">
+		            <h3>가게 설명</h3>
+		            <p th:text="${restaurant.description}">식당 설명이 없습니다.</p>
+		            <hr>
+		            <p><strong>주소:</strong> <span th:text="${restaurant.address}"></span></p>
+		            <p><strong>지역:</strong> <span th:text="${restaurant.region}"></span></p>
+		            <p><strong>카테고리:</strong> <span th:text="${restaurant.category}"></span></p>
+		        </div>
+		    </div>
+		
+		    <!-- 리뷰 -->
+		    <div id="reviews" class="tab-content">
+		        <div th:if="${#lists.isEmpty(reviews)}">
+		            <p>등록된 리뷰가 없습니다.</p>
+		        </div>
+		        <div th:each="review : ${reviews}" class="review-card">
+		            <p th:text="${review.content}"></p>
+		            <small th:text="${#temporals.format(review.createdAt, 'yyyy-MM-dd HH:mm')}"></small>
+		        </div>
+		    </div>
+		
+		    <!-- 리뷰 작성 -->
+		    <div id="write" class="tab-content">
+		        <form th:action="@{/review/write}" method="post" enctype="multipart/form-data">
+		            <input type="hidden" name="restaurantId" th:value="${restaurant.id}">
+		            <div class="review-form">
+		                <label>별점</label>
+		                <select name="rating" required>
+		                    <option value="5">★★★★★</option>
+		                    <option value="4">★★★★☆</option>
+		                    <option value="3">★★★☆☆</option>
+		                    <option value="2">★★☆☆☆</option>
+		                    <option value="1">★☆☆☆☆</option>
+		                </select>
+		
+		                <label>리뷰 내용</label>
+		                <textarea name="content" rows="5" placeholder="리뷰를 입력하세요" required></textarea>
+		                
+		                <label>이미지 업로드</label>
+						<input type="file" name="files" multiple accept="image/*">
+		                
+		                <button type="submit" class="submit-btn">등록하기</button>
+		            </div>
+		        </form>
+		    </div>
+		
+		    <!-- 이미지 -->
+		    <div id="gallery" class="tab-content">
+		        <div th:if="${#lists.isEmpty(images)}">
+		            <p>등록된 이미지가 없습니다.</p>
+		        </div>
+		        <div class="gallery">
+		            <img th:each="img : ${images}" th:src="${img.fileUrl}" alt="리뷰 이미지">
+		        </div>
+		    </div>
+		
+		    <!-- 지도 -->
+		    <div id="map" class="tab-content"></div>
+		</div>
+	</div>
+
+	<!-- 공통 푸터 -->
+    <div th:replace="layout/footer :: footer"></div>
+
+	<!-- 네이버 지도 SDK -->
+	<script 
+	    type="text/javascript"
+	    src="https://openapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=n7nbab23et">
+	</script>
+	
+	<!-- 탭 전환 + 지도 렌더링 -->
+	<script type="text/javascript">
+	    const tabs = document.querySelectorAll('.tab');
+	    const contents = document.querySelectorAll('.tab-content');
+	
+	    tabs.forEach(tab => {
+	        tab.addEventListener('click', () => {
+	            tabs.forEach(t => t.classList.remove('active'));
+	            contents.forEach(c => c.classList.remove('active'));
+	            tab.classList.add('active');
+	            document.getElementById(tab.dataset.tab).classList.add('active');
+	
+	            // 지도 탭 클릭 시 지도 렌더링
+	            if (tab.dataset.tab === 'map') {
+	                initMap();
+	            }
+	        });
+	    });
+	</script>
+	
+	<!-- 지도 초기화 함수 -->
+	<script th:inline="javascript" type="text/javascript">
+	    function initMap() {
+	        const lat = [[${restaurant.latitude}]];
+	        const lng = [[${restaurant.longitude}]];
+	        const name = /*[[${restaurant.name}]]*/ '식당명';
+	
+	        const map = new naver.maps.Map('map', {
+	            center: new naver.maps.LatLng(lat, lng),
+	            zoom: 16,
+	            zoomControl: true,
+	            mapTypeControl: true
+	        });
+	
+	        const marker = new naver.maps.Marker({
+	            position: new naver.maps.LatLng(lat, lng),
+	            map: map,
+	            title: name
+	        });
+	
+	        const infoWindow = new naver.maps.InfoWindow({
+	            content: `<div style="padding:10px;font-size:14px;">
+	                        <b>${name}</b><br>
+	                        위도: ${lat.toFixed(4)}, 경도: ${lng.toFixed(4)}
+	                      </div>`
+	        });
+	
+	        // 마커 클릭 시 말풍선 열기
+	        naver.maps.Event.addListener(marker, 'click', () => {
+	            infoWindow.open(map, marker);
+	        });
+	
+	        // 탭 전환 후 지도 리사이즈
+	        setTimeout(() => { naver.maps.Event.trigger(map, 'resize'); }, 300);
+	    }
+	</script>
+</body>
+</html>
