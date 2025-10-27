@@ -10,7 +10,7 @@
         <![CDATA[
             SELECT 
                 r.*, 
-                ROUND(AVG(rv.rating), 1) AS avg_rating
+                COALESCE(ROUND(AVG(rv.rating), 1), 0) AS avg_rating
             FROM 
                 restaurant r
             LEFT JOIN review rv ON r.id = rv.restaurant_id
@@ -23,18 +23,23 @@
     <!-- 2. 개별 맛집 조회 -->
     <select id="findById" parameterType="long" resultType="org.embed.dto.RestaurantDTO">
         <![CDATA[
-            SELECT
-                *
-            FROM 
-                restaurant
-            WHERE id = #{id}
-        ]]>
+	        SELECT
+	            r.*,
+	            COALESCE(ROUND(AVG(rv.rating), 1), 0) AS avg_rating,
+				COALESCE(COUNT(rv.id), 0) AS review_count
+	        FROM 
+	            restaurant r
+	        LEFT JOIN review rv ON r.id = rv.restaurant_id
+	        WHERE r.id = #{id}
+	        GROUP BY r.id
+	    ]]>
     </select>
 
     <!-- 3. 맛집 등록 -->
     <insert id="insertRestaurant" parameterType="org.embed.dto.RestaurantDTO" useGeneratedKeys="true" keyProperty="id">
         <![CDATA[
             INSERT INTO restaurant (
+                owner_id,
                 name, 
                 description, 
                 address, 
@@ -44,6 +49,7 @@
                 longitude, 
                 main_image_url
             ) VALUES (
+            	#{ownerId},
                 #{name}, 
                 #{description}, 
                 #{address}, 
@@ -86,7 +92,7 @@
         <![CDATA[
             SELECT 
                 r.*, 
-                ROUND(AVG(rv.rating), 1) AS avg_rating
+                COALESCE(ROUND(AVG(rv.rating), 1), 0) AS avg_rating
             FROM 
                 restaurant r
             LEFT JOIN review rv ON r.id = rv.restaurant_id
