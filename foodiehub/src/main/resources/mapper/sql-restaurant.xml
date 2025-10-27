@@ -5,14 +5,17 @@
 
 <mapper namespace="org.embed.mapper.RestaurantMapper">
 
-    <!-- 1. 전체 맛집 조회 (페이지네이션 적용) -->
+    <!-- 1. 전체 맛집 조회 (평균 별점 포함) -->
     <select id="findAll" resultType="org.embed.dto.RestaurantDTO">
         <![CDATA[
             SELECT 
-                * 
+                r.*, 
+                ROUND(AVG(rv.rating), 1) AS avg_rating
             FROM 
-                restaurant
-            ORDER BY created_at DESC
+                restaurant r
+            LEFT JOIN review rv ON r.id = rv.restaurant_id
+            GROUP BY r.id
+            ORDER BY r.name ASC
             LIMIT #{offset}, #{limit}
         ]]>
     </select>
@@ -78,54 +81,98 @@
         ]]>
     </delete>
 
-    <!-- 6. 지역 / 카테고리 기반 검색 (페이지네이션 적용) -->
+    <!-- 6. 필터 검색 (카테고리 / 지역 / 키워드 / 기타 포함, 평균 별점 포함) -->
     <select id="findByFilter" resultType="org.embed.dto.RestaurantDTO">
         <![CDATA[
-            SELECT
-                id,
-                name,
-                description,
-                address,
-                region,
-                category,
-                latitude,
-                longitude,
-                main_image_url,
-                created_at
-            FROM restaurant
+            SELECT 
+                r.*, 
+                ROUND(AVG(rv.rating), 1) AS avg_rating
+            FROM 
+                restaurant r
+            LEFT JOIN review rv ON r.id = rv.restaurant_id
         ]]>
         <where>
-            <if test="region != null and region != ''">
-                AND region = #{region}
-            </if>
-            <if test="category != null and category != ''">
-                AND category = #{category}
+            <!-- 지역 필터 -->
+            <choose>
+                <when test="region == '기타'">
+                    r.region NOT IN (
+                        '서울','부산','대구','인천','광주','대전','울산','세종',
+                        '경기','강원','충북','충남','전북','전남','경북','경남','제주'
+                    )
+                </when>
+                <otherwise>
+                    <if test="region != null and region != ''">
+                        r.region = #{region}
+                    </if>
+                </otherwise>
+            </choose>
+
+            <!-- 카테고리 필터 -->
+            <choose>
+                <when test="category == '기타'">
+                    AND r.category NOT IN (
+                        '한식','중식','일식','양식','분식',
+                        '패스트푸드','카페','디저트','고기','해산물','술집'
+                    )
+                </when>
+                <otherwise>
+                    <if test="category != null and category != ''">
+                        AND r.category = #{category}
+                    </if>
+                </otherwise>
+            </choose>
+
+            <!-- 키워드 (이름 검색) -->
+            <if test="keyword != null and keyword != ''">
+                AND r.name LIKE CONCAT('%', #{keyword}, '%')
             </if>
         </where>
         <![CDATA[
-            ORDER BY created_at DESC
+            GROUP BY r.id
+            ORDER BY r.name ASC
             LIMIT #{offset}, #{limit}
         ]]>
     </select>
 
-    <!-- 7. 이름으로 검색 (페이지네이션 적용) -->
-    <select id="findByName" resultType="org.embed.dto.RestaurantDTO">
+    <!-- 7. 검색 결과 총 개수 (카테고리 / 지역 / 키워드 / 기타 포함) -->
+    <select id="countByFilter" resultType="int">
         <![CDATA[
-            SELECT 
-                *
-            FROM 
-                restaurant
-            WHERE name LIKE CONCAT('%', #{keyword}, '%')
-            ORDER BY created_at DESC
-            LIMIT #{offset}, #{limit}
+            SELECT COUNT(*) 
+            FROM restaurant r
         ]]>
-    </select>
+        <where>
+            <choose>
+                <when test="region == '기타'">
+                    r.region NOT IN (
+                        '서울','부산','대구','인천','광주','대전','울산','세종',
+                        '경기','강원','충북','충남','전북','전남','경북','경남','제주'
+                    )
+                </when>
+                <otherwise>
+                    <if test="region != null and region != ''">
+                        r.region = #{region}
+                    </if>
+                </otherwise>
+            </choose>
 
-    <!-- 8. 총 개수 조회 (페이지네이션용) -->
-    <select id="countRestaurants" resultType="int">
-        <![CDATA[
-            SELECT COUNT(*) FROM restaurant
-        ]]>
+            <choose>
+                <when test="category == '기타'">
+                    AND r.category NOT IN (
+                        '한식','중식','일식','양식','분식',
+                        '패스트푸드','카페','디저트','고기','해산물','술집'
+                    )
+                </when>
+                <otherwise>
+                    <if test="category != null and category != ''">
+                        AND r.category = #{category}
+                    </if>
+                </otherwise>
+            </choose>
+
+            <if test="keyword != null and keyword != ''">
+                AND r.name LIKE CONCAT('%', #{keyword}, '%')
+            </if>
+        </where>
     </select>
 
 </mapper>

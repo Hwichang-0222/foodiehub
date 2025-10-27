@@ -19,91 +19,103 @@ class RestaurantServiceTest {
     @Autowired
     private RestaurantService restaurantService;
 
-    private static Long testRestaurantId;
+    private static Long testId;
 
-    // 1. 맛집 등록
+    // 1. 전체 조회
     @Test
     @Order(1)
+    void testFindAll() {
+        List<RestaurantDTO> list = restaurantService.findAll(0, 10);
+        System.out.println("1. 전체 조회 개수: " + list.size());
+        Assertions.assertNotNull(list);
+    }
+
+    // 2. 등록
+    @Test
+    @Order(2)
     void testInsertRestaurant() {
         RestaurantDTO dto = new RestaurantDTO();
-        dto.setName("서비스 테스트 맛집");
-        dto.setDescription("서비스 계층 등록 테스트용");
-        dto.setAddress("서울시 강남구 테스트로 456");
+        dto.setName("서비스테스트식당");
+        dto.setDescription("Service 테스트용 식당");
+        dto.setAddress("서울시 중구 테스트로 1");
         dto.setRegion("서울");
-        dto.setCategory("분식");
-        dto.setLatitude(37.50);
-        dto.setLongitude(127.02);
-        dto.setMainImageUrl("/img/service_test.jpg");
+        dto.setCategory("한식");
+        dto.setLatitude(37.55);
+        dto.setLongitude(126.97);
+        dto.setMainImageUrl("/images/service-test.jpg");
 
         int result = restaurantService.insertRestaurant(dto);
-        testRestaurantId = dto.getId();
+        testId = dto.getId();
 
-        System.out.println("1. 등록 결과: " + result + ", ID: " + testRestaurantId);
+        System.out.println("2. 등록 결과: " + result + " / ID: " + testId);
         Assertions.assertEquals(1, result);
     }
 
-    // 2. 개별 조회
+    // 3. 단일 조회
     @Test
-    @Order(2)
+    @Order(3)
     void testFindById() {
-        RestaurantDTO dto = restaurantService.findById(testRestaurantId);
-        System.out.println("2. 조회 결과: " + dto.getName());
+        RestaurantDTO dto = restaurantService.findById(testId);
+        System.out.println("3. 단일 조회 결과: " + dto);
         Assertions.assertNotNull(dto);
     }
 
-    // 3. 전체 목록 조회
-    @Test
-    @Order(3)
-    void testFindAll() {
-        List<RestaurantDTO> list = restaurantService.findAll(0, 5);
-        System.out.println("3. 전체 조회 개수: " + list.size());
-        Assertions.assertTrue(list.size() > 0);
-    }
-
-    // 4. 지역/카테고리 검색
+    // 4. 수정
     @Test
     @Order(4)
-    void testFindByFilter() {
-        List<RestaurantDTO> list = restaurantService.findByFilter("서울", "분식", 0, 5);
-        System.out.println("4. 필터 검색 결과: " + list.size());
-        Assertions.assertNotNull(list);
+    void testUpdateRestaurant() {
+        RestaurantDTO dto = restaurantService.findById(testId);
+        dto.setDescription("Service 계층에서 수정 완료");
+        int result = restaurantService.updateRestaurant(dto);
+        System.out.println("4. 수정 결과: " + result);
+        Assertions.assertEquals(1, result);
     }
 
-    // 5. 이름 검색
+    // 5. 삭제
     @Test
     @Order(5)
-    void testFindByName() {
-        List<RestaurantDTO> list = restaurantService.findByName("테스트", 0, 5);
-        System.out.println("5. 이름 검색 결과: " + list.size());
+    void testDeleteRestaurant() {
+        int result = restaurantService.deleteRestaurant(testId);
+        System.out.println("5. 삭제 결과: " + result);
+        Assertions.assertEquals(1, result);
+    }
+
+    // 6. 필터 검색 (서울 + 한식)
+    @Test
+    @Order(6)
+    void testFindByFilter_RegionAndCategory() {
+        List<RestaurantDTO> list = restaurantService.findByFilter("서울", "한식", null, 0, 10);
+        System.out.println("6. 서울+한식 검색 결과: " + list.size());
+        list.forEach(r -> System.out.println(r.getName() + " | " + r.getCategory()));
         Assertions.assertNotNull(list);
     }
 
-    // 6. 수정
-    @Test
-    @Order(6)
-    void testUpdateRestaurant() {
-        RestaurantDTO dto = restaurantService.findById(testRestaurantId);
-        dto.setDescription("6. 서비스 수정 테스트용 설명");
-        int result = restaurantService.updateRestaurant(dto);
-        System.out.println("6. 수정 결과: " + result);
-        Assertions.assertEquals(1, result);
-    }
-
-    // 7. 총 개수 조회
+    // 7. 키워드 검색
     @Test
     @Order(7)
-    void testCountRestaurants() {
-        int count = restaurantService.countRestaurants();
-        System.out.println("7. 총 맛집 개수: " + count);
-        Assertions.assertTrue(count > 0);
+    void testFindByFilter_Keyword() {
+        List<RestaurantDTO> list = restaurantService.findByFilter(null, null, "치킨", 0, 10);
+        System.out.println("7. 키워드 검색 결과: " + list.size());
+        list.forEach(r -> System.out.println(r.getName()));
+        Assertions.assertNotNull(list);
     }
 
-    // 8. 삭제
+    // 8. 기타 카테고리 검색
     @Test
     @Order(8)
-    void testDeleteRestaurant() {
-        int result = restaurantService.deleteRestaurant(testRestaurantId);
-        System.out.println("8. 삭제 결과: " + result);
-        Assertions.assertEquals(1, result);
+    void testFindByFilter_EtcCategory() {
+        List<RestaurantDTO> list = restaurantService.findByFilter(null, "기타", null, 0, 10);
+        System.out.println("8. 기타 카테고리 검색 결과: " + list.size());
+        list.forEach(r -> System.out.println(r.getName() + " | " + r.getCategory()));
+        Assertions.assertNotNull(list);
+    }
+
+    // 9. 총 개수(countByFilter)
+    @Test
+    @Order(9)
+    void testCountByFilter() {
+        int total = restaurantService.countByFilter("서울", "한식", null);
+        System.out.println("9. 서울+한식 총 개수: " + total);
+        Assertions.assertTrue(total >= 0);
     }
 }

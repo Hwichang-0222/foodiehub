@@ -1,14 +1,14 @@
 package org.embed.service;
 
-import org.embed.dto.RestaurantDTO;
 import java.util.List;
+import org.embed.dto.RestaurantDTO;
 
 public interface RestaurantService {
 
     // 1. 전체 맛집 조회 (페이지네이션)
     List<RestaurantDTO> findAll(int offset, int limit);
 
-    // 2. 개별 맛집 조회
+    // 2. 단일 맛집 조회
     RestaurantDTO findById(Long id);
 
     // 3. 맛집 등록
@@ -20,12 +20,9 @@ public interface RestaurantService {
     // 5. 맛집 삭제
     int deleteRestaurant(Long id);
 
-    // 6. 지역 / 카테고리 기반 검색 (페이지네이션)
-    List<RestaurantDTO> findByFilter(String region, String category, int offset, int limit);
+    // 6. 조건 검색 (지역 / 카테고리 / 키워드)
+    List<RestaurantDTO> findByFilter(String region, String category, String keyword, int offset, int limit);
 
-    // 7. 이름 검색 (페이지네이션)
-    List<RestaurantDTO> findByName(String keyword, int offset, int limit);
-
-    // 8. 총 개수 조회
-    int countRestaurants();
+    // 7. 조건 기반 총 개수 조회
+    int countByFilter(String region, String category, String keyword);
 }

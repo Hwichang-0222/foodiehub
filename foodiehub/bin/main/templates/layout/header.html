@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>FoodieHub Header</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+	<header th:fragment="header" id="site-header" class="header">
+	    <nav class="nav-bar">
+	        <!-- 왼쪽: 로고 -->
+	        <div class="nav-logo">
+	            <a href="/" class="nav-logo-link">FoodieHub</a>
+	        </div>
+	
+	        <!-- 가운데: 메뉴 -->
+	        <ul class="nav-menu-center">
+	            <li class="nav-item"><a href="/restaurant/list" class="nav-link">맛집 찾기</a></li>
+	            <li class="nav-item"><a href="/board/list" class="nav-link">커뮤니티</a></li>
+	        </ul>
+	
+	        <!-- 오른쪽: 로그인/회원가입 -->
+	        <ul class="nav-menu-right">
+	            <li class="nav-item" th:if="${session.user == null}">
+	                <a href="/user/login" class="nav-link">로그인</a>
+	            </li>
+	            <li class="nav-item" th:if="${session.user == null}">
+	                <a href="/user/signup" class="nav-link">회원가입</a>
+	            </li>
+	            <li class="nav-item" th:if="${session.user != null}">
+	                <a href="/user/mypage" class="nav-link">마이페이지</a>
+	            </li>
+	            <li class="nav-item" th:if="${session.user != null}">
+	                <a href="/user/logout" class="nav-link">로그아웃</a>
+	            </li>
+	        </ul>
+	    </nav>
+	</header>
+</body>
+</html>

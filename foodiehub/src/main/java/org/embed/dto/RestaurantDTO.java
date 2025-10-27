@@ -16,5 +16,6 @@ public class RestaurantDTO {
 	private Double longitude;
 	private String mainImageUrl;
 	private LocalDateTime createdAt;
+	private Double avgRating;			//별점 평균 계산용
 	
 }
