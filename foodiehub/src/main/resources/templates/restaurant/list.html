@@ -91,17 +91,19 @@
 
             <!-- 오른쪽 리스트 -->
             <section class="restaurant-list">
-                <div th:if="${#lists.isEmpty(restaurants)}" class="restaurant-item">
+                <div th:if="${#lists.isEmpty(restaurants)}" class="no-result">
                     <p>검색 결과가 없습니다.</p>
                 </div>
 
                 <div class="restaurant-item" th:each="r : ${restaurants}">
-                    <img th:src="${r.mainImageUrl}" alt="thumbnail" onerror="this.src='/images/default-thumbnail.png'">
-                    <div class="restaurant-info">
-                        <h4 th:text="${r.name}">식당 이름</h4>
-                        <p th:text="'★ ' + ${r.avgRating} + ' | ' + ${r.category} + ' | ' + ${r.region}"></p>
-                        <p th:text="${r.address}"></p>
-                    </div>
+                	<a th:href="@{'/restaurant/detail/' + ${r.id}}" class="restaurant-link">
+	                    <img th:src="${r.mainImageUrl}" alt="thumbnail" onerror="this.src='/images/default-thumbnail.png'">
+	                    <div class="restaurant-info">
+	                        <h4 th:text="${r.name}">식당 이름</h4>
+	                        <p th:text="'★ ' + ${r.avgRating} + ' | ' + ${r.category} + ' | ' + ${r.region}"></p>
+	                        <p th:text="${r.address}"></p>
+	                    </div>
+                    </a>
                 </div>
                 
                 <!-- 페이지네이션 -->
