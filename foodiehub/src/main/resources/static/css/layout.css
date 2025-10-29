@@ -1,0 +1,39 @@
+@charset "UTF-8";
+/* ------------------------------
+   HEADER
+------------------------------ */
+.header { background-color: #1e2a38; color: #fff; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); }
+.nav-bar { display: flex; justify-content: space-between; align-items: center; padding: 14px 40px; max-width: 1300px; margin: 0 auto; }
+
+/* 로고 */
+.nav-logo-link { font-size: 1.6rem; font-weight: 700; color: #36d1b6; }
+
+/* 중앙 메뉴 */
+.nav-menu-center { list-style: none; display: flex; gap: 40px; position: relative; left: -180px; /* 중앙 메뉴 너무 왼쪽으로 치우친 것 조정 */ }
+.nav-menu-center .nav-link { color: #fff; font-weight: 500; transition: color 0.2s ease; }
+.nav-menu-center .nav-link:hover { color: #36d1b6; }
+
+/* 오른쪽 메뉴 */
+.nav-menu-right { list-style: none; display: flex; align-items: center; gap: 24px; margin: 0; padding: 0; }
+.nav-menu-right li { display: flex; align-items: center; }
+.nav-menu-right .nav-link { color: #fff; font-weight: 500; padding: 8px 14px; border: 1px solid transparent; border-radius: 6px; transition: all 0.2s ease; }
+.nav-menu-right .nav-link:hover { color: #36d1b6; border-color: #36d1b6; }
+
+/* ------------------------------
+   HEADER USER INFO (로그인 표시 + 프로필)
+------------------------------ */
+.login-info { color: #ffffff; font-weight: 500; display: flex; align-items: center; font-size: 0.95rem; opacity: 0.9; }
+
+/* 프로필 + 마이페이지 */
+.user-info { display: flex; align-items: center; gap: 10px; }
+.profile-link { display: flex; align-items: center; gap: 8px; color: #fff; font-weight: 500; transition: color 0.2s ease; }
+.profile-link:hover { color: #36d1b6; }
+.profile-img { width: 34px; height: 34px; border-radius: 50%; object-fit: cover; border: 2px solid #36d1b6; transition: transform 0.2s ease; }
+.profile-img:hover { transform: scale(1.05); }
+
+/* ------------------------------
+   FOOTER
+------------------------------ */
+.footer { background-color: #1e2a38; color: #fff; text-align: center; padding: 24px 0; font-size: 0.95rem; margin-top: 100px; }
+.footer a { color: #36d1b6; font-weight: 500; }
+.footer a:hover { text-decoration: underline; }

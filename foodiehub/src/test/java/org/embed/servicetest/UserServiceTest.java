@@ -29,7 +29,7 @@ class UserServiceTest {
         user.setName("서비스테스트유저");
         user.setProfileImageUrl("https://example.com/profile.png");
         user.setProvider("local");
-        user.setRole(Role.ROLE_USER);
+        user.setRole("ROLE_USER");
         user.setIsDeleted("N");
 
         int result = userService.insertUser(user);
@@ -82,9 +82,9 @@ class UserServiceTest {
     @Test
     @Order(6)
     void testExistsByEmail() {
-        boolean exists = userService.existsByEmail("service_user@example.com");
-        assertTrue(exists);
-        System.out.println("6. existsByEmail: " + exists);
+        int count = userService.countByEmail("service_user@example.com");
+        assertTrue(count == 1);
+        System.out.println("6. existsByEmail: " + (count == 1));
     }
 
     @Test

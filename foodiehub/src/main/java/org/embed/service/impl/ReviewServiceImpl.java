@@ -1,17 +1,17 @@
 package org.embed.service.impl;
 
-import lombok.RequiredArgsConstructor;
+import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.embed.dto.ReviewDTO;
 import org.embed.mapper.ReviewMapper;
 import org.embed.service.ReviewService;
-import org.springframework.stereotype.Service;
-import java.util.List;
 
 @Service
-@RequiredArgsConstructor
 public class ReviewServiceImpl implements ReviewService {
 
-    private final ReviewMapper reviewMapper;
+    @Autowired
+    private ReviewMapper reviewMapper;
 
     @Override
     public List<ReviewDTO> findByRestaurantId(Long restaurantId) {
@@ -61,5 +61,21 @@ public class ReviewServiceImpl implements ReviewService {
     @Override
     public Double findAverageRating(Long restaurantId) {
         return reviewMapper.findAverageRating(restaurantId);
+    }
+
+    // 추가된 메서드
+    @Override
+    public List<ReviewDTO> findByUserId(Long userId) {
+        return reviewMapper.findByUserId(userId);
+    }
+
+    @Override
+    public int countByUserId(Long userId) {
+        return reviewMapper.countByUserId(userId);
+    }
+
+    @Override
+    public List<ReviewDTO> findPagedByUserId(Long userId, int offset, int limit) {
+        return reviewMapper.findPagedByUserId(userId, offset, limit);
     }
 }

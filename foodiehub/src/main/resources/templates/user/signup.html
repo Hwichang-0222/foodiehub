@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>회원가입 | FoodieHub</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <script th:src="@{/js/signup-validation.js}" defer></script>
+</head>
+<body>
+
+    <!-- 공통 헤더 -->
+    <div th:replace="layout/header :: header"></div>
+
+    <!-- 회원가입 메인 영역 -->
+    <main class="signup-main">
+        <section class="signup-container">
+            <h2>회원가입</h2>
+
+            <form id="signupForm" th:action="@{/user/signup}" method="post" th:object="${user}" enctype="multipart/form-data">
+                
+                <!-- 이름 -->
+                <label>이름</label>
+                <input type="text" th:field="*{name}" placeholder="이름을 입력하세요" required>
+
+                <!-- 이메일 -->
+                <label>이메일</label>
+                <div class="inline-input">
+                    <input type="email" th:field="*{email}" id="email" placeholder="example@foodiehub.com" required>
+                    <button type="button" id="checkEmailBtn" class="check-btn">중복확인</button>
+                </div>
+                <small id="emailCheckResult" class="check-result"></small>
+
+                <!-- 비밀번호 -->
+				<!-- 비밀번호 -->
+				<label>비밀번호</label>
+				<div class="password-box">
+				    <input type="password" th:field="*{password}" id="password" placeholder="비밀번호를 입력하세요" required>
+				    <button type="button" id="togglePassword" class="toggle-btn">보기</button>
+				</div>
+				
+				<!-- 비밀번호 확인 -->
+				<label>비밀번호 확인</label>
+				<input type="password" id="passwordConfirm" placeholder="비밀번호를 다시 입력하세요" required>
+				<small id="passwordMatchResult" class="check-result"></small>
+
+
+                <!-- 생년월일 -->
+                <label>생년월일</label>
+                <input type="date" th:field="*{birthDate}" id="birthDate" required>
+
+                <!-- 성별 -->
+                <label>성별</label>
+                <select th:field="*{gender}" id="gender" required>
+                    <option value="">선택</option>
+                    <option value="M">남성</option>
+                    <option value="F">여성</option>
+                </select>
+
+                <!-- 전화번호 -->
+                <label>휴대폰 번호</label>
+                <input type="tel" th:field="*{phone}" id="phone" placeholder="010-1234-5678" required>
+
+                <!-- 주소 -->
+                <label>주소</label>
+                <input type="text" th:field="*{address}" id="address" placeholder="주소를 입력하세요" required>
+
+                <!-- 프로필 이미지 -->
+                <label>프로필 이미지</label>
+                <input type="file" name="profileImage" id="profileImage" accept="image/*">
+                <small>선택하지 않으면 기본 이미지가 적용됩니다.</small>
+
+                <!-- 가입하기 버튼 -->
+                <button type="submit" id="signupBtn" class="submit-btn" disabled>회원가입</button>
+            </form>
+
+            <p th:if="${error}" th:text="${error}" class="error-message"></p>
+        </section>
+    </main>
+
+    <!-- 공통 푸터 -->
+    <div th:replace="layout/footer :: footer"></div>
+
+</body>
+</html>

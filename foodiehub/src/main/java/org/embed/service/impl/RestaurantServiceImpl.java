@@ -1,6 +1,8 @@
 package org.embed.service.impl;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.embed.dto.RestaurantDTO;
 import org.embed.mapper.RestaurantMapper;
@@ -15,8 +17,30 @@ public class RestaurantServiceImpl implements RestaurantService {
     private RestaurantMapper restaurantMapper;
 
     @Override
-    public List<RestaurantDTO> findAll(int offset, int limit) {
-        return restaurantMapper.findAll(offset, limit);
+    public List<RestaurantDTO> findAll(String keyword, String ownerFilter, int offset, int limit) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("keyword", keyword);
+        params.put("ownerFilter", ownerFilter);
+        params.put("offset", offset);
+        params.put("limit", limit);
+        return restaurantMapper.findAll(params);
+    }
+    
+    @Override
+    public int countAllWithOwner(String keyword, String ownerFilter) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("keyword", keyword);
+        params.put("ownerFilter", ownerFilter);
+        return restaurantMapper.countAllWithOwner(params);
+    }
+
+    // 3. 오너 지정/변경
+    @Override
+    public void updateOwner(Long restaurantId, Long ownerId) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("restaurantId", restaurantId);
+        params.put("ownerId", ownerId);
+        restaurantMapper.updateOwner(params);
     }
 
     @Override
@@ -48,4 +72,10 @@ public class RestaurantServiceImpl implements RestaurantService {
     public int countByFilter(String region, String category, String keyword) {
         return restaurantMapper.countByFilter(region, category, keyword);
     }
+    
+    @Override
+    public List<Long> findAssignedOwnerIds() {
+        return restaurantMapper.findAssignedOwnerIds();
+    }
+
 }

@@ -1,0 +1,13 @@
+@charset "UTF-8";
+/* ------------------------------
+   INDEX PAGE (메인 검색창 포함)
+------------------------------ */
+.main-container { display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; min-height: 70vh; background: linear-gradient(180deg, #f8f9fa 0%, #ffffff 100%); }
+.main-title { font-size: 3rem; font-weight: 800; color: #1e2a38; margin-bottom: 40px; letter-spacing: -1px; }
+
+/* 메인 검색창 (index.html 전용) */
+#searchForm { display: flex; justify-content: center; align-items: center; gap: 12px; }
+.search-input { width: 420px; padding: 14px 18px; border: 1.5px solid #ccc; border-radius: 10px; font-size: 1rem; transition: all 0.25s ease; background-color: #fff; }
+.search-input:focus { outline: none; border-color: #36d1b6; box-shadow: 0 0 8px rgba(54, 209, 182, 0.4); }
+.search-button { padding: 14px 28px; font-size: 1.05rem; font-weight: 700; background-color: #36d1b6; color: #fff; border: none; border-radius: 10px; cursor: pointer; transition: all 0.25s ease; }
+.search-button:hover { background-color: #2db49d; transform: translateY(-1px); }

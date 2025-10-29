@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>로그인 | FoodieHub</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <script th:src="@{/js/login-validation.js}" defer></script>
+</head>
+<body>
+
+    <!-- 공통 헤더 -->
+    <div th:replace="layout/header :: header"></div>
+
+    <main class="signup-main">
+        <section class="signup-container">
+            <h2>로그인</h2>
+
+            <form th:action="@{/user/login}" method="post" id="loginForm">
+                
+                <!-- 이메일 -->
+                <label>이메일</label>
+                <input type="email" name="email" placeholder="example@foodiehub.com" required>
+
+                <!-- 비밀번호 -->
+                <label>비밀번호</label>
+                <input type="password" name="password" placeholder="비밀번호를 입력하세요" required>
+
+                <!-- 로그인 버튼 -->
+                <button type="submit" class="submit-btn">로그인</button>
+
+                <!-- 기타 링크 -->
+                <div class="extra-links">
+                    <a th:href="@{/user/signup}">회원가입</a>
+                    <a href="#">비밀번호 찾기</a>
+                </div>
+
+                <!-- 오류 메시지 -->
+                <p th:if="${error}" th:text="${error}" class="error-message"></p>
+            </form>
+        </section>
+    </main>
+
+    <!-- 공통 푸터 -->
+    <div th:replace="layout/footer :: footer"></div>
+
+</body>
+</html>

@@ -34,4 +34,11 @@ public interface ReviewService {
 
     // 10. 맛집별 평균 별점
     Double findAverageRating(Long restaurantId);
+    
+    // 11. 사용자별 리뷰 조회
+    List<ReviewDTO> findByUserId(Long userId);
+    
+    int countByUserId(Long userId);
+    List<ReviewDTO> findPagedByUserId(Long userId, int offset, int limit);
+
 }

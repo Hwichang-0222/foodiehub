@@ -39,7 +39,7 @@ public class DBConfiguration {
 		factoryBean.setDataSource(dataSource());
      
 		factoryBean.setMapperLocations(applicationContext.getResources("classpath:/mapper/**/sql-*.xml"));
-		factoryBean.setTypeAliasesPackage("org.embed.domain");
+		factoryBean.setTypeAliasesPackage("org.embed.dto");
 		factoryBean.setConfiguration(mybatisConfig());
 
 		return factoryBean.getObject();

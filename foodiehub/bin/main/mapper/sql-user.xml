@@ -5,107 +5,273 @@
 
 <mapper namespace="org.embed.mapper.UserMapper">
 
-    <!-- 공통 매핑 -->
-    <resultMap id="UserResultMap" type="org.embed.dto.UserDTO">
-        <id property="id" column="id" />
-        <result property="email" column="email" />
-        <result property="password" column="password" />
-        <result property="name" column="name" />
-        <result property="birthDate" column="birth_date" />
-        <result property="gender" column="gender" />
-        <result property="phone" column="phone" />
-        <result property="address" column="address" />
-        <result property="profileImageUrl" column="profile_image_url" />
-        <result property="provider" column="provider" />
-        <result property="role" column="role" />
-        <result property="isDeleted" column="is_deleted" />
-        <result property="createdAt" column="created_at" />
-    </resultMap>
-
-    <!-- 1. 전체 유저 조회 -->
-    <select id="findAllActiveUsers" resultMap="UserResultMap">
-        SELECT * FROM user
-        WHERE is_deleted = 'N'
-        ORDER BY id DESC
+    <!-- 1. 전체 활성 유저 조회 -->
+    <select id="findAllUsers" resultType="org.embed.dto.UserDTO">
+		<![CDATA[
+	        SELECT 
+	            id,
+	            email,
+	            name, 
+	            role, 
+	            is_deleted AS isDeleted, 
+	            created_at AS createdAt
+	        FROM user
+	        ORDER BY created_at DESC
+	        LIMIT #{offset}, #{limit}
+		]]>
     </select>
 
-    <!-- 2. 단일 조회 (id 기준) -->
-    <select id="findById" parameterType="long" resultMap="UserResultMap">
-        SELECT * FROM user
-        WHERE id = #{id}
+    <!-- 2. ID로 단일 조회 -->
+    <select id="findById" parameterType="long" resultType="org.embed.dto.UserDTO">
+        <![CDATA[
+            SELECT 
+                id,
+                email,
+                password,
+                name,
+                birth_date AS birthDate,
+                gender,
+                phone,
+                address,
+                profile_image_url AS profileImageUrl,
+                provider,
+                role,
+                is_deleted AS isDeleted,
+                created_at AS createdAt
+            FROM user
+            WHERE id = #{id}
+              AND is_deleted = 'N'
+        ]]>
     </select>
 
-    <!-- 3. 이메일로 조회 -->
-    <select id="findByEmail" parameterType="string" resultMap="UserResultMap">
-        SELECT * FROM user
-        WHERE email = #{email}
+    <!-- 3. 이메일로 단일 조회 -->
+    <select id="findByEmail" parameterType="string" resultType="org.embed.dto.UserDTO">
+        <![CDATA[
+            SELECT 
+                id,
+                email,
+                password,
+                name,
+                birth_date AS birthDate,
+                gender,
+                phone,
+                address,
+                profile_image_url AS profileImageUrl,
+                provider,
+                role,
+                is_deleted AS isDeleted,
+                created_at AS createdAt
+            FROM user
+            WHERE email = #{email}
+              AND is_deleted = 'N'
+        ]]>
     </select>
 
-    <!-- 4. 새 유저 등록 -->
+    <!-- 4. 회원가입 -->
     <insert id="insertUser" parameterType="org.embed.dto.UserDTO" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO user (
-            email, password, name, birth_date, gender, phone, address,
-            profile_image_url, provider, role, is_deleted, created_at
-        ) VALUES (
-            #{email}, #{password}, #{name}, #{birthDate}, #{gender}, #{phone}, #{address},
-            #{profileImageUrl}, #{provider}, #{role}, 'N', NOW()
-        )
+        <![CDATA[
+            INSERT INTO user (
+                email, 
+                password, 
+                name, 
+                birth_date, 
+                gender, 
+                phone, 
+                address, 
+                profile_image_url, 
+                provider, 
+                role, 
+                is_deleted, 
+                created_at
+            ) VALUES (
+                #{email}, 
+                #{password}, 
+                #{name}, 
+                #{birthDate}, 
+                #{gender}, 
+                #{phone}, 
+                #{address}, 
+                #{profileImageUrl}, 
+                #{provider}, 
+                #{role}, 
+                'N', 
+                NOW()
+            )
+        ]]>
     </insert>
 
-    <!-- 5. 유저 정보 수정 -->
+    <!-- 5. 회원정보 수정 -->
     <update id="updateUser" parameterType="org.embed.dto.UserDTO">
-        UPDATE user
-        SET
-            password = #{password},
-            name = #{name},
-            birth_date = #{birthDate},
-            gender = #{gender},
-            phone = #{phone},
-            address = #{address},
-            profile_image_url = #{profileImageUrl},
-            provider = #{provider},
-            role = #{role}
-        WHERE id = #{id}
+        <![CDATA[
+            UPDATE user
+            SET 
+                password = #{password},
+                name = #{name},
+                phone = #{phone},
+                address = #{address},
+                profile_image_url = #{profileImageUrl}
+            WHERE id = #{id}
+              AND is_deleted = 'N'
+        ]]>
     </update>
 
-    <!-- 6. 논리 삭제 -->
+    <!-- 6. 논리 삭제 (회원 탈퇴) -->
     <update id="softDeleteUser" parameterType="long">
-        UPDATE user
-        SET is_deleted = 'Y'
-        WHERE id = #{id}
+        <![CDATA[
+            UPDATE user
+            SET 
+                is_deleted = 'Y'
+            WHERE id = #{id}
+        ]]>
     </update>
 
     <!-- 7. 관리자 전용: 권한(Role) 변경 -->
     <update id="updateUserRole">
-        UPDATE user
-        SET role = #{role}
-        WHERE id = #{id}
+        <![CDATA[
+            UPDATE user
+            SET 
+                role = #{role}
+            WHERE id = #{id}
+        ]]>
     </update>
 
     <!-- 8. 이메일 중복 확인 -->
     <select id="countByEmail" parameterType="string" resultType="int">
-        SELECT COUNT(*)
-        FROM user
-        WHERE email = #{email}
-          AND is_deleted = 'N'
+        <![CDATA[
+            SELECT COUNT(*)
+            FROM user
+            WHERE email = #{email}
+              AND is_deleted = 'N'
+        ]]>
     </select>
 
     <!-- 9. 로그인 검증 -->
-    <select id="validateLogin" resultMap="UserResultMap">
-        SELECT *
-        FROM user
-        WHERE email = #{email}
-          AND password = #{password}
-          AND is_deleted = 'N'
+    <select id="validateLogin" parameterType="org.embed.dto.UserDTO" resultType="org.embed.dto.UserDTO">
+        <![CDATA[
+            SELECT 
+                id,
+                email,
+                password,
+                name,
+                birth_date AS birthDate,
+                gender,
+                phone,
+                address,
+                profile_image_url AS profileImageUrl,
+                provider,
+                role,
+                is_deleted AS isDeleted,
+                created_at AS createdAt
+            FROM user
+            WHERE email = #{email}
+              AND password = #{password}
+              AND is_deleted = 'N'
+        ]]>
     </select>
 
     <!-- 10. 권한별 유저 조회 -->
-    <select id="findUsersByRole" parameterType="string" resultMap="UserResultMap">
-        SELECT *
-        FROM user
-        WHERE role = #{role}
-          AND is_deleted = 'N'
-        ORDER BY created_at DESC
+    <select id="findUsersByRole" parameterType="string" resultType="org.embed.dto.UserDTO">
+        <![CDATA[
+            SELECT 
+                id,
+                email,
+                password,
+                name,
+                birth_date AS birthDate,
+                gender,
+                phone,
+                address,
+                profile_image_url AS profileImageUrl,
+                provider,
+                role,
+                is_deleted AS isDeleted,
+                created_at AS createdAt
+            FROM user
+            WHERE role = #{role}
+              AND is_deleted = 'N'
+            ORDER BY created_at DESC
+        ]]>
+    </select>
+
+    <!-- 11. 회원 검색 (관리자용: 이름/이메일 키워드) -->
+	<select id="searchUsers" resultType="org.embed.dto.UserDTO">
+	    <![CDATA[
+	        SELECT 
+	            id, 
+	            email, 
+	            name, 
+	            role, 
+	            is_deleted AS isDeleted, 
+	            created_at AS createdAt
+	        FROM user
+	        WHERE 1=1
+	    ]]>
+	    <if test="keyword != null and keyword != ''">
+	        <![CDATA[
+	            AND (name LIKE CONCAT('%', #{keyword}, '%') OR email LIKE CONCAT('%', #{keyword}, '%'))
+	        ]]>
+	    </if>
+	    <if test="status != null and status != ''">
+	        <![CDATA[
+	            AND is_deleted = #{status}
+	        ]]>
+	    </if>
+	    <if test="role != null and role != ''">
+	        <![CDATA[
+	            AND role = #{role}
+	        ]]>
+	    </if>
+	    <![CDATA[
+	        ORDER BY created_at DESC
+	        LIMIT #{offset}, #{limit}
+	    ]]>
+	</select>
+	
+	
+	<!-- ========================================= -->
+	<!--  관리자용 유저 검색 결과 수 카운트 -->
+	<!-- ========================================= -->
+	<select id="countSearchUsers" resultType="int">
+	    <![CDATA[
+	        SELECT COUNT(*) 
+	        FROM user
+	        WHERE 1=1
+	    ]]>
+	    <if test="keyword != null and keyword != ''">
+	        <![CDATA[
+	            AND (name LIKE CONCAT('%', #{keyword}, '%') OR email LIKE CONCAT('%', #{keyword}, '%'))
+	        ]]>
+	    </if>
+	    <if test="status != null and status != ''">
+	        <![CDATA[
+	            AND is_deleted = #{status}
+	        ]]>
+	    </if>
+	    <if test="role != null and role != ''">
+	        <![CDATA[
+	            AND role = #{role}
+	        ]]>
+	    </if>
+	</select>
+
+
+    
+    <!-- 12. 역할(role) 기준으로 id, name만 조회 -->
+	<select id="findByRole" parameterType="String" resultType="org.embed.dto.UserDTO">
+	    <![CDATA[
+	        SELECT id, name 
+	        FROM user 
+	        WHERE role = #{role} 
+	          AND is_deleted = 'N'
+	        ORDER BY name ASC
+	    ]]>
+	</select>
+    
+    <select id="countAllUsers" resultType="int">
+        <![CDATA[
+            SELECT COUNT(*) 
+            FROM user
+        ]]>
     </select>
 
 </mapper>

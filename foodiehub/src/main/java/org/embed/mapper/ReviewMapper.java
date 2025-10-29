@@ -39,4 +39,13 @@ public interface ReviewMapper {
 
     // 10. 맛집별 평균 별점
     Double findAverageRating(@Param("restaurantId") Long restaurantId);
+    
+    // 11. 사용자별 리뷰 조회 (마이페이지용)
+    List<ReviewDTO> findByUserId(@Param("userId") Long userId);
+    
+    int countByUserId(@Param("userId") Long userId);
+    List<ReviewDTO> findPagedByUserId(@Param("userId") Long userId,
+                                      @Param("offset") int offset,
+                                      @Param("limit") int limit);
+
 }

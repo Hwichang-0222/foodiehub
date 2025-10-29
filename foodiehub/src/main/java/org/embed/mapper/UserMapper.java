@@ -1,6 +1,7 @@
 package org.embed.mapper;
 
 import java.util.List;
+
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.embed.dto.UserDTO;
@@ -9,7 +10,7 @@ import org.embed.dto.UserDTO;
 public interface UserMapper {
 
     // 1. 전체 유저 조회 (삭제되지 않은 유저만)
-    List<UserDTO> findAllActiveUsers();
+	List<UserDTO> findAllUsers(@Param("offset") int offset, @Param("limit") int limit);
 
     // 2. 단일 조회 (id 기준)
     UserDTO findById(@Param("id") Long id);
@@ -37,4 +38,22 @@ public interface UserMapper {
 
     // 10. 권한별 유저 조회 (관리자 전용)
     List<UserDTO> findUsersByRole(@Param("role") String role);
+    
+    // 11. // 관리자용 유저 검색 (페이징)
+    List<UserDTO> searchUsers(@Param("keyword") String keyword,
+            @Param("status") String status,
+            @Param("role") String role,
+            @Param("offset") int offset,
+            @Param("limit") int limit);
+
+	int countSearchUsers(@Param("keyword") String keyword,
+	       @Param("status") String status,
+	       @Param("role") String role);
+
+    
+    // 12. 관리자용역할 검색
+    List<UserDTO> findByRole(@Param("role") String role);
+    
+    int countAllUsers();
+    
 }

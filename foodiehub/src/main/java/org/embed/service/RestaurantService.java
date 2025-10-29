@@ -6,7 +6,7 @@ import org.embed.dto.RestaurantDTO;
 public interface RestaurantService {
 
     // 1. 전체 맛집 조회 (페이지네이션)
-    List<RestaurantDTO> findAll(int offset, int limit);
+    List<RestaurantDTO> findAll(String keyword, String ownerFilter, int offset, int limit);
 
     // 2. 단일 맛집 조회
     RestaurantDTO findById(Long id);
@@ -25,4 +25,13 @@ public interface RestaurantService {
 
     // 7. 조건 기반 총 개수 조회
     int countByFilter(String region, String category, String keyword);
+    
+	// 8. 총 식당 개수 (검색/필터 조건 포함)
+    int countAllWithOwner(String keyword, String ownerFilter);
+
+    // 9. 식당 오너 지정/변경
+    void updateOwner(Long restaurantId, Long ownerId);
+    
+    List<Long> findAssignedOwnerIds();
+
 }

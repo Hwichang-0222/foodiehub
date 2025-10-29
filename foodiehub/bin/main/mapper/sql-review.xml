@@ -159,4 +159,43 @@
 		]]>
     </select>
 
+    <!-- 11. 사용자별 리뷰 조회 -->
+    <select id="findByUserId" parameterType="long" resultType="org.embed.dto.ReviewDTO">
+        <![CDATA[
+            SELECT 
+                r.*, 
+                res.name AS restaurant_name
+            FROM review r
+            LEFT JOIN restaurant res ON r.restaurant_id = res.id
+            WHERE r.user_id = #{userId}
+              AND r.parent_id IS NULL
+            ORDER BY r.created_at DESC
+        ]]>
+    </select>
+
+    <!-- 12. 사용자별 리뷰 개수 -->
+    <select id="countByUserId" parameterType="long" resultType="int">
+        <![CDATA[
+            SELECT COUNT(*)
+            FROM review
+            WHERE user_id = #{userId}
+              AND parent_id IS NULL
+        ]]>
+    </select>
+
+    <!-- 13. 사용자별 리뷰 페이지네이션 -->
+    <select id="findPagedByUserId" resultType="org.embed.dto.ReviewDTO">
+        <![CDATA[
+            SELECT 
+                r.*, 
+                res.name AS restaurant_name
+            FROM review r
+            LEFT JOIN restaurant res ON r.restaurant_id = res.id
+            WHERE r.user_id = #{userId}
+              AND r.parent_id IS NULL
+            ORDER BY r.created_at DESC
+            LIMIT #{offset}, #{limit}
+        ]]>
+    </select>
+
 </mapper>

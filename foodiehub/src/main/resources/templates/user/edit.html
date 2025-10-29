@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>회원정보 수정 | FoodieHub</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <script th:src="@{/js/edit-validation.js}" defer></script>
+</head>
+<body>
+
+    <!-- 공통 헤더 -->
+    <div th:replace="layout/header :: header"></div>
+
+    <main class="signup-main">
+        <section class="signup-container">
+            <h2>회원정보 수정</h2>
+
+            <form th:action="@{/user/update}" method="post" 
+			      th:object="${user}" enctype="multipart/form-data">
+			
+			    <label>현재 비밀번호</label>
+			    <input type="password" name="currentPassword" id="currentPassword" placeholder="현재 비밀번호를 입력하세요" required>
+			
+			    <label>새 비밀번호</label>
+			    <input type="password" name="newPassword" id="newPassword" placeholder="변경할 비밀번호 (변경 시만 입력)">
+			
+			    <label>이름</label>
+			    <input type="text" th:field="*{name}" required>
+			
+			    <label>휴대폰 번호</label>
+			    <input type="tel" th:field="*{phone}" placeholder="010-1234-5678" required>
+			
+			    <label>주소</label>
+			    <input type="text" th:field="*{address}" required>
+			
+			    <label>프로필 이미지</label>
+			    <input type="file" name="profileImage" accept="image/*">
+			
+			    <button type="submit" class="submit-btn">수정 완료</button>
+			
+			    <p th:if="${error}" th:text="${error}" class="error-message"></p>
+			</form>
+
+        </section>
+    </main>
+
+    <!-- 공통 푸터 -->
+    <div th:replace="layout/footer :: footer"></div>
+    
+    <script>
+	document.querySelector("form").addEventListener("submit", e => {
+		const currentPw = document.getElementById("currentPassword").value.trim();
+		if (!currentPw) {
+			alert("현재 비밀번호를 입력해야 수정할 수 있습니다.");
+			e.preventDefault();
+	  }
+	});
+	</script>
+    
+
+</body>
+</html>

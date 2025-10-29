@@ -21,18 +21,43 @@
 	
 	        <!-- 오른쪽: 로그인/회원가입 -->
 	        <ul class="nav-menu-right">
-	            <li class="nav-item" th:if="${session.user == null}">
-	                <a href="/user/login" class="nav-link">로그인</a>
-	            </li>
-	            <li class="nav-item" th:if="${session.user == null}">
-	                <a href="/user/signup" class="nav-link">회원가입</a>
-	            </li>
-	            <li class="nav-item" th:if="${session.user != null}">
-	                <a href="/user/mypage" class="nav-link">마이페이지</a>
-	            </li>
-	            <li class="nav-item" th:if="${session.user != null}">
-	                <a href="/user/logout" class="nav-link">로그아웃</a>
-	            </li>
+	            <!-- 로그인 전 -->
+                <li class="nav-item" th:if="${session.user == null}">
+                    <a href="/user/login" class="nav-link">로그인</a>
+                </li>
+                <li class="nav-item" th:if="${session.user == null}">
+                    <a href="/user/signup" class="nav-link">회원가입</a>
+                </li>
+
+                <!-- 로그인 후 -->
+                <li class="nav-item login-info" th:if="${session.user != null}">
+                    <span th:text="'환영합니다. ' + ${session.user.name} + '님'"></span>
+                </li>
+                
+                <!-- 관리자와 일반 회원 구분 -->
+				<li class="nav-item user-info" th:if="${session.user != null}">
+				    <a th:if="${session.user.role == 'ROLE_ADMIN'}"
+				       href="/admin/dashboard"
+				       class="nav-link profile-link">
+				        <img th:src="${session.user.profileImageUrl != null ? session.user.profileImageUrl : '/images/default-profile.png'}"
+				             alt="프로필"
+				             class="profile-img">
+				        <span>관리자 페이지</span>
+				    </a>
+				
+				    <a th:if="${session.user.role != 'ROLE_ADMIN'}"
+				       href="/user/mypage"
+				       class="nav-link profile-link">
+				        <img th:src="${session.user.profileImageUrl != null ? session.user.profileImageUrl : '/images/default-profile.png'}"
+				             alt="프로필"
+				             class="profile-img">
+				        <span>마이페이지</span>
+				    </a>
+				</li>
+
+                <li class="nav-item" th:if="${session.user != null}">
+                    <a href="/user/logout" class="nav-link">로그아웃</a>
+                </li>
 	        </ul>
 	    </nav>
 	</header>

@@ -5,12 +5,10 @@
 
 <mapper namespace="org.embed.mapper.BoardMapper">
 
-    <!-- 1. 탭별 공지글 (전역공지 + 해당 탭 공지) -->
+    <!-- 1. 탭별 공지글 (전역공지 + 탭별 공지) -->
     <select id="findNoticesByCategory" resultType="org.embed.dto.BoardDTO">
         <![CDATA[
-            SELECT 
-                b.*, 
-                u.name AS user_name
+            SELECT b.*, u.name AS user_name
             FROM board b
             INNER JOIN user u ON b.user_id = u.id
             WHERE b.parent_id IS NULL
@@ -30,12 +28,10 @@
         ]]>
     </select>
 
-    <!-- 2. 탭별 일반글 (페이지네이션 적용) -->
+    <!-- 2. 탭별 일반글 (페이지네이션) -->
     <select id="findNormalPostsByCategory" resultType="org.embed.dto.BoardDTO">
         <![CDATA[
-            SELECT 
-                b.*, 
-                u.name AS user_name
+            SELECT b.*, u.name AS user_name
             FROM board b
             INNER JOIN user u ON b.user_id = u.id
             WHERE b.parent_id IS NULL
@@ -66,21 +62,17 @@
     <!-- 4. 단일 게시글 조회 -->
     <select id="findById" parameterType="long" resultType="org.embed.dto.BoardDTO">
         <![CDATA[
-            SELECT 
-                b.*, 
-                u.name AS user_name
+            SELECT b.*, u.name AS user_name
             FROM board b
             INNER JOIN user u ON b.user_id = u.id
             WHERE b.id = #{id}
         ]]>
     </select>
-    
+
     <!-- 5. 사용자 작성글 목록 -->
     <select id="findByUserId" parameterType="long" resultType="org.embed.dto.BoardDTO">
         <![CDATA[
-            SELECT 
-                b.*, 
-                u.name AS user_name
+            SELECT b.*, u.name AS user_name
             FROM board b
             INNER JOIN user u ON b.user_id = u.id
             WHERE b.user_id = #{userId}
@@ -96,13 +88,15 @@
                 title, 
                 content, 
                 category, 
-                is_private
+                is_private,
+                created_at
             ) VALUES (
                 #{userId}, 
                 #{title}, 
                 #{content}, 
                 #{category}, 
-                #{isPrivate}
+                #{isPrivate},
+                NOW()
             )
         ]]>
     </insert>
@@ -151,9 +145,7 @@
     <!-- 10. 게시글 검색 (탭별 카테고리 + 키워드) -->
     <select id="searchBoard" resultType="org.embed.dto.BoardDTO">
         <![CDATA[
-            SELECT 
-                b.*, 
-                u.name AS user_name
+            SELECT b.*, u.name AS user_name
             FROM board b
             INNER JOIN user u ON b.user_id = u.id
             WHERE b.parent_id IS NULL
@@ -199,14 +191,97 @@
               )
         ]]>
     </select>
-    
+
     <!-- 12. 조회수 증가 -->
-	<update id="increaseViewCount" parameterType="long">
-	    <![CDATA[
-	        UPDATE board
-	        SET view_count = view_count + 1
-	        WHERE id = #{id}
+    <update id="increaseViewCount" parameterType="long">
+        <![CDATA[
+            UPDATE board
+            SET view_count = view_count + 1
+            WHERE id = #{id}
+        ]]>
+    </update>
+
+    <!-- 13. 사용자별 게시글 총 개수 -->
+    <select id="countByUserId" parameterType="long" resultType="int">
+        <![CDATA[
+            SELECT COUNT(*)
+            FROM board
+            WHERE user_id = #{userId}
+              AND parent_id IS NULL
+        ]]>
+    </select>
+
+    <!-- 14. 사용자별 게시글 목록 (페이지네이션) -->
+    <select id="findPagedByUserId" resultType="org.embed.dto.BoardDTO">
+        <![CDATA[
+            SELECT b.*, u.name AS user_name
+            FROM board b
+            INNER JOIN user u ON b.user_id = u.id
+            WHERE b.user_id = #{userId}
+              AND b.parent_id IS NULL
+            ORDER BY b.created_at DESC
+            LIMIT #{offset}, #{limit}
+        ]]>
+    </select>
+
+    <!-- 15. 관리자용 공지사항 목록 -->
+    <select id="findAllNotices" resultType="org.embed.dto.BoardDTO">
+        <![CDATA[
+            SELECT b.*, u.name AS user_name
+            FROM board b
+            INNER JOIN user u ON b.user_id = u.id
+            WHERE b.category = 'NOTICE'
+            ORDER BY b.created_at DESC
+            LIMIT #{offset}, #{limit}
+        ]]>
+    </select>
+
+    <!-- 16. 관리자용 공지사항 총 개수 -->
+    <select id="countAllNotices" resultType="int">
+        <![CDATA[
+            SELECT COUNT(*) 
+            FROM board 
+            WHERE category = 'NOTICE'
+        ]]>
+    </select>
+
+    <!-- 17. 관리자용 답글 미등록 요청 게시글 조회 -->
+    <select id="findUnansweredRequests" resultType="org.embed.dto.BoardDTO">
+        <![CDATA[
+	        SELECT b.*, u.name AS user_name
+	        FROM board b
+	        INNER JOIN user u ON b.user_id = u.id
+	        WHERE b.parent_id IS NULL
+	          AND (
+	                #{filter} IS NULL
+	                OR #{filter} = ''
+	                OR b.category = #{filter}
+	              )
+	          AND b.category IN ('QUESTION', 'SUGGESTION')
+	          AND b.id NOT IN (
+	              SELECT parent_id FROM board WHERE parent_id IS NOT NULL
+	          )
+	        ORDER BY b.created_at DESC
+	        LIMIT #{offset}, #{limit}
 	    ]]>
-	</update>
-    
+    </select>
+
+    <!-- 18. 관리자용 답글 미등록 요청 게시글 총 개수 -->
+    <select id="countUnansweredRequests" resultType="int">
+        <![CDATA[
+	        SELECT COUNT(*)
+	        FROM board b
+	        WHERE b.parent_id IS NULL
+	          AND (
+	                #{filter} IS NULL
+	                OR #{filter} = ''
+	                OR b.category = #{filter}
+	              )
+	          AND b.category IN ('QUESTION', 'SUGGESTION')
+	          AND b.id NOT IN (
+	              SELECT parent_id FROM board WHERE parent_id IS NOT NULL
+	          )
+	    ]]>
+    </select>
+
 </mapper>

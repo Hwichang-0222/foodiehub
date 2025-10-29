@@ -16,8 +16,9 @@ public class UserServiceImpl implements UserService {
 
     /** 1. 전체 유저 조회 (삭제되지 않은 유저만) */
     @Override
-    public List<UserDTO> findAllActiveUsers() {
-        return userMapper.findAllActiveUsers();
+    public List<UserDTO> findAllUsers(int page, int limit) {
+        int offset = (page - 1) * limit;
+        return userMapper.findAllUsers(offset, limit);
     }
 
     /** 2. 개별 유저 조회 (id 기준) */
@@ -58,8 +59,8 @@ public class UserServiceImpl implements UserService {
 
     /** 8. 이메일 중복 확인 */
     @Override
-    public boolean existsByEmail(String email) {
-        return userMapper.countByEmail(email) > 0;
+    public int countByEmail(String email) {
+        return userMapper.countByEmail(email);
     }
 
     /** 9. 로그인 검증 */
@@ -75,5 +76,29 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<UserDTO> getUsersByRole(String role) {
         return userMapper.findUsersByRole(role);
+    }
+    
+    /** 11. 회원 검색 (관리자용) */
+    @Override
+    public List<UserDTO> searchUsers(String keyword, String status, String role, int offset, int limit) {
+        return userMapper.searchUsers(keyword, status, role, offset, limit);
+    }
+
+    @Override
+    public int countSearchUsers(String keyword, String status, String role) {
+        return userMapper.countSearchUsers(keyword, status, role);
+    }
+
+    
+    @Override
+    public List<UserDTO> findByRole(String role) {
+    	// TODO Auto-generated method stub
+    	return userMapper.findByRole(role);
+    }
+    
+    @Override
+    public int countAllUsers() {
+    	// TODO Auto-generated method stub
+    	return userMapper.countAllUsers();
     }
 }

@@ -1,6 +1,8 @@
 package org.embed.mapper;
 
 import java.util.List;
+import java.util.Map;
+
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.embed.dto.RestaurantDTO;
@@ -9,7 +11,7 @@ import org.embed.dto.RestaurantDTO;
 public interface RestaurantMapper {
 
     // 1. 전체 맛집 조회 (페이지네이션)
-    List<RestaurantDTO> findAll(@Param("offset") int offset, @Param("limit") int limit);
+    List<RestaurantDTO> findAll(Map<String, Object> params);
 
     // 2. 단일 맛집 조회
     RestaurantDTO findById(@Param("id") Long id);
@@ -38,4 +40,13 @@ public interface RestaurantMapper {
             @Param("category") String category,
             @Param("keyword") String keyword
     );
+    
+    // 8. 총 식당 수
+    int countAllWithOwner(Map<String, Object> params);
+
+    // 9. 오너 지정/변경
+    void updateOwner(Map<String, Object> params);
+    
+    List<Long> findAssignedOwnerIds();
+
 }
