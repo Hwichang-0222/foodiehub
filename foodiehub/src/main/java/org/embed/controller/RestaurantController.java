@@ -34,7 +34,7 @@ public class RestaurantController {
     private final ReviewService reviewService;
     private final ImageService imageService;
 
-    // 리스트 보기
+	// 1. 식당 목록 조회
     @GetMapping("/list")
     public String list(
     		@RequestParam(name="region", required=false) String region,
@@ -44,16 +44,18 @@ public class RestaurantController {
             Model model) {
 
         int limit = 5;
+		// 페이지에 따른 오프셋 계산
         int offset = (page - 1) * limit;
 
-        // 1. 리스트 데이터
+		// 필터 조건에 따른 식당 목록 조회
         List<RestaurantDTO> restaurants = restaurantService.findByFilter(region, category, keyword, offset, limit);
 
-        // 2. 총 개수
+		// 필터 조건에 따른 총 개수 조회
         int totalCount = restaurantService.countByFilter(region, category, keyword);
+		// 이 페이지 수 계산
         int totalPages = (int) Math.ceil((double) totalCount / limit);
 
-        // 3. 모델에 전달
+		// 모델에 리스트 및 페이징 정보 담기
         model.addAttribute("restaurants", restaurants);
         model.addAttribute("totalCount", totalCount);
         model.addAttribute("currentPage", page);
@@ -65,106 +67,154 @@ public class RestaurantController {
         return "restaurant/list";
     }
     
-    // 상세보기
+    // 2. 식당 상세 조회
     @GetMapping("/detail/{id}")
-    public String getRestaurantDetail(@PathVariable("id") Long id, Model model) {
-        // 1. 레스토랑 기본 정보 (평균 별점, 리뷰 수 포함)
+    public String getRestaurantDetail(@PathVariable("id") Long id, HttpSession session, Model model) {
+		// 식당 기본정보 조회
         RestaurantDTO restaurant = restaurantService.findById(id);
 
-        // 2. 해당 식당의 리뷰 목록
+		// 해당 식당의 리뷰 목록 조회
         List<ReviewDTO> reviews = reviewService.findByRestaurantId(id);
+		
+		// 각 리뷰의 댓글 조회 - 추가됨!
+		for (ReviewDTO review : reviews) {
+			// 각 리뷰별 댓글 목록 조회
+			List<ReviewDTO> replies = reviewService.findRepliesByParentId(review.getId());
+			// 리뷰 객체에 댓글 설정
+			review.setReplies(replies);
+			System.out.println("리뷰 ID: " + review.getId() + ", 댓글 개수: " + (replies != null ? replies.size() : 0));
+		}
+		
+		// 각 리뷰의 이미지 조회 - 추가됨!
+		for (ReviewDTO review : reviews) {
+			// 각 리뷰별 이미지 조회
+			List<ImageDTO> reviewImages = imageService.findByReviewId(review.getId());
+			// 리뷰 객체에 이미지 설정
+			review.setImages(reviewImages);
+			System.out.println("리뷰 ID: " + review.getId() + ", 이미지 개수: " + (reviewImages != null ? reviewImages.size() : 0));
+		}
 
-        // 3. 리뷰 이미지 목록
+		// 리뷰 이미지 목록 조회
         List<ImageDTO> images = imageService.findAllByRestaurantId(id);
 
-        // 4. Model에 담아서 뷰로 전달
+		// 세션에서 사용자 정보 조회
+		UserDTO user = (UserDTO) session.getAttribute("user");
+		
+		// 댓글 기능 디버깅: 세션에 등록된 사용자 정보 확인
+		System.out.println("=== [RestaurantController.detail] User Session Info ===");
+		System.out.println("Session object: " + session);
+		System.out.println("User from session: " + user);
+		if (user != null) {
+			System.out.println("Logged-in User ID: " + user.getId());
+			System.out.println("Logged-in User Name: " + user.getName());
+			System.out.println("Logged-in User Email: " + user.getEmail());
+		} else {
+			System.out.println("User is NULL - 사용자가 로그인하지 않았음");
+		}
+
+		// 모델에 데이터 담기
         model.addAttribute("restaurant", restaurant);
         model.addAttribute("reviews", reviews);
         model.addAttribute("images", images);
+		// 모델에 사용자 정보 담기
+		model.addAttribute("user", user);
 
-        // 5. Thymeleaf 템플릿 경로
-        return "restaurant/detail";  // => templates/restaurant/detail.html
+        return "restaurant/detail";
     }
     
-    // 식당 등록 폼 이동
+    // 3. 식당 등록 폼 화면
 	@GetMapping("/add")
 	public String showAddForm(Model model) {
+		// 새로운 식당 객체 생성
 		model.addAttribute("restaurant", new RestaurantDTO());
-		return "restaurant/add"; // templates/restaurant/add.html
+		return "restaurant/add";
 	}
 	
-	// 식당 등록 처리
+	// 4. 식당 등록 처리
 	@PostMapping("/add")
 	public String addRestaurant(@ModelAttribute RestaurantDTO restaurant,
 	                            @RequestParam(value = "mainImage", required = false) MultipartFile mainImage,
 	                            RedirectAttributes redirectAttributes) throws IOException {
 
+		// 이미지 파일 업로드 처리
 	    if (mainImage != null && !mainImage.isEmpty()) {
 	        String uploadDir = System.getProperty("user.dir") + "/uploads/restaurant/";
 	        File dir = new File(uploadDir);
+			// 디렉토리 없으면 생성
 	        if (!dir.exists()) dir.mkdirs();
 	        
+			// 파일명 생성 및 저장
 	        String fileName = System.currentTimeMillis() + "_" + mainImage.getOriginalFilename();
 	        mainImage.transferTo(new File(dir, fileName));
 	        
+			// 식당에 이미지 경로 설정
 	        restaurant.setMainImageUrl("/uploads/restaurant/" + fileName);
 	    }
 	    
+		// 식당 정보 DB에 등록
 	    restaurantService.insertRestaurant(restaurant);
+		// 성공 메시지 전달
 	    redirectAttributes.addFlashAttribute("successMessage", "식당이 성공적으로 등록되었습니다.");
 	    return "redirect:/admin/dashboard?tab=restaurant";
 	}
 	
-	// 식당 삭제 (관리자 전용)
+	// 5. 식당 삭제
 	@GetMapping("/delete/{id}")
 	public String deleteRestaurant(@PathVariable("id") Long id, 
 	                               RedirectAttributes redirectAttributes) {
 	    try {
+			// 식당 삭제 처리
 	        restaurantService.deleteRestaurant(id);
+			// 성공 메시지 전달
 	        redirectAttributes.addFlashAttribute("successMessage", "식당이 삭제되었습니다.");
 	    } catch (Exception e) {
+			// 오류 메시지 전달
 	        redirectAttributes.addFlashAttribute("errorMessage", "식당 삭제 중 오류가 발생했습니다.");
 	    }
 	    return "redirect:/admin/dashboard?tab=restaurant";
 	}
 	
-	// 식당 수정 폼 이동
+	// 6. 식당 수정 폼 화면
 	@GetMapping("/edit/{id}")
 	public String showEditForm(@PathVariable("id") Long id, 
 	                          HttpSession session, 
 	                          Model model) {
+		// 세션에서 사용자 정보 조회
 	    UserDTO user = (UserDTO) session.getAttribute("user");
 	    
-	    // 로그인 확인
+		// 로그인 여부 확인
 	    if (user == null) {
 	        return "redirect:/user/login";
 	    }
 	    
+		// 식당 정보 조회
 	    RestaurantDTO restaurant = restaurantService.findById(id);
 	    
-	    // 권한 확인
+		// 권한 확인
 	    boolean hasPermission = false;
 	    
-	    // 1. 관리자면 무조건 가능
+		// 관리자이면 수정 가능
 	    if (user.getRole().equals("ROLE_ADMIN")) {
 	        hasPermission = true;
 	    }
-	    // 2. ROLE_OWNER이면서 restaurant의 ownerId와 user의 id가 일치하는 경우만 가능
+		// 식당 소유자이고 ID가 일치하면 수정 가능
 	    else if (user.getRole().equals("ROLE_OWNER") && 
 	             restaurant.getOwnerId() != null && 
 	             restaurant.getOwnerId().equals(user.getId())) {
 	        hasPermission = true;
 	    }
 	    
+		// 권한 없으면 상세페이지로 리다이렉트
 	    if (!hasPermission) {
 	        return "redirect:/restaurant/detail/" + id;
 	    }
 	    
+		// 모델에 식당 정보 담기
 	    model.addAttribute("restaurant", restaurant);
 	    return "restaurant/edit";
 	}
 
-	// 식당 수정 처리
+	// 7. 식당 수정 처리
 	@PostMapping("/edit/{id}")
 	public String editRestaurant(@PathVariable("id") Long id,
 	                            @ModelAttribute RestaurantDTO restaurant,
@@ -172,52 +222,62 @@ public class RestaurantController {
 	                            HttpSession session,
 	                            RedirectAttributes redirectAttributes) throws IOException {
 	    
+		// 세션에서 사용자 정보 조회
 	    UserDTO user = (UserDTO) session.getAttribute("user");
 	    
-	    // 로그인 확인
+		// 로그인 여부 확인
 	    if (user == null) {
 	        return "redirect:/user/login";
 	    }
 	    
+		// 기존 식당 정보 조회
 	    RestaurantDTO existingRestaurant = restaurantService.findById(id);
 	    
-	    // 권한 확인
+		// 권한 확인
 	    boolean hasPermission = false;
 	    
-	    // 1. 관리자면 무조건 가능
+		// 관리자이면 수정 가능
 	    if (user.getRole().equals("ROLE_ADMIN")) {
 	        hasPermission = true;
 	    }
-	    // 2. ROLE_OWNER이면서 restaurant의 ownerId와 user의 id가 일치하는 경우만 가능
+		// 식당 소유자이고 ID가 일치하면 수정 가능
 	    else if (user.getRole().equals("ROLE_OWNER") && 
 	             existingRestaurant.getOwnerId() != null && 
 	             existingRestaurant.getOwnerId().equals(user.getId())) {
 	        hasPermission = true;
 	    }
 	    
+		// 권한 없으면 상세페이지로 리다이렉트
 	    if (!hasPermission) {
 	        return "redirect:/restaurant/detail/" + id;
 	    }
 	    
-	    // 이미지 업로드
+		// 이미지 파일 업로드 처리
 	    if (mainImage != null && !mainImage.isEmpty()) {
 	        String uploadDir = System.getProperty("user.dir") + "/uploads/restaurant/";
 	        File dir = new File(uploadDir);
+			// 디렉토리 없으면 생성
 	        if (!dir.exists()) dir.mkdirs();
 	        
+			// 파일명 생성 및 저장
 	        String fileName = System.currentTimeMillis() + "_" + mainImage.getOriginalFilename();
 	        mainImage.transferTo(new File(dir, fileName));
 	        
+			// 식당에 새 이미지 경로 설정
 	        restaurant.setMainImageUrl("/uploads/restaurant/" + fileName);
 	    } else {
-	        // 기존 이미지 유지
+			// 기존 이미지 유지
 	        restaurant.setMainImageUrl(existingRestaurant.getMainImageUrl());
 	    }
 	    
+		// 식당 ID 설정
 	    restaurant.setId(id);
-	    restaurant.setOwnerId(existingRestaurant.getOwnerId()); // 오너 정보 유지
+		// 소유자 정보 유지
+	    restaurant.setOwnerId(existingRestaurant.getOwnerId());
+		// DB에 식당 정보 업데이트
 	    restaurantService.updateRestaurant(restaurant);
 	    
+		// 성공 메시지 전달
 	    redirectAttributes.addFlashAttribute("successMessage", "식당 정보가 수정되었습니다.");
 	    return "redirect:/restaurant/detail/" + id;
 	}
