@@ -21,19 +21,27 @@
 	            <p><strong>지역:</strong> <span th:text="${restaurant.region}"></span></p>
 	            <p><strong>주소:</strong> <span th:text="${restaurant.address}"></span></p>
 	            <div class="stats">
-	                ⭐ 평균 별점: <span th:text="${restaurant.avgRating}">0.0</span><br>
-	                💬 리뷰 수: <span th:text="${restaurant.reviewCount}">0</span>
+	                평균 별점: <span th:text="${restaurant.avgRating}">0.0</span><br>
+	                리뷰 수: <span th:text="${restaurant.reviewCount}">0</span>
 	            </div>
 	        </div>
+	        
+			<div class="restaurant-actions" 
+					th:if="${session.user != null and 
+		            session.user.role == 'ROLE_OWNER' and 
+		            session.user.id == restaurant.ownerId}">
+				<a th:href="@{/restaurant/edit/{id}(id=${restaurant.id})}" class="btn btn-create">수정하기</a>
+			</div>
 	    </div>
 	
 	    <!-- 오른쪽: 탭 구조 -->
 	    <div class="detail-right">
 	        <div class="tabs">
 	            <div class="tab active" data-tab="detail">상세</div>
+	            <div class="tab" data-tab="menu">메뉴</div>
 		        <div class="tab" data-tab="reviews">리뷰</div>
 		        <div class="tab" data-tab="write">리뷰작성</div>
-		        <div class="tab" data-tab="gallery">이미지</div>
+		        <div class="tab" data-tab="gallery">리뷰 이미지</div>
 		        <div class="tab" data-tab="map">지도</div>
 	        </div>
 	
@@ -56,6 +64,7 @@
 		        </div>
 		        <div th:each="review : ${reviews}" class="review-card">
 		            <p th:text="${review.content}"></p>
+		            <p th:text="${review.userName}"></p>
 		            <small th:text="${#temporals.format(review.createdAt, 'yyyy-MM-dd HH:mm')}"></small>
 		        </div>
 		    </div>
@@ -103,11 +112,8 @@
 	<!-- 공통 푸터 -->
     <div th:replace="layout/footer :: footer"></div>
 
-	<!-- 네이버 지도 SDK -->
-	<script 
-	    type="text/javascript"
-	    src="https://openapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=n7nbab23et">
-	</script>
+	<!-- 카카오 지도 SDK -->
+	<script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=e761fa7d455c669671e958c746995557&libraries=services"></script>
 	
 	<!-- 탭 전환 + 지도 렌더링 -->
 	<script type="text/javascript">
@@ -121,48 +127,46 @@
 	            tab.classList.add('active');
 	            document.getElementById(tab.dataset.tab).classList.add('active');
 	
-	            // 지도 탭 클릭 시 지도 렌더링
 	            if (tab.dataset.tab === 'map') {
-	                initMap();
+	                initKakaoMap();
 	            }
 	        });
 	    });
 	</script>
 	
-	<!-- 지도 초기화 함수 -->
+	<!-- 카카오 지도 초기화 함수 -->
 	<script th:inline="javascript" type="text/javascript">
-	    function initMap() {
+	    function initKakaoMap() {
 	        const lat = [[${restaurant.latitude}]];
 	        const lng = [[${restaurant.longitude}]];
 	        const name = /*[[${restaurant.name}]]*/ '식당명';
 	
-	        const map = new naver.maps.Map('map', {
-	            center: new naver.maps.LatLng(lat, lng),
-	            zoom: 16,
-	            zoomControl: true,
-	            mapTypeControl: true
-	        });
+	        const mapContainer = document.getElementById('map');
+	        const mapOption = {
+	            center: new kakao.maps.LatLng(lat, lng),
+	            level: 3
+	        };
+	        const map = new kakao.maps.Map(mapContainer, mapOption);
 	
-	        const marker = new naver.maps.Marker({
-	            position: new naver.maps.LatLng(lat, lng),
+	        const marker = new kakao.maps.Marker({
+	            position: new kakao.maps.LatLng(lat, lng),
 	            map: map,
 	            title: name
 	        });
 	
-	        const infoWindow = new naver.maps.InfoWindow({
-	            content: `<div style="padding:10px;font-size:14px;">
-	                        <b>${name}</b><br>
-	                        위도: ${lat.toFixed(4)}, 경도: ${lng.toFixed(4)}
-	                      </div>`
+	        const iwContent = `
+	            <div style="padding:10px;font-size:14px;">
+	                <b>${name}</b><br>
+	                위도: ${lat.toFixed(4)}, 경도: ${lng.toFixed(4)}
+	            </div>
+	        `;
+	        const infowindow = new kakao.maps.InfoWindow({ content: iwContent });
+	
+	        kakao.maps.event.addListener(marker, 'click', () => {
+	            infowindow.open(map, marker);
 	        });
 	
-	        // 마커 클릭 시 말풍선 열기
-	        naver.maps.Event.addListener(marker, 'click', () => {
-	            infoWindow.open(map, marker);
-	        });
-	
-	        // 탭 전환 후 지도 리사이즈
-	        setTimeout(() => { naver.maps.Event.trigger(map, 'resize'); }, 300);
+	        setTimeout(() => { map.relayout(); }, 300);
 	    }
 	</script>
 </body>

@@ -5,37 +5,11 @@
 
 <mapper namespace="org.embed.mapper.RestaurantMapper">
 
-    <!-- 1. 전체 맛집 조회 (오너 정보 + 평균 별점 + 검색/필터/페이지네이션) -->
-    <select id="findAll" parameterType="map" resultType="org.embed.dto.RestaurantDTO">
-        <![CDATA[
-            SELECT 
-                r.*, 
-                u.name AS owner_name,
-                COALESCE(ROUND(AVG(rv.rating), 1), 0) AS avg_rating
-            FROM 
-                restaurant r
-            LEFT JOIN user u ON r.owner_id = u.id
-            LEFT JOIN review rv ON r.id = rv.restaurant_id
-        ]]>
-        <where>
-            <if test="keyword != null and keyword != ''">
-                r.name LIKE CONCAT('%', #{keyword}, '%')
-            </if>
-            <if test="ownerFilter != null and ownerFilter == 'HAS'">
-                AND r.owner_id IS NOT NULL
-            </if>
-            <if test="ownerFilter != null and ownerFilter == 'NONE'">
-                AND r.owner_id IS NULL
-            </if>
-        </where>
-        <![CDATA[
-            GROUP BY r.id
-            ORDER BY r.created_at DESC
-            LIMIT #{offset}, #{limit}
-        ]]>
-    </select>
-
-    <!-- 2. 개별 맛집 조회 -->
+    <!-- ======================================
+         기본 CRUD
+    ====================================== -->
+    
+    <!-- 개별 맛집 조회 -->
     <select id="findById" parameterType="long" resultType="org.embed.dto.RestaurantDTO">
         <![CDATA[
             SELECT
@@ -52,7 +26,7 @@
         ]]>
     </select>
 
-    <!-- 3. 맛집 등록 -->
+    <!-- 맛집 등록 -->
     <insert id="insertRestaurant" parameterType="org.embed.dto.RestaurantDTO" useGeneratedKeys="true" keyProperty="id">
         <![CDATA[
             INSERT INTO restaurant (
@@ -79,7 +53,7 @@
         ]]>
     </insert>
 
-    <!-- 4. 맛집 수정 -->
+    <!-- 맛집 수정 -->
     <update id="updateRestaurant" parameterType="org.embed.dto.RestaurantDTO">
         <![CDATA[
             UPDATE restaurant
@@ -96,7 +70,7 @@
         ]]>
     </update>
 
-    <!-- 5. 맛집 삭제 -->
+    <!-- 맛집 삭제 -->
     <delete id="deleteRestaurant" parameterType="long">
         <![CDATA[
             DELETE FROM restaurant 
@@ -104,7 +78,11 @@
         ]]>
     </delete>
 
-    <!-- 6. 필터 검색 (카테고리 / 지역 / 키워드 / 기타 포함, 평균 별점 포함) -->
+    <!-- ======================================
+         검색/필터링
+    ====================================== -->
+    
+    <!-- 필터 검색 (카테고리 / 지역 / 키워드, 평균 별점 포함) -->
     <select id="findByFilter" resultType="org.embed.dto.RestaurantDTO">
         <![CDATA[
             SELECT 
@@ -157,7 +135,7 @@
         ]]>
     </select>
 
-    <!-- 7. 검색 결과 총 개수 -->
+    <!-- 검색 결과 총 개수 -->
     <select id="countByFilter" resultType="int">
         <![CDATA[
             SELECT COUNT(*) 
@@ -198,7 +176,41 @@
         </where>
     </select>
 
-    <!-- 8. 총 식당 개수 (검색/오너 필터 포함) -->
+    <!-- ======================================
+         관리자 기능
+    ====================================== -->
+    
+    <!-- 전체 맛집 조회 (오너 정보 + 평균 별점 + 검색/필터/페이지네이션) -->
+    <select id="findAll" parameterType="map" resultType="org.embed.dto.RestaurantDTO">
+        <![CDATA[
+            SELECT 
+                r.*, 
+                u.name AS owner_name,
+                COALESCE(ROUND(AVG(rv.rating), 1), 0) AS avg_rating
+            FROM 
+                restaurant r
+            LEFT JOIN user u ON r.owner_id = u.id
+            LEFT JOIN review rv ON r.id = rv.restaurant_id
+        ]]>
+        <where>
+            <if test="keyword != null and keyword != ''">
+                r.name LIKE CONCAT('%', #{keyword}, '%')
+            </if>
+            <if test="ownerFilter != null and ownerFilter == 'HAS'">
+                AND r.owner_id IS NOT NULL
+            </if>
+            <if test="ownerFilter != null and ownerFilter == 'NONE'">
+                AND r.owner_id IS NULL
+            </if>
+        </where>
+        <![CDATA[
+            GROUP BY r.id
+            ORDER BY r.created_at DESC
+            LIMIT #{offset}, #{limit}
+        ]]>
+    </select>
+
+    <!-- 총 식당 개수 (검색/오너 필터 포함) -->
     <select id="countAllWithOwner" parameterType="map" resultType="int">
         <![CDATA[
             SELECT COUNT(*) FROM restaurant r
@@ -216,7 +228,7 @@
         </where>
     </select>
 
-    <!-- 9. 식당 오너 지정/변경 -->
+    <!-- 식당 오너 지정/변경 -->
     <update id="updateOwner" parameterType="map">
         <![CDATA[
             UPDATE restaurant
@@ -225,15 +237,13 @@
         ]]>
     </update>
     
-    
     <!-- 전체 오너 배정된 유저 ID 목록 -->
-	<select id="findAssignedOwnerIds" resultType="long">
-	    <![CDATA[
-	        SELECT DISTINCT owner_id
-	        FROM restaurant
-	        WHERE owner_id IS NOT NULL
-	    ]]>
-	</select>
-	    
+    <select id="findAssignedOwnerIds" resultType="long">
+        <![CDATA[
+            SELECT DISTINCT owner_id
+            FROM restaurant
+            WHERE owner_id IS NOT NULL
+        ]]>
+    </select>
 
 </mapper>

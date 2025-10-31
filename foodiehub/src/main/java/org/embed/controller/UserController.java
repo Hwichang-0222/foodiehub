@@ -38,19 +38,23 @@ public class UserController {
     private final ReviewService reviewService;
     private final BoardService boardService;
 
-    // 1. 회원가입 폼 이동
+    /* ------------------------------
+       회원가입
+    ------------------------------ */
+    // 회원가입 폼 페이지
     @GetMapping("/signup")
     public String signupForm(Model model) {
         model.addAttribute("user", new UserDTO());
-        return "user/signup"; // → /templates/user/signup.html
+        return "user/signup";
     }
 
-    // 2. 회원가입 처리
+    // 회원가입 처리
     @PostMapping("/signup")
     public String signup(@ModelAttribute UserDTO user,
                          @RequestParam(value = "profileImage", required = false) MultipartFile profileImage,
                          Model model) {
 
+        // 이메일 중복 확인
         if (userService.countByEmail(user.getEmail()) > 0) {
             model.addAttribute("error", "이미 존재하는 이메일입니다.");
             return "user/signup";
@@ -59,79 +63,46 @@ public class UserController {
         user.setRole("ROLE_USER");
         user.setIsDeleted("N");
 
+        // 프로필 이미지 처리
         if (profileImage != null && !profileImage.isEmpty()) {
-            // 실제 이미지 저장 로직 구현 (예: /uploads/)
             String savedPath = saveProfileImage(profileImage);
             user.setProfileImageUrl(savedPath);
         } else {
-            // 기본 이미지 경로 세팅
             user.setProfileImageUrl("/images/default-profile.png");
         }
 
         userService.insertUser(user);
-        return "redirect:/login";
+        return "redirect:/user/login";
     }
 
-    
     // 이메일 중복 확인 (AJAX)
     @GetMapping("/check-email")
     @ResponseBody
-    public Map<String, Boolean> checkEmail(@RequestParam String email) {
+    public Map<String, Boolean> checkEmail(@RequestParam(name = "email") String email) {
         int count = userService.countByEmail(email);
         boolean exists = count > 0;
         return Collections.singletonMap("exists", exists);
     }
-    
-    // 이미지 파일 저장 메서드
-    private String saveProfileImage(MultipartFile file) {
-        try {
-            // 1. 저장 경로 설정 (FoodieHub 기준: src/main/resources/static/uploads)
-            String uploadDir = System.getProperty("user.dir") + "/src/main/resources/static/uploads/";
 
-            // 2. 폴더 없으면 자동 생성
-            File dir = new File(uploadDir);
-            if (!dir.exists()) dir.mkdirs();
-
-            // 3. 파일명 고유화 (UUID + 원본 확장자)
-            String originalFilename = file.getOriginalFilename();
-            String extension = "";
-            if (originalFilename != null && originalFilename.contains(".")) {
-                extension = originalFilename.substring(originalFilename.lastIndexOf("."));
-            }
-            String newFileName = UUID.randomUUID() + extension;
-
-            // 4. 실제 파일 저장
-            File saveFile = new File(uploadDir + newFileName);
-            file.transferTo(saveFile);
-
-            // 5. DB에 저장할 상대 경로 반환 (Thymeleaf에서 접근 가능)
-            return "/uploads/" + newFileName;
-
-        } catch (IOException e) {
-            e.printStackTrace();
-            // 저장 실패 시 기본 이미지 반환
-            return "/images/default-profile.png";
-        }
-    }
-    
-    // 3. 로그인 
+    /* ------------------------------
+       로그인/로그아웃
+    ------------------------------ */
+    // 로그인 폼 페이지
     @GetMapping("/login")
     public String loginPage() {
-        return "user/login";  // templates/user/login.html
+        return "user/login";
     }
-    
-    // 4. 로그인 처리
+
+    // 로그인 처리
     @PostMapping("/login")
     public String login(@RequestParam("email") String email,
-    					@RequestParam("password") String password,
+                        @RequestParam("password") String password,
                         HttpSession session,
                         Model model) {
 
-        // 유효성 검증 (true / false 리턴)
         boolean isValid = userService.validateLogin(email, password);
 
         if (isValid) {
-            // 로그인 성공 시, 유저 정보를 다시 불러와 세션에 저장
             UserDTO user = userService.findByEmail(email);
             session.setAttribute("user", user);
             return "redirect:/";
@@ -141,18 +112,22 @@ public class UserController {
         }
     }
 
-    // 5. 로그아웃
+    // 로그아웃
     @GetMapping("/logout")
     public String logout(HttpSession session) {
         session.invalidate();
         return "redirect:/";
     }
-    
+
+    /* ------------------------------
+       마이페이지
+    ------------------------------ */
+    // 마이페이지 (내가 쓴 리뷰, 게시글 목록)
     @GetMapping("/mypage")
     public String myPage(@RequestParam(name = "reviewPage", defaultValue = "1") int reviewPage,
                          @RequestParam(name = "boardPage", defaultValue = "1") int boardPage,
                          HttpSession session, Model model) {
-    	
+
         Object userObj = session.getAttribute("user");
         if (userObj == null) {
             return "redirect:/user/login";
@@ -161,40 +136,39 @@ public class UserController {
         UserDTO user = (UserDTO) userObj;
         model.addAttribute("user", user);
 
-        int reviewPageSize = 4;
-        int boardPageSize = 4;
-        int reviewOffset;
-        int boardOffset;
-        
-        if (reviewPage <= 0) reviewOffset = 0;
-        else reviewOffset = (reviewPage - 1) * reviewPageSize;
-        
-        if (boardPage <= 0) boardOffset = 0;
-        else boardOffset = (boardPage - 1) * boardPageSize;
+        int reviewLimit = 4;
+        int boardLimit = 4;
+
+        int reviewOffset = (reviewPage - 1) * reviewLimit;
+        int boardOffset = (boardPage - 1) * boardLimit;
 
         // 리뷰 목록 + 개수
-        List<ReviewDTO> reviews = reviewService.findPagedByUserId(user.getId(), reviewOffset, reviewPageSize);
+        List<ReviewDTO> reviews = reviewService.findPagedByUserId(user.getId(), reviewOffset, reviewLimit);
         int totalReviews = reviewService.countByUserId(user.getId());
 
         // 게시글 목록 + 개수
-        List<BoardDTO> boards = boardService.findPagedByUserId(user.getId(), boardOffset, boardPageSize);
+        List<BoardDTO> boards = boardService.findPagedByUserId(user.getId(), boardOffset, boardLimit);
         int totalBoards = boardService.countByUserId(user.getId());
 
-        // 변수명 HTML과 동일하게 설정
+        // 리뷰 관련 model
         model.addAttribute("reviews", reviews);
         model.addAttribute("totalReviews", totalReviews);
         model.addAttribute("reviewCurrentPage", reviewPage);
-        model.addAttribute("reviewTotalPages", (int) Math.ceil((double) totalReviews / reviewPageSize));
+        model.addAttribute("reviewTotalPages", (int) Math.ceil((double) totalReviews / reviewLimit));
 
+        // 게시글 관련 model
         model.addAttribute("boards", boards);
         model.addAttribute("totalBoards", totalBoards);
         model.addAttribute("boardCurrentPage", boardPage);
-        model.addAttribute("boardTotalPages", (int) Math.ceil((double) totalBoards / boardPageSize));
+        model.addAttribute("boardTotalPages", (int) Math.ceil((double) totalBoards / boardLimit));
 
         return "user/mypage";
     }
 
-    
+    /* ------------------------------
+       회원정보 수정
+    ------------------------------ */
+    // 회원정보 수정 폼 페이지
     @GetMapping("/edit")
     public String editPage(HttpSession session, Model model) {
         Object userObj = session.getAttribute("user");
@@ -202,9 +176,10 @@ public class UserController {
 
         UserDTO user = (UserDTO) userObj;
         model.addAttribute("user", user);
-        return "user/edit"; // templates/user/edit.html
+        return "user/edit";
     }
-    
+
+    // 회원정보 수정 처리
     @PostMapping("/update")
     public String updateUser(@ModelAttribute UserDTO user,
                              @RequestParam("currentPassword") String currentPassword,
@@ -218,7 +193,7 @@ public class UserController {
 
         UserDTO sessionUser = (UserDTO) userObj;
 
-        // 1. 비밀번호 검증
+        // 현재 비밀번호 검증
         boolean isValid = userService.validateLogin(sessionUser.getEmail(), currentPassword);
         if (!isValid) {
             model.addAttribute("error", "비밀번호가 올바르지 않습니다.");
@@ -226,17 +201,17 @@ public class UserController {
             return "user/edit";
         }
 
-        // 2. 새 비밀번호 입력 시 변경, 아니면 기존 유지
+        // 새 비밀번호 입력 시 변경, 아니면 기존 유지
         if (newPassword != null && !newPassword.isBlank()) {
             user.setPassword(newPassword);
         } else {
             user.setPassword(sessionUser.getPassword());
         }
 
-        // 3. 프로필 이미지 업로드
+        // 프로필 이미지 업로드
         if (file != null && !file.isEmpty()) {
             try {
-                String uploadDir = "src/main/resources/static/uploads/profile/";
+                String uploadDir = System.getProperty("user.dir") + "/uploads/profile/";
                 File dir = new File(uploadDir);
                 if (!dir.exists()) dir.mkdirs();
 
@@ -253,7 +228,7 @@ public class UserController {
             user.setProfileImageUrl(sessionUser.getProfileImageUrl());
         }
 
-        // 4. 나머지 정보 세팅
+        // 나머지 정보 세팅
         user.setId(sessionUser.getId());
         user.setEmail(sessionUser.getEmail());
         user.setRole(sessionUser.getRole());
@@ -261,18 +236,20 @@ public class UserController {
         user.setBirthDate(sessionUser.getBirthDate());
         user.setGender(sessionUser.getGender());
 
-        // 5. DB 업데이트
+        // DB 업데이트
         userService.updateUser(user);
 
-        // 6. 세션 갱신
+        // 세션 갱신
         session.setAttribute("user", userService.findByEmail(user.getEmail()));
 
         model.addAttribute("success", "회원정보가 수정되었습니다.");
         return "redirect:/user/mypage";
     }
 
-
-    // 8. 회원 탈퇴
+    /* ------------------------------
+       회원 탈퇴
+    ------------------------------ */
+    // 회원 탈퇴 처리
     @PostMapping("/delete")
     public String deleteAccount(HttpSession session) {
         Object userObj = session.getAttribute("user");
@@ -280,7 +257,7 @@ public class UserController {
 
         UserDTO user = (UserDTO) userObj;
 
-        // 실제 DB 삭제 or 탈퇴 처리
+        // 논리 삭제 (is_deleted = 'Y')
         userService.softDeleteUser(user.getId());
 
         // 세션 종료
@@ -289,5 +266,39 @@ public class UserController {
         return "redirect:/";
     }
 
+    /* ------------------------------
+       유틸리티 메서드
+    ------------------------------ */
+    // 프로필 이미지 파일 저장
+    private String saveProfileImage(MultipartFile file) {
+        try {
+            // 저장 경로 설정
+            String uploadDir = System.getProperty("user.dir") + "/uploads/profile/";
+
+            // 폴더 없으면 자동 생성
+            File dir = new File(uploadDir);
+            if (!dir.exists()) dir.mkdirs();
+
+            // 파일명 고유화 (UUID + 원본 확장자)
+            String originalFilename = file.getOriginalFilename();
+            String extension = "";
+            if (originalFilename != null && originalFilename.contains(".")) {
+                extension = originalFilename.substring(originalFilename.lastIndexOf("."));
+            }
+            String newFileName = UUID.randomUUID() + extension;
+
+            // 실제 파일 저장
+            File saveFile = new File(uploadDir + newFileName);
+            file.transferTo(saveFile);
+
+            // DB에 저장할 상대 경로 반환
+            return "/uploads/profile/" + newFileName;
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            // 저장 실패 시 기본 이미지 반환
+            return "/images/default-profile.png";
+        }
+    }
 
 }

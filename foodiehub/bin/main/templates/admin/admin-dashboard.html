@@ -7,209 +7,214 @@
     <script defer th:src="@{/js/admin-dashboard.js}"></script>
 </head>
 <body>
-	
-	<!-- 공통 헤더 -->
-	<div th:replace="layout/header :: header"></div>
+    
+    <!-- 공통 헤더 -->
+    <div th:replace="layout/header :: header"></div>
 
     <div class="admin-container">
         <h1>관리자 페이지</h1>
 
         <!-- 탭 메뉴 -->
         <div class="tab-menu">
-			<button class="admin-tab active" data-target="#user-tab">유저 관리</button>
-			<button class="admin-tab" data-target="#restaurant-tab">식당 관리</button>
-			<button class="admin-tab" data-target="#board-tab">답글 관리</button>
-			<button class="admin-tab" data-target="#notice-tab">공지사항 관리</button>
-		</div>
+            <button class="admin-tab active" data-target="#user-tab">유저 관리</button>
+            <button class="admin-tab" data-target="#restaurant-tab">식당 관리</button>
+            <button class="admin-tab" data-target="#board-tab">답글 관리</button>
+            <button class="admin-tab" data-target="#notice-tab">공지사항 관리</button>
+        </div>
 
         <!-- 유저 관리 탭 -->
-		<section id="user-tab" class="tab-content active">
-		
-		    <!-- 검색 폼 -->
-		    <form th:action="@{/admin/dashboard}" method="get" class="search-form">
-		        <input type="hidden" name="tab" value="user">
-		        <input type="text" name="userKeyword" placeholder="이름 또는 이메일 검색" th:value="${keyword}">
-		        <input type="hidden" name="status" th:value="${status}">
-		        <input type="hidden" name="role" th:value="${role}">
-		        <button type="submit" class="btn">검색</button>
-		        <a th:href="@{/admin/dashboard(tab='user')}" class="btn reset-btn">검색 초기화</a>
-		    </form>
-		
-		    <!-- 상태 필터 -->
-		    <div class="filter-group">
-			    <div class="filter-left">
-			        <a th:href="@{|/admin/dashboard?tab=user&status=&role=${role}&userKeyword=${keyword}|}"
-			           th:classappend="${status == null or status == ''} ? 'active' : ''"
-			           class="btn">전체</a>
-			        <a th:href="@{|/admin/dashboard?tab=user&status=N&role=${role}&userKeyword=${keyword}|}"
-			           th:classappend="${status == 'N'} ? 'active' : ''"
-			           class="btn">활동중</a>
-			        <a th:href="@{|/admin/dashboard?tab=user&status=Y&role=${role}&userKeyword=${keyword}|}"
-			           th:classappend="${status == 'Y'} ? 'active' : ''"
-			           class="btn delete">탈퇴회원</a>
-			    </div>
-			
-			    <!-- 역할(Role) 필터 -->
-			    <div class="filter-right">
-			        <a th:href="@{|/admin/dashboard?tab=user&role=&status=${status}&userKeyword=${keyword}|}"
-			           th:classappend="${role == null or role == ''} ? 'active' : ''"
-			           class="btn">전체</a>
-			        <a th:href="@{|/admin/dashboard?tab=user&role=ROLE_USER&status=${status}&userKeyword=${keyword}|}"
-			           th:classappend="${role == 'ROLE_USER'} ? 'active' : ''"
-			           class="btn">일반</a>
-			        <a th:href="@{|/admin/dashboard?tab=user&role=ROLE_OWNER&status=${status}&userKeyword=${keyword}|}"
-			           th:classappend="${role == 'ROLE_OWNER'} ? 'active' : ''"
-			           class="btn">사장</a>
-			        <a th:href="@{|/admin/dashboard?tab=user&role=ROLE_ADMIN&status=${status}&userKeyword=${keyword}|}"
-			           th:classappend="${role == 'ROLE_ADMIN'} ? 'active' : ''"
-			           class="btn">관리자</a>
-			    </div>
+        <section id="user-tab" class="tab-content active">
+        
+            <!-- 검색 폼 -->
+            <form th:action="@{/admin/dashboard}" method="get" class="search-form">
+                <input type="hidden" name="tab" value="user">
+                <input type="text" name="userKeyword" placeholder="이름 또는 이메일 검색" th:value="${keyword}">
+                <input type="hidden" name="status" th:value="${status}">
+                <input type="hidden" name="role" th:value="${role}">
+                <button type="submit" class="btn">검색</button>
+                <a th:href="@{/admin/dashboard(tab='user')}" class="reset-btn">검색 초기화</a>
+            </form>
+        
+            <!-- 상태 필터 -->
+            <div class="filter-group">
+                <div class="filter-left">
+                    <a th:href="@{|/admin/dashboard?tab=user&status=&role=${role}&userKeyword=${keyword}|}"
+                       th:classappend="${status == null or status == ''} ? 'active' : ''"
+                       class="btn">전체</a>
+                    <a th:href="@{|/admin/dashboard?tab=user&status=N&role=${role}&userKeyword=${keyword}|}"
+                       th:classappend="${status == 'N'} ? 'active' : ''"
+                       class="btn">활동중</a>
+                    <a th:href="@{|/admin/dashboard?tab=user&status=Y&role=${role}&userKeyword=${keyword}|}"
+                       th:classappend="${status == 'Y'} ? 'active' : ''"
+                       class="btn delete">탈퇴회원</a>
+                </div>
+            
+                <!-- 역할(Role) 필터 -->
+                <div class="filter-right">
+                    <a th:href="@{|/admin/dashboard?tab=user&role=&status=${status}&userKeyword=${keyword}|}"
+                       th:classappend="${role == null or role == ''} ? 'active' : ''"
+                       class="btn">전체</a>
+                    <a th:href="@{|/admin/dashboard?tab=user&role=ROLE_USER&status=${status}&userKeyword=${keyword}|}"
+                       th:classappend="${role == 'ROLE_USER'} ? 'active' : ''"
+                       class="btn">일반</a>
+                    <a th:href="@{|/admin/dashboard?tab=user&role=ROLE_OWNER&status=${status}&userKeyword=${keyword}|}"
+                       th:classappend="${role == 'ROLE_OWNER'} ? 'active' : ''"
+                       class="btn">사장</a>
+                    <a th:href="@{|/admin/dashboard?tab=user&role=ROLE_ADMIN&status=${status}&userKeyword=${keyword}|}"
+                       th:classappend="${role == 'ROLE_ADMIN'} ? 'active' : ''"
+                       class="btn">관리자</a>
+                </div>
+            </div>
+            
+            <!-- 유저 테이블 -->
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>번호</th>
+                        <th>이름</th>
+                        <th>이메일</th>
+                        <th>역할(Role)</th>
+                        <th>가입일</th>
+                        <th>현재 상태</th>
+                        <th>관리</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="user, iStat : ${users}">
+                        <td th:text="${iStat.count}"></td>
+                        <td th:text="${user.name}"></td>
+                        <td th:text="${user.email}"></td>
+                        <td>
+                            <select class="role-select" th:data-user-id="${user.id}">
+                                <option value="ROLE_USER"
+                                        th:selected="${user.role == 'ROLE_USER'}">사용자</option>
+                                <option value="ROLE_OWNER"
+                                        th:selected="${user.role == 'ROLE_OWNER'}">가게 사장</option>
+                                <option value="ROLE_ADMIN"
+                                        th:selected="${user.role == 'ROLE_ADMIN'}">ADMIN</option>
+                            </select>
+                        </td>
+                        <td th:text="${user.createdAt != null ? #temporals.format(user.createdAt, 'yyyy-MM-dd') : '-'}"></td>
+                        <td th:text="${user.isDeleted == 'Y' ? '탈퇴' : '활동중'}"></td>
+                        <td><button class="btn update-role-btn" type="button">수정</button></td>
+                    </tr>
+                </tbody>
+            </table>
+        
+            <!-- 페이지네이션 -->
+            <div th:if="${userTotalPages > 1 and users.size() > 0}" class="pagination">
+                <a th:if="${userPage > 1}"
+                   th:href="@{|/admin/dashboard?tab=user&userPage=${userPage - 1}&userKeyword=${keyword}&status=${status}&role=${role}|}">&laquo; 이전</a>
+        
+                <span th:text="'페이지 ' + ${userPage} + ' / ' + ${userTotalPages}"></span>
+        
+                <a th:if="${userPage < userTotalPages}"
+                   th:href="@{|/admin/dashboard?tab=user&userPage=${userPage + 1}&userKeyword=${keyword}&status=${status}&role=${role}|}">다음 &raquo;</a>
+            </div>
+        
+            <div th:if="${users.size() == 0}" class="no-result">
+                검색 결과가 없습니다.
+            </div>
+        </section>
+
+        
+        <!-- 식당 관리 탭 -->
+        <section id="restaurant-tab" class="tab-content"> 
+         
+            <div class="restaurant-search-area">
+                <form th:action="@{/admin/dashboard}" method="get" class="search-form">
+                    <input type="hidden" name="tab" value="restaurant">
+                    <input type="text" name="restaurantKeyword" placeholder="식당명 검색" th:value="${restaurantKeyword}">
+                    <button type="submit" class="btn">검색</button>
+                    <a th:href="@{/admin/dashboard(tab='restaurant')}" class="reset-btn">검색 초기화</a>
+                </form>
 			</div>
-			
-		    <!-- 유저 테이블 -->
-		    <table class="admin-table">
-		        <thead>
-		            <tr>
-		                <th>번호</th>
-		                <th>이름</th>
-		                <th>이메일</th>
-		                <th>역할(Role)</th>
-		                <th>가입일</th>
-		                <th>현재 상태</th>
-		                <th>관리</th>
-		            </tr>
-		        </thead>
-		        <tbody>
-		            <tr th:each="user, iStat : ${users}">
-		                <td th:text="${iStat.count}"></td>
-		                <td th:text="${user.name}"></td>
-		                <td th:text="${user.email}"></td>
-		                <td>
-		                    <select class="role-select" th:data-user-id="${user.id}">
-		                        <option value="ROLE_USER"
-		                                th:selected="${user.role == 'ROLE_USER'}">사용자</option>
-		                        <option value="ROLE_OWNER"
-		                                th:selected="${user.role == 'ROLE_OWNER'}">가게 사장</option>
-		                        <option value="ROLE_ADMIN"
-		                                th:selected="${user.role == 'ROLE_ADMIN'}">ADMIN</option>
-		                    </select>
-		                </td>
-		                <td th:text="${user.createdAt != null ? #temporals.format(user.createdAt, 'yyyy-MM-dd') : '-'}"></td>
-		                <td th:text="${user.isDeleted == 'Y' ? '탈퇴' : '활동중'}"></td>
-		                <td><button class="btn update-role-btn" type="button">수정</button></td>
-		            </tr>
-		        </tbody>
-		    </table>
-		
-		    <!-- 페이지네이션 -->
-		    <div th:if="${userTotalPages > 1 and users.size() > 0}" class="pagination">
-		        <a th:if="${userPage > 1}"
-		           th:href="@{|/admin/dashboard?tab=user&userPage=${userPage - 1}&userKeyword=${keyword}&status=${status}&role=${role}|}"
-		           class="btn">&laquo; 이전</a>
-		
-		        <span th:text="'페이지 ' + ${userPage} + ' / ' + ${userTotalPages}"></span>
-		
-		        <a th:if="${userPage < userTotalPages}"
-		           th:href="@{|/admin/dashboard?tab=user&userPage=${userPage + 1}&userKeyword=${keyword}&status=${status}&role=${role}|}"
-		           class="btn">다음 &raquo;</a>
-		    </div>
-		
-		    <div th:if="${users.size() == 0}" class="no-result">
-		        검색 결과가 없습니다.
-		    </div>
-		</section>
+			 <div class="filter-group">
+                <div class="filter-left">
+                    <a th:href="@{/admin/dashboard(tab='restaurant')}" 
+                       th:classappend="${ownerFilter == null} ? 'active' : ''" class="btn">전체보기</a>
+                    <a th:href="@{/admin/dashboard(ownerFilter='HAS', tab='restaurant')}" 
+                       th:classappend="${ownerFilter == 'HAS'} ? 'active' : ''" class="btn">오너 있는 식당</a>
+                    <a th:href="@{/admin/dashboard(ownerFilter='NONE', tab='restaurant')}" 
+                       th:classappend="${ownerFilter == 'NONE'} ? 'active' : ''" class="btn">오너 없는 식당</a>
+                </div>
+            
+            
+	            <div class="filter-right">
+	                <a th:href="@{/restaurant/add}" class="btn-create">식당 추가</a>
+	            </div>
+            </div>
+        
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>번호</th>
+                        <th>식당명</th>
+                        <th>오너</th>
+                        <th>주소</th>
+                        <th>지역</th>
+                        <th>카테고리</th>
+                        <th>등록일</th>
+                        <th>관리</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="restaurant, iStat : ${restaurants}">
+                        <td th:text="${iStat.count}"></td>
+                        <td th:text="${restaurant.name}"></td>
+                        <td>
+                            <select class="owner-select" th:data-restaurant-id="${restaurant.id}">
+                                <option value="">미지정</option>
+                                <option th:each="owner : ${owners}"
+                                        th:value="${owner.id}"
+                                        th:text="${owner.name}"
+                                        th:selected="${restaurant.ownerId == owner.id}"
+                                        th:disabled="${#lists.contains(assignedOwnerIds, owner.id)}"></option>
+                            </select>
+                            <button class="btn update-owner-btn" type="button">지정</button>
+                        </td>
+                        <td th:text="${restaurant.address}"></td>
+                        <td th:text="${restaurant.region}"></td>
+                        <td th:text="${restaurant.category}"></td>
+                        <td th:text="${#temporals.format(restaurant.createdAt, 'yyyy-MM-dd')}"></td>
+                        <td>
+                            <a th:href="@{/restaurant/detail/{id}(id=${restaurant.id})}" class="btn">보기</a>
+                            <a th:href="@{/restaurant/edit/{id}(id=${restaurant.id})}" class="btn">수정</a>
+                            <a th:href="@{/restaurant/delete/{id}(id=${restaurant.id})}" class="btn delete">삭제</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
 
-		
-		<!-- 식당 관리 탭 -->
-		<section id="restaurant-tab" class="tab-content"> 
-		 
-		    <div class="restaurant-search-area">
-		        <form th:action="@{/admin/dashboard}" method="get" class="restaurant-search-form">
-					<input type="hidden" name="tab" value="restaurant">
-					<input type="text" name="restaurantKeyword" placeholder="식당명 검색" th:value="${restaurantKeyword}">
-					<button type="submit" class="btn">검색</button>
-					<a th:href="@{/admin/dashboard(tab='restaurant')}" class="btn reset-btn">검색 초기화</a>
-			    </form>
-		
-		        <div class="restaurant-filter-form">
-				    <a th:href="@{/admin/dashboard(tab='restaurant')}" 
-				       th:classappend="${ownerFilter == null} ? 'active' : ''" class="btn">전체보기</a>
-				    <a th:href="@{/admin/dashboard(ownerFilter='HAS', tab='restaurant')}" 
-				       th:classappend="${ownerFilter == 'HAS'} ? 'active' : ''" class="btn">오너 있는 식당</a>
-				    <a th:href="@{/admin/dashboard(ownerFilter='NONE', tab='restaurant')}" 
-				       th:classappend="${ownerFilter == 'NONE'} ? 'active' : ''" class="btn">오너 없는 식당</a>
-				</div>
-		    </div>
-		
-		    <table class="admin-table">
-		        <thead>
-		            <tr>
-		                <th>번호</th>
-		                <th>식당명</th>
-		                <th>오너</th>
-		                <th>주소</th>
-		                <th>지역</th>
-		                <th>카테고리</th>
-		                <th>등록일</th>
-		                <th>관리</th>
-		            </tr>
-		        </thead>
-		        <tbody>
-		            <tr th:each="restaurant, iStat : ${restaurants}">
-		                <td th:text="${iStat.count}"></td>
-		                <td th:text="${restaurant.name}"></td>
-		                <td>
-		                    <select class="owner-select" th:data-restaurant-id="${restaurant.id}">
-		                        <option value="">미지정</option>
-		                        <option th:each="owner : ${owners}"
-		                                th:value="${owner.id}"
-		                                th:text="${owner.name}"
-		                                th:selected="${restaurant.ownerId == owner.id}"
-		                                th:disabled="${#lists.contains(assignedOwnerIds, owner.id)}"></option>
-		                    </select>
-		                    <button class="btn update-owner-btn" type="button">지정</button>
-		                </td>
-		                <td th:text="${restaurant.address}"></td>
-		                <td th:text="${restaurant.region}"></td>
-		                <td th:text="${restaurant.category}"></td>
-		                <td th:text="${#temporals.format(restaurant.createdAt, 'yyyy-MM-dd')}"></td>
-		                <td>
-		                    <a th:href="@{/restaurant/detail/{id}(id=${restaurant.id})}" class="btn">보기</a>
-		                    <a th:href="@{/admin/restaurant/delete/{id}(id=${restaurant.id})}" class="btn delete">삭제</a>
-		                </td>
-		            </tr>
-		        </tbody>
-		    </table>
+            <!-- 식당 페이지네이션 -->
+            <div class="pagination">
+                <a th:if="${restaurantPage > 1}" 
+                   th:href="@{/admin/dashboard(restaurantPage=${restaurantPage - 1}, tab='restaurant')}">&laquo; 이전</a>
+                <span th:text="' 페이지 ' + ${restaurantPage} + ' / ' + ${restaurantTotalPages}"></span>
+                <a th:if="${restaurantPage < restaurantTotalPages}" 
+                   th:href="@{/admin/dashboard(restaurantPage=${restaurantPage + 1}, tab='restaurant')}">다음 &raquo;</a>
+            </div>
 
-		    <!-- 식당 페이지네이션 -->
-		    <div class="pagination">
-			    <a th:if="${restaurantPage > 1}" 
-			       th:href="@{/admin/dashboard(restaurantPage=${restaurantPage - 1}, tab='restaurant')}" class="btn">&laquo; 이전</a>
-			    <span th:text="'페이지 ' + ${restaurantPage} + ' / ' + ${restaurantTotalPages}"></span>
-			    <a th:if="${restaurantPage < restaurantTotalPages}" 
-			       th:href="@{/admin/dashboard(restaurantPage=${restaurantPage + 1}, tab='restaurant')}" class="btn">다음 &raquo;</a>
-			</div>
-
-		</section>
+        </section>
 
         <!-- 답글 관리 탭 -->
-        <section id="board-tab" class="tab-content" >
+        <section id="board-tab" class="tab-content">
         
             <div class="filter-form">
-		        <a th:href="@{/admin/dashboard(tab='board')}" 
-		           th:classappend="${filter == null} ? 'active' : ''" class="btn">전체보기</a>
-		        <a th:href="@{/admin/dashboard(tab='board', filter='QUESTION')}" 
-		           th:classappend="${filter == 'QUESTION'} ? 'active' : ''" class="btn">등급</a>
-		        <a th:href="@{/admin/dashboard(tab='board', filter='SUGGESTION')}" 
-		           th:classappend="${filter == 'SUGGESTION'} ? 'active' : ''" class="btn">추천</a>
-		    </div>
-		    
+                <a th:href="@{/admin/dashboard(tab='board')}" 
+                   th:classappend="${filter == null} ? 'active' : ''" class="btn">전체보기</a>
+                <a th:href="@{/admin/dashboard(tab='board', filter='QUESTION')}" 
+                   th:classappend="${filter == 'QUESTION'} ? 'active' : ''" class="btn">등급</a>
+                <a th:href="@{/admin/dashboard(tab='board', filter='SUGGESTION')}" 
+                   th:classappend="${filter == 'SUGGESTION'} ? 'active' : ''" class="btn">추천</a>
+            </div>
+            
             <table class="admin-table">
                 <thead>
                     <tr>
                         <th>번호</th>
                         <th>제목</th>
-						<th>작성자</th>
+                        <th>작성자</th>
                         <th>카테고리</th>
                         <th>작성일</th>
                         <th>관리</th>
@@ -232,15 +237,15 @@
             <!-- 답글 관리 페이지네이션 -->
             <div class="pagination">
                 <a th:if="${boardPage > 1}" 
-                   th:href="@{/admin/dashboard(boardPage=${boardPage - 1}, tab='board')}" class="btn">&laquo; 이전</a>
+                   th:href="@{/admin/dashboard(boardPage=${boardPage - 1}, tab='board')}">&laquo; 이전</a>
                 <span th:text="'페이지 ' + ${boardPage} + ' / ' + ${boardTotalPages}"></span>
                 <a th:if="${boardPage < boardTotalPages}" 
-                   th:href="@{/admin/dashboard(boardPage=${boardPage + 1}, tab='board')}" class="btn">다음 &raquo;</a>
+                   th:href="@{/admin/dashboard(boardPage=${boardPage + 1}, tab='board')}">다음 &raquo;</a>
             </div>
         </section>
 
         <!-- 공지사항 관리 탭 -->
-        <section id="notice-tab" class="tab-content" >
+        <section id="notice-tab" class="tab-content">
         
             <div class="notice-header">
                 <a href="/admin/notice/new" class="btn-create">공지 작성</a>
@@ -270,15 +275,24 @@
             <!-- 공지사항 페이지네이션 -->
             <div class="pagination">
                 <a th:if="${noticePage > 1}" 
-                   th:href="@{/admin/dashboard(noticePage=${noticePage - 1}, tab='notice')}" class="btn">&laquo; 이전</a>
+                   th:href="@{/admin/dashboard(noticePage=${noticePage - 1}, tab='notice')}">&laquo; 이전</a>
                 <span th:text="'페이지 ' + ${noticePage} + ' / ' + ${noticeTotalPages}"></span>
                 <a th:if="${noticePage < noticeTotalPages}" 
-                   th:href="@{/admin/dashboard(noticePage=${noticePage + 1}, tab='notice')}" class="btn">다음 &raquo;</a>
+                   th:href="@{/admin/dashboard(noticePage=${noticePage + 1}, tab='notice')}">다음 &raquo;</a>
             </div>
         </section>
     </div>
     
-	<!-- 공통 푸터 -->
-	<div th:replace="layout/footer :: footer"></div>
+    <!-- 공통 푸터 -->
+    <div th:replace="layout/footer :: footer"></div>
+    
+        <script th:inline="javascript">
+        /*<![CDATA[*/
+        var successMessage = /*[[${successMessage}]]*/ null;
+        if (successMessage) {
+            alert(successMessage);
+        }
+        /*]]>*/
+    </script>
 </body>
 </html>

@@ -1,5 +1,6 @@
 package org.embed.configuration;
 
+import java.io.File;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -15,8 +16,7 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
 
-        // 실제 파일 경로
-        String uploadPath = System.getProperty("user.dir") + "/src/main/resources/static/uploads/";
+    	String uploadPath = System.getProperty("user.dir") + "/uploads/";
 
         // '/uploads/**' 요청을 실제 파일 시스템의 '/uploads/' 로 매핑
         registry.addResourceHandler("/uploads/**")

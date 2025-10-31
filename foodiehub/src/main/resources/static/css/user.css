@@ -1,126 +1,65 @@
 @charset "UTF-8";
+
 /* ------------------------------
-   SIGNUP & EDIT PAGE (회원가입 / 회원정보 수정 공통)
+   SIGNUP & EDIT PAGE (회원가입 / 수정)
 ------------------------------ */
 .signup-main { display:flex; justify-content:center; align-items:center; min-height:100vh; background-color:#f5f7fa; padding:40px 0; }
 
-/* 폼 전체 박스 */
 .signup-container { background:#fff; width:640px; padding:50px 60px; border-radius:14px; box-shadow:0 5px 18px rgba(0,0,0,0.06); box-sizing:border-box; }
-
-/* 제목 */
 .signup-container h2 { text-align:center; margin-bottom:40px; color:#1e2a38; font-size:2rem; font-weight:800; }
-
-/* 라벨 공통 */
 .signup-container label { display:block; margin-top:18px; font-weight:600; color:#333; }
 
-/* 모든 입력 요소 폭 통일 */
-.signup-container input,
-.signup-container select { width:100%; box-sizing:border-box; padding:14px 16px; margin-top:10px; border:1.5px solid #ccc; border-radius:10px; font-size:15px; transition:all 0.25s ease; background-color:#fff; }
-.signup-container input:focus,
-.signup-container select:focus { outline:none; border-color:#36d1b6; box-shadow:0 0 6px rgba(54,209,182,0.4); }
+.inline-input { display:flex; align-items:center; gap:12px; margin-top:6px; }
+.inline-input input { flex:1; }
+.inline-input .check-btn { background-color:#36d1b6; color:#fff; border:none; border-radius:8px; padding:12px 20px; font-weight:600; cursor:pointer; transition:all 0.25s ease; white-space:nowrap; }
+.inline-input .check-btn:hover { background-color:#2db49d; box-shadow:0 3px 6px rgba(45,180,157,0.2); }
 
-/* 이메일 입력 + 버튼 한 줄 정렬 */
-.signup-container .inline-input { display:flex; align-items:center; gap:12px; margin-top:6px; }
-.signup-container .inline-input input { flex:1; }
-.signup-container .inline-input .check-btn { background-color:#36d1b6; color:#fff; border:none; border-radius:8px; padding:12px 20px; font-weight:600; cursor:pointer; transition:all 0.25s ease; }
-.signup-container .inline-input .check-btn:hover { background-color:#2db49d; box-shadow:0 3px 6px rgba(45,180,157,0.2); }
+.password-box { position:relative; display:flex; align-items:center; margin-top:6px; }
+.password-box input { width:100%; padding-right:60px; }
+.password-box .toggle-btn { position:absolute; top:50%; transform:translateY(-50%); right:12px; background:none; border:none; color:#36d1b6; font-weight:600; cursor:pointer; font-size:0.9rem; }
 
-/* 파일 업로드 입력 */
-.signup-container input[type="file"] { border:1.5px dashed #bbb; background:#fafafa; padding:14px; border-radius:10px; text-align:center; cursor:pointer; margin-top:8px; }
-.signup-container input[type="file"]::file-selector-button { background-color:#36d1b6; color:#fff; border:none; border-radius:6px; padding:10px 18px; margin-right:12px; cursor:pointer; font-weight:600; transition:background-color 0.25s ease; }
-.signup-container input[type="file"]::file-selector-button:hover { background-color:#2db49d; }
-
-/* 파일 입력 안내 문구 */
-.signup-container small { display:block; margin-top:6px; color:#666; font-size:0.9rem; text-align:left; }
-
-/* 버튼 */
-.signup-container .submit-btn { width:100%; margin-top:36px; padding:16px; border:none; border-radius:10px; background-color:#36d1b6; color:#fff; font-size:1.05rem; font-weight:700; cursor:pointer; transition:all 0.25s ease; }
-.signup-container .submit-btn:hover { background-color:#2db49d; box-shadow:0 4px 12px rgba(54,209,182,0.25); }
-
-/* 오류 메시지 */
-.signup-container .error-message { color:red; text-align:center; margin-top:12px; font-size:14px; }
-
-/* 읽기 전용 입력 (회원정보 수정용) */
-.signup-container .readonly-input { background-color:#f2f2f2; color:#777; cursor:not-allowed; }
-
-/* 비밀번호 입력 + 보기 버튼 */
-.password-box { position:relative; display:flex; align-items:center; }
-.password-box input { flex:1; }
-.toggle-btn { position:absolute; top: 26px; right:12px; background:none; border:none; color:#36d1b6; font-weight:600; cursor:pointer; font-size:0.9rem; }
-
-/* 비밀번호 일치 / 규칙 결과 */
-.check-result { display:block; margin-top:8px; font-size:0.9rem; }
-.password-rule { display:block; margin-top:6px; color:#666; font-size:0.9rem; }
+.check-result { display:block; margin-top:8px; font-size:0.9rem; color:#666; }
 
 /* ------------------------------
    LOGIN PAGE
 ------------------------------ */
-.extra-links { display: flex; justify-content: space-between; margin-top: 14px; }
-.extra-links a { color: #36d1b6; font-size: 14px; text-decoration: none; }
-.extra-links a:hover { text-decoration: underline; }
+.extra-links { display:flex; justify-content:space-between; margin-top:14px; }
+.extra-links a { color:#36d1b6; font-size:14px; text-decoration:none; }
+.extra-links a:hover { text-decoration:underline; }
 
 /* ------------------------------
    MY PAGE (마이페이지)
 ------------------------------ */
-.mypage-main { display: flex; justify-content: center; align-items: flex-start; min-height: 80vh; background-color: #f8f9fa; padding: 60px 0; }
-.mypage-container { display: grid; grid-template-columns: 320px 1fr; /* 왼쪽: 프로필 / 오른쪽: 리뷰·게시글 */ gap: 40px; background: #fff; border-radius: 12px; box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08); padding: 40px 50px; width: 1000px; }
+.mypage-main { display:flex; justify-content:center; align-items:flex-start; min-height:80vh; background-color:#f8f9fa; padding:60px 0; }
 
-/* 왼쪽 */
-.mypage-left { border-right: 1px solid #eee; padding-right: 30px; }
-.mypage-profile { display: flex; flex-direction: column; align-items: center; margin-bottom: 25px; }
-.mypage-profile-img { width: 110px; height: 110px; border-radius: 50%; object-fit: cover; border: 3px solid #36d1b6; margin-bottom: 10px; }
-.mypage-info p { margin: 8px 0; font-size: 0.95rem; color: #333; }
+.mypage-container { display:grid; grid-template-columns:320px 1fr; gap:40px; background:#fff; border-radius:12px; box-shadow:0 3px 12px rgba(0,0,0,0.08); padding:40px 50px; width:1000px; }
 
-/* 버튼 영역 */
-.mypage-actions { margin-top: 25px; display: flex; flex-direction: column; gap: 10px; }
-.edit-btn, .delete-btn { display: inline-block; width: 100%; box-sizing: border-box; text-align: center; padding: 12px; border-radius: 8px; border: none; font-weight: 600; font-size: 15px; cursor: pointer; transition: all 0.2s ease; }
+.mypage-left { border-right:1px solid #eee; padding-right:30px; }
 
-/* 정보 수정 */
-.edit-btn { background-color: #36d1b6; color: #fff; text-decoration: none; /* <a>일 때 밑줄 제거 */ }
-.edit-btn:hover { background-color: #2db49d; }
+.mypage-profile { display:flex; flex-direction:column; align-items:center; margin-bottom:25px; }
+.mypage-profile-img { width:110px; height:110px; border-radius:50%; object-fit:cover; border:3px solid #36d1b6; margin-bottom:10px; }
 
-/* 회원 탈퇴 */
-.delete-btn { background-color: #dc3545; color: #fff; text-decoration: none; }
-.delete-btn:hover { background-color: #b02a37; }
+.mypage-info p { margin:8px 0; font-size:0.95rem; color:#333; }
 
-/* 오른쪽 */
-.mypage-right { padding-left: 20px; }
-.mypage-section { margin-bottom: 40px; }
-.mypage-section h3 { border-bottom: 2px solid #36d1b6; padding-bottom: 8px; margin-bottom: 16px; color: #1e2a38; }
+.mypage-actions { margin-top:25px; display:flex; flex-direction:column; gap:10px; }
 
-/* 카드 형태 목록 */
-.item-card { display:block;text-decoration:none;color:inherit;background-color:#fafafa;border:1px solid #eee;border-radius:8px;padding:14px 18px;margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,0.05);transition:all 0.2s ease;}
-.item-card:hover { transform:translateY(-2px);box-shadow:0 3px 8px rgba(0,0,0,0.1);}
-.item-card .item-title { font-weight:600;color:#1e2a38;margin-bottom:4px;}
-.item-card .item-content { color:#555;font-size:0.95rem;margin-bottom:4px;}
-.item-card small { color:#777;font-size:0.85rem;}
+.edit-btn, .delete-btn { display:inline-block; width:100%; box-sizing:border-box; text-align:center; padding:12px; border-radius:8px; border:none; font-weight:600; font-size:15px; cursor:pointer; transition:all 0.2s ease; }
+.edit-btn { background-color:#36d1b6; color:#fff; text-decoration:none; }
+.edit-btn:hover { background-color:#2db49d; }
+.delete-btn { background-color:#dc3545; color:#fff; text-decoration:none; }
+.delete-btn:hover { background-color:#b02a37; }
 
+.mypage-right { display:flex; flex-direction:column; }
 
-/* 비어 있을 때 */
-.empty-box { text-align: center; padding: 40px 0; color: #777; font-size: 0.95rem; }
-
-/* ------------------------------
-   MY PAGE 확장: 리뷰 + 게시글 페이지네이션
------------------------------- */
-.tab-menu { display:flex; justify-content:flex-start; gap:10px; margin-bottom:20px; border-bottom:2px solid #eee; }
-.tab-btn { background:none; border:none; padding:10px 18px; font-weight:600; color:#555; cursor:pointer; border-bottom:3px solid transparent; transition:all 0.2s ease; }
-.tab-btn:hover { color:#36d1b6; }
-.tab-btn.active { color:#1e2a38; border-color:#36d1b6; }
-.tab-content { display:none; }
-.tab-content.active { display:block; }
 .tab-content-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
 .tab-content-header h3 { font-size:1.2rem; font-weight:700; margin:0; color:#1e2a38; }
+
 .review-count { font-size:1rem; font-weight:600; color:#333; margin:0; }
-.mypage-right { max-height:none; overflow-y:visible; padding-right:10px; }
-.pagination { display:flex; justify-content:center; align-items:center; margin-top:20px; gap:10px; }
-.pagination a { padding:6px 12px; border:1px solid #ddd; border-radius:6px; color:#333; transition:background-color 0.2s ease; }
-.pagination a:hover { background-color:#36d1b6; color:#fff; }
-.pagination span { font-weight:600; color:#555; }
 
-.scroll-list {  max-height: none; overflow-y: visible; padding-right: 6px; }
+.scroll-list { max-height:none; overflow-y:visible; padding-right:6px; }
 
-
-/* ------------------------------
-   회원정보 수정 페이지 (edit.html)
------------------------------- */
-.readonly-input { background-color: #f2f2f2; color: #777; cursor: not-allowed; }
+.item-card { display:block; text-decoration:none; color:inherit; background-color:#fafafa; border:1px solid #eee; border-radius:8px; padding:14px 18px; margin-bottom:12px; box-shadow:0 1px 3px rgba(0,0,0,0.05); transition:all 0.2s ease; }
+.item-card:hover { transform:translateY(-2px); box-shadow:0 3px 8px rgba(0,0,0,0.1); }
+.item-card .item-title { font-weight:600; color:#1e2a38; margin-bottom:4px; }
+.item-card .item-content { color:#555; font-size:0.95rem; margin-bottom:4px; }
+.item-card small { color:#777; font-size:0.85rem; }

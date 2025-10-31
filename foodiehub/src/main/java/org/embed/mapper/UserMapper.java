@@ -9,51 +9,51 @@ import org.embed.dto.UserDTO;
 @Mapper
 public interface UserMapper {
 
-    // 1. 전체 유저 조회 (삭제되지 않은 유저만)
-	List<UserDTO> findAllUsers(@Param("offset") int offset, @Param("limit") int limit);
-
-    // 2. 단일 조회 (id 기준)
+    /* ------------------------------
+       기본 CRUD
+    ------------------------------ */
+    // 개별 유저 조회 (id 기준)
     UserDTO findById(@Param("id") Long id);
 
-    // 3. 이메일로 조회 (로그인용)
+    // 이메일로 조회
     UserDTO findByEmail(@Param("email") String email);
 
-    // 4. 새 유저 등록
+    // 새 유저 등록
     int insertUser(UserDTO user);
 
-    // 5. 유저 정보 수정
+    // 유저 정보 수정
     int updateUser(UserDTO user);
 
-    // 6. 논리 삭제 (is_deleted = 'Y')
+    // 논리 삭제 (is_deleted = 'Y')
     int softDeleteUser(@Param("id") Long id);
 
-    // 7. 관리자 전용: 권한(Role) 변경
-    int updateUserRole(@Param("id") Long id, @Param("role") String role);
-
-    // 8. 이메일 중복 확인
+    /* ------------------------------
+       인증 관련
+    ------------------------------ */
+    // 이메일 중복 확인
     int countByEmail(@Param("email") String email);
 
-    // 9. 로그인 검증 (이메일+비밀번호)
+    // 로그인 검증 (이메일+비밀번호)
     UserDTO validateLogin(@Param("email") String email, @Param("password") String password);
 
-    // 10. 권한별 유저 조회 (관리자 전용)
-    List<UserDTO> findUsersByRole(@Param("role") String role);
-    
-    // 11. // 관리자용 유저 검색 (페이징)
+    /* ------------------------------
+       관리자 기능
+    ------------------------------ */
+    // 권한 변경
+    int updateUserRole(@Param("id") Long id, @Param("role") String role);
+
+    // 회원 검색 (키워드/상태/역할 필터링)
     List<UserDTO> searchUsers(@Param("keyword") String keyword,
-            @Param("status") String status,
-            @Param("role") String role,
-            @Param("offset") int offset,
-            @Param("limit") int limit);
+                               @Param("status") String status,
+                               @Param("role") String role,
+                               @Param("offset") int offset,
+                               @Param("limit") int limit);
 
-	int countSearchUsers(@Param("keyword") String keyword,
-	       @Param("status") String status,
-	       @Param("role") String role);
+    int countSearchUsers(@Param("keyword") String keyword,
+                         @Param("status") String status,
+                         @Param("role") String role);
 
-    
-    // 12. 관리자용역할 검색
+    // 역할별 유저 조회
     List<UserDTO> findByRole(@Param("role") String role);
-    
-    int countAllUsers();
-    
+
 }

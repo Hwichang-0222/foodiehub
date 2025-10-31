@@ -5,7 +5,11 @@
 
 <mapper namespace="org.embed.mapper.ImageMapper">
 
-    <!-- 1. 리뷰 ID 기준 이미지 조회 -->
+    <!-- ======================================
+         조회
+    ====================================== -->
+    
+    <!-- 리뷰 ID 기준 이미지 조회 -->
     <select id="findByReviewId" parameterType="long" resultType="org.embed.dto.ImageDTO">
         <![CDATA[
             SELECT 
@@ -21,7 +25,7 @@
         ]]>
     </select>
 
-    <!-- 2. 특정 레스토랑의 전체 리뷰 이미지 조회 -->
+    <!-- 특정 레스토랑의 전체 리뷰 이미지 조회 -->
     <select id="findAllByRestaurantId" parameterType="long" resultType="org.embed.dto.ImageDTO">
         <![CDATA[
             SELECT 
@@ -39,7 +43,7 @@
         ]]>
     </select>
 
-    <!-- 3. 특정 레스토랑의 최신 10장만 조회 (메인 썸네일용) -->
+    <!-- 특정 레스토랑의 최신 10장만 조회 (메인 썸네일용) -->
     <select id="findRecent10ByRestaurantId" parameterType="long" resultType="org.embed.dto.ImageDTO">
         <![CDATA[
             SELECT 
@@ -58,7 +62,11 @@
         ]]>
     </select>
 
-    <!-- 4. 이미지 등록 -->
+    <!-- ======================================
+         등록/수정
+    ====================================== -->
+    
+    <!-- 이미지 등록 -->
     <insert id="insertImage" parameterType="org.embed.dto.ImageDTO" useGeneratedKeys="true" keyProperty="id">
         <![CDATA[
             INSERT INTO image (
@@ -75,7 +83,7 @@
         ]]>
     </insert>
     
-    <!-- 5. 이미지 교체 (수정) -->
+    <!-- 이미지 교체 (수정) -->
     <update id="updateImage" parameterType="org.embed.dto.ImageDTO">
         <![CDATA[
             UPDATE image
@@ -88,7 +96,11 @@
         ]]>
     </update>
 
-    <!-- 6. 단일 이미지 삭제 -->
+    <!-- ======================================
+         삭제
+    ====================================== -->
+    
+    <!-- 단일 이미지 삭제 -->
     <delete id="deleteImageById" parameterType="long">
         <![CDATA[
             DELETE FROM image
@@ -96,7 +108,7 @@
         ]]>
     </delete>
 
-    <!-- 7. 특정 리뷰의 모든 이미지 삭제 -->
+    <!-- 특정 리뷰의 모든 이미지 삭제 -->
     <delete id="deleteImagesByReviewId" parameterType="long">
         <![CDATA[
             DELETE FROM image
