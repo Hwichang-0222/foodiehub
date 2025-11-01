@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>식당 등록 | FoodieHub 관리자</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <!-- 헤더 -->
+    <div th:replace="layout/header :: header"></div>
+    
+    <button type="button" class="back-btn" onclick="history.back()">←</button>
+
+    <div class="form-container">
+    	<h1>식당 추가 </h1>
+        <form th:action="@{/restaurant/add}" method="post" enctype="multipart/form-data"
+              class="restaurant-form">
+
+            <!-- [1] 식당명 검색 -->
+            <label>식당명</label>
+            <div class="search-group">
+                <input type="text" id="placeInput" name="name" placeholder="식당명 또는 주소로 검색">
+                <button type="button" class="btn" onclick="searchPlace()">검색</button>
+            </div>
+            <ul id="resultList" class="search-result"></ul>
+
+            <!-- [2] 주소 자동입력 -->
+            <label>주소</label>
+            <input type="text" id="address" name="address" readonly required>
+
+            <!-- [3] 지역 자동 설정 -->
+			<label>지역</label>
+			<select id="regionSelect" name="region" required>
+			    <option value="">지역 선택</option>
+			    <option value="서울">서울</option>
+			    <option value="부산">부산</option>
+			    <option value="대구">대구</option>
+			    <option value="인천">인천</option>
+			    <option value="광주">광주</option>
+			    <option value="대전">대전</option>
+			    <option value="울산">울산</option>
+			    <option value="세종">세종</option>
+			    <option value="경기">경기</option>
+			    <option value="강원">강원</option>
+			    <option value="충북">충북</option>
+			    <option value="충남">충남</option>
+			    <option value="전북">전북</option>
+			    <option value="전남">전남</option>
+			    <option value="경북">경북</option>
+			    <option value="경남">경남</option>
+			    <option value="제주">제주</option>
+			    <option value="기타">기타</option>
+			</select>
+
+            <!-- [4] 카테고리 선택 -->
+            <label>카테고리</label>
+            <select name="category" required>
+                <option value="">카테고리 선택</option>
+                <option>한식</option>
+                <option>중식</option>
+                <option>일식</option>
+                <option>양식</option>
+                <option>분식</option>
+                <option>패스트푸드</option>
+                <option>카페</option>
+                <option>디저트</option>
+                <option>고기</option>
+                <option>해산물</option>
+                <option>술집</option>
+                <option>기타</option>
+            </select>
+
+            <!-- [5] 설명 -->
+            <label>설명</label>
+            <textarea name="description" rows="4" placeholder="식당 설명을 입력하세요"></textarea>
+
+            <!-- [6] 대표 이미지 -->
+            <label>대표 이미지</label>
+            <input type="file" id="mainImage" name="mainImage" accept="image/*">
+
+            <!-- [7] 이미지 미리보기 -->
+            <div id="preview-container">
+                <img id="preview" src="/images/default-thumbnail.png" alt="미리보기">
+            </div>
+
+            <!-- [8] 위도 / 경도 -->
+            <label>위도</label>
+            <input type="text" id="latitude" name="latitude" readonly>
+
+            <label>경도</label>
+            <input type="text" id="longitude" name="longitude" readonly>
+
+            <!-- [9] 지도 표시 -->
+            <div id="map"></div>
+
+            <!-- [10] 버튼 -->
+            <div class="form-actions">
+                <button type="submit" class="btn btn-create">등록</button>
+                <a th:href="@{/admin/dashboard(tab='restaurant')}" class="btn cancel-btn">취소</a>
+            </div>
+        </form>
+    </div>
+
+    <!-- 푸터 -->
+    <div th:replace="layout/footer :: footer"></div>
+
+	<!-- 카카오 지도 SDK (API 키는 application.properties에서 주입) -->
+	<script th:src="'https://dapi.kakao.com/v2/maps/sdk.js?appkey=' + ${kakaoMapApiKey} + '&libraries=services'"></script>
+
+	<!-- 식당 추가/수정 페이지 통합 JavaScript -->
+	<script src="/js/restaurant-form.js"></script>
+</body>
+</html>

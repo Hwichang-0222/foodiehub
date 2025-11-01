@@ -5,311 +5,287 @@
 
 <mapper namespace="org.embed.mapper.BoardMapper">
 
-    <!-- ======================================
-         공지글 조회
-    ====================================== -->
-    
-    <!-- 탭별 공지글 (전역공지 + 탭별 공지) -->
-    <select id="findNoticesByCategory" resultType="org.embed.dto.BoardDTO">
-        <![CDATA[
-            SELECT b.*, u.name AS user_name
-            FROM board b
-            INNER JOIN user u ON b.user_id = u.id
-            WHERE b.parent_id IS NULL
-              AND (
-                    (#{category} = 'NOTICE' AND b.category = 'NOTICE')
-                 OR (#{category} = 'GENERAL' AND b.category IN ('NOTICE','NOTICE_GENERAL'))
-                 OR (#{category} = 'QUESTION' AND b.category IN ('NOTICE','NOTICE_QUESTION'))
-                 OR (#{category} = 'SUGGESTION' AND b.category IN ('NOTICE','NOTICE_SUGGESTION'))
-              )
-            ORDER BY 
-                CASE 
-                    WHEN b.category = 'NOTICE' THEN 0
-                    WHEN b.category LIKE 'NOTICE_%' THEN 1
-                    ELSE 2
-                END,
-                b.created_at DESC
-        ]]>
-    </select>
+	<!-- ========================================
+	     공지글 조회
+	======================================== -->
 
-    <!-- ======================================
-         일반글 조회
-    ====================================== -->
-    
-    <!-- 탭별 일반글 (페이지네이션) -->
-    <select id="findNormalPostsByCategory" resultType="org.embed.dto.BoardDTO">
-        <![CDATA[
-            SELECT b.*, u.name AS user_name
-            FROM board b
-            INNER JOIN user u ON b.user_id = u.id
-            WHERE b.parent_id IS NULL
-              AND (
-                    (#{category} = 'GENERAL' AND b.category = 'GENERAL')
-                 OR (#{category} = 'QUESTION' AND b.category = 'QUESTION')
-                 OR (#{category} = 'SUGGESTION' AND b.category = 'SUGGESTION')
-              )
-            ORDER BY b.created_at DESC
-            LIMIT #{offset}, #{limit}
-        ]]>
-    </select>
+	<!-- 1. 공지글 조회 (전역공지 + 카테고리별 공지) -->
+	<select id="findNoticesByCategory" parameterType="string" resultType="org.embed.dto.BoardDTO">
+		<![CDATA[
+			SELECT b.*, u.name AS user_name
+			FROM board b
+			INNER JOIN user u ON b.user_id = u.id
+			WHERE b.category IN ('NOTICE', CONCAT('NOTICE_', #{category}))
+			ORDER BY b.created_at DESC
+		]]>
+	</select>
 
-    <!-- 일반글 총 개수 -->
-    <select id="countNormalPostsByCategory" resultType="int">
-        <![CDATA[
-            SELECT COUNT(*)
-            FROM board b
-            WHERE b.parent_id IS NULL
-              AND (
-                    (#{category} = 'GENERAL' AND b.category = 'GENERAL')
-                 OR (#{category} = 'QUESTION' AND b.category = 'QUESTION')
-                 OR (#{category} = 'SUGGESTION' AND b.category = 'SUGGESTION')
-              )
-        ]]>
-    </select>
+	<!-- ========================================
+	     일반글 조회
+	======================================== -->
 
-    <!-- ======================================
-         검색
-    ====================================== -->
-    
-    <!-- 게시글 검색 (탭별 카테고리 + 키워드) -->
-    <select id="searchBoard" resultType="org.embed.dto.BoardDTO">
-        <![CDATA[
-            SELECT b.*, u.name AS user_name
-            FROM board b
-            INNER JOIN user u ON b.user_id = u.id
-            WHERE b.parent_id IS NULL
-              AND (
-                    (#{category} = 'GENERAL' AND b.category IN ('NOTICE','NOTICE_GENERAL','GENERAL'))
-                 OR (#{category} = 'QUESTION' AND b.category IN ('NOTICE','NOTICE_QUESTION','QUESTION'))
-                 OR (#{category} = 'SUGGESTION' AND b.category IN ('NOTICE','NOTICE_SUGGESTION','SUGGESTION'))
-                 OR (#{category} = 'NOTICE' AND b.category = 'NOTICE')
-              )
-              AND (
-                    b.title LIKE CONCAT('%', #{keyword}, '%')
-                    OR b.content LIKE CONCAT('%', #{keyword}, '%')
-                    OR u.name LIKE CONCAT('%', #{keyword}, '%')
-              )
-            ORDER BY 
-                CASE 
-                    WHEN b.category = 'NOTICE' THEN 0
-                    WHEN b.category LIKE 'NOTICE_%' THEN 1
-                    ELSE 2
-                END,
-                b.created_at DESC
-            LIMIT #{offset}, #{limit}
-        ]]>
-    </select>
+	<!-- 2. 일반글 조회 (페이지네이션) -->
+	<select id="findNormalPostsByCategory" resultType="org.embed.dto.BoardDTO">
+		<![CDATA[
+			SELECT b.*, u.name AS user_name
+			FROM board b
+			INNER JOIN user u ON b.user_id = u.id
+			WHERE b.parent_id IS NULL
+			  AND b.category = #{category}
+			  AND b.category NOT IN ('NOTICE', 'NOTICE_GENERAL', 'NOTICE_QUESTION', 'NOTICE_SUGGESTION')
+			ORDER BY b.created_at DESC
+			LIMIT #{offset}, #{limit}
+		]]>
+	</select>
 
-    <!-- 검색 결과 개수 -->
-    <select id="countSearchBoards" resultType="int">
-        <![CDATA[
-            SELECT COUNT(*)
-            FROM board b
-            INNER JOIN user u ON b.user_id = u.id
-            WHERE b.parent_id IS NULL
-              AND (
-                    (#{category} = 'GENERAL' AND b.category IN ('NOTICE','NOTICE_GENERAL','GENERAL'))
-                 OR (#{category} = 'QUESTION' AND b.category IN ('NOTICE','NOTICE_QUESTION','QUESTION'))
-                 OR (#{category} = 'SUGGESTION' AND b.category IN ('NOTICE','NOTICE_SUGGESTION','SUGGESTION'))
-                 OR (#{category} = 'NOTICE' AND b.category = 'NOTICE')
-              )
-              AND (
-                    b.title LIKE CONCAT('%', #{keyword}, '%')
-                    OR b.content LIKE CONCAT('%', #{keyword}, '%')
-                    OR u.name LIKE CONCAT('%', #{keyword}, '%')
-              )
-        ]]>
-    </select>
+	<!-- 3. 일반글 총 개수 -->
+	<select id="countNormalPostsByCategory" parameterType="string" resultType="int">
+		<![CDATA[
+			SELECT COUNT(*)
+			FROM board b
+			WHERE b.parent_id IS NULL
+			  AND b.category = #{category}
+			  AND b.category NOT IN ('NOTICE', 'NOTICE_GENERAL', 'NOTICE_QUESTION', 'NOTICE_SUGGESTION')
+		]]>
+	</select>
 
-    <!-- ======================================
-         기본 CRUD
-    ====================================== -->
-    
-    <!-- 단일 게시글 조회 -->
-    <select id="findById" parameterType="long" resultType="org.embed.dto.BoardDTO">
-        <![CDATA[
-            SELECT b.*, u.name AS user_name
-            FROM board b
-            INNER JOIN user u ON b.user_id = u.id
-            WHERE b.id = #{id}
-        ]]>
-    </select>
+	<!-- ========================================
+	     게시글 검색
+	======================================== -->
 
-    <!-- 게시글 등록 -->
-    <insert id="insertBoard" parameterType="org.embed.dto.BoardDTO" useGeneratedKeys="true" keyProperty="id">
-        <![CDATA[
-            INSERT INTO board (
-                user_id, 
-                title, 
-                content, 
-                category, 
-                is_private,
-                created_at
-            ) VALUES (
-                #{userId}, 
-                #{title}, 
-                #{content}, 
-                #{category}, 
-                #{isPrivate},
-                NOW()
-            )
-        ]]>
-    </insert>
+	<!-- 4. 게시글 검색 (카테고리 + 키워드, 부모글만, 공지 제외) -->
+	<select id="searchBoard" resultType="org.embed.dto.BoardDTO">
+		<![CDATA[
+			SELECT b.*, u.name AS user_name
+			FROM board b
+			INNER JOIN user u ON b.user_id = u.id
+			WHERE b.parent_id IS NULL
+			  AND b.category NOT IN ('NOTICE','NOTICE_GENERAL','NOTICE_QUESTION','NOTICE_SUGGESTION')
+			  AND (
+					(#{category} = 'GENERAL' AND b.category = 'GENERAL')
+				 OR (#{category} = 'QUESTION' AND b.category = 'QUESTION')
+				 OR (#{category} = 'SUGGESTION' AND b.category = 'SUGGESTION')
+			  )
+			  AND (
+					b.title LIKE CONCAT('%', #{keyword}, '%')
+					OR b.content LIKE CONCAT('%', #{keyword}, '%')
+					OR u.name LIKE CONCAT('%', #{keyword}, '%')
+			  )
+			ORDER BY b.created_at DESC
+			LIMIT #{offset}, #{limit}
+		]]>
+	</select>
 
-    <!-- 게시글 수정 -->
-    <update id="updateBoard" parameterType="org.embed.dto.BoardDTO">
-        <![CDATA[
-            UPDATE board
-            SET 
-                title = #{title},
-                content = #{content},
-                category = #{category},
-                updated_at = CURRENT_TIMESTAMP
-            WHERE id = #{id}
-              AND user_id = #{userId}
-        ]]>
-    </update>
+	<!-- 5. 검색 결과 총 개수 조회 -->
+	<select id="countSearchBoards" resultType="int">
+		<![CDATA[
+			SELECT COUNT(*)
+			FROM board b
+			INNER JOIN user u ON b.user_id = u.id
+			WHERE b.parent_id IS NULL
+			  AND (
+					(#{category} = 'GENERAL' AND b.category IN ('NOTICE','NOTICE_GENERAL','GENERAL'))
+				 OR (#{category} = 'QUESTION' AND b.category IN ('NOTICE','NOTICE_QUESTION','QUESTION'))
+				 OR (#{category} = 'SUGGESTION' AND b.category IN ('NOTICE','NOTICE_SUGGESTION','SUGGESTION'))
+				 OR (#{category} = 'NOTICE' AND b.category = 'NOTICE')
+			  )
+			  AND (
+					b.title LIKE CONCAT('%', #{keyword}, '%')
+					OR b.content LIKE CONCAT('%', #{keyword}, '%')
+					OR u.name LIKE CONCAT('%', #{keyword}, '%')
+			  )
+		]]>
+	</select>
 
-    <!-- 게시글 삭제 -->
-    <delete id="deleteBoard" parameterType="long">
-        <![CDATA[
-            DELETE FROM board
-            WHERE id = #{id}
-        ]]>
-    </delete>
+	<!-- ========================================
+	     게시글 CRUD 작업
+	======================================== -->
 
-    <!-- 조회수 증가 -->
-    <update id="increaseViewCount" parameterType="long">
-        <![CDATA[
-            UPDATE board
-            SET view_count = view_count + 1
-            WHERE id = #{id}
-        ]]>
-    </update>
+	<!-- 6. 단일 게시글 조회 (ID로 검색) -->
+	<select id="findById" parameterType="long" resultType="org.embed.dto.BoardDTO">
+		<![CDATA[
+			SELECT b.*, u.name AS user_name
+			FROM board b
+			INNER JOIN user u ON b.user_id = u.id
+			WHERE b.id = #{id}
+		]]>
+	</select>
 
-    <!-- ======================================
-         관리자 답변
-    ====================================== -->
-    
-    <!-- 관리자 답변 등록 -->
-    <insert id="insertAdminReply" parameterType="org.embed.dto.BoardDTO">
-        <![CDATA[
-            INSERT INTO board (
-                user_id, 
-                parent_id, 
-                title, 
-                content, 
-                category
-            ) VALUES (
-                #{userId}, 
-                #{parentId}, 
-                '관리자 답변', 
-                #{content}, 
-                'NOTICE_GENERAL'
-            )
-        ]]>
-    </insert>
+	<!-- 7. 새 게시글 등록 -->
+	<insert id="insertBoard" parameterType="org.embed.dto.BoardDTO" useGeneratedKeys="true" keyProperty="id">
+		<![CDATA[
+			INSERT INTO board (
+				user_id, 
+				title, 
+				content, 
+				category, 
+				is_private,
+				created_at
+			) VALUES (
+				#{userId}, 
+				#{title}, 
+				#{content}, 
+				#{category}, 
+				#{isPrivate},
+				NOW()
+			)
+		]]>
+	</insert>
 
-    <!-- ======================================
-         사용자별 조회 (마이페이지)
-    ====================================== -->
-    
-    <!-- 사용자 작성글 목록 -->
-    <select id="findByUserId" parameterType="long" resultType="org.embed.dto.BoardDTO">
-        <![CDATA[
-            SELECT b.*, u.name AS user_name
-            FROM board b
-            INNER JOIN user u ON b.user_id = u.id
-            WHERE b.user_id = #{userId}
-            ORDER BY b.created_at DESC
-        ]]>
-    </select>
+	<!-- 8. 게시글 수정 (작성자 ID 확인) -->
+	<update id="updateBoard" parameterType="org.embed.dto.BoardDTO">
+		<![CDATA[
+			UPDATE board
+			SET 
+				title = #{title},
+				content = #{content},
+				category = #{category},
+				updated_at = CURRENT_TIMESTAMP
+			WHERE id = #{id}
+			  AND user_id = #{userId}
+		]]>
+	</update>
 
-    <!-- 사용자별 게시글 총 개수 -->
-    <select id="countByUserId" parameterType="long" resultType="int">
-        <![CDATA[
-            SELECT COUNT(*)
-            FROM board
-            WHERE user_id = #{userId}
-              AND parent_id IS NULL
-        ]]>
-    </select>
+	<!-- 9. 게시글 삭제 -->
+	<delete id="deleteBoard" parameterType="long">
+		<![CDATA[
+			DELETE FROM board
+			WHERE id = #{id}
+		]]>
+	</delete>
 
-    <!-- 사용자별 게시글 목록 (페이지네이션) -->
-    <select id="findPagedByUserId" resultType="org.embed.dto.BoardDTO">
-        <![CDATA[
-            SELECT b.*, u.name AS user_name
-            FROM board b
-            INNER JOIN user u ON b.user_id = u.id
-            WHERE b.user_id = #{userId}
-              AND b.parent_id IS NULL
-            ORDER BY b.created_at DESC
-            LIMIT #{offset}, #{limit}
-        ]]>
-    </select>
+	<!-- 10. 조회수 증가 -->
+	<update id="increaseViewCount" parameterType="long">
+		<![CDATA[
+			UPDATE board
+			SET view_count = view_count + 1
+			WHERE id = #{id}
+		]]>
+	</update>
 
-    <!-- ======================================
-         관리자 기능
-    ====================================== -->
-    
-    <!-- 공지사항 목록 -->
-    <select id="findAllNotices" resultType="org.embed.dto.BoardDTO">
-        <![CDATA[
-            SELECT b.*, u.name AS user_name
-            FROM board b
-            INNER JOIN user u ON b.user_id = u.id
-            WHERE b.category = 'NOTICE'
-            ORDER BY b.created_at DESC
-            LIMIT #{offset}, #{limit}
-        ]]>
-    </select>
+	<!-- ========================================
+	     관리자 답글 작업
+	======================================== -->
 
-    <!-- 공지사항 총 개수 -->
-    <select id="countAllNotices" resultType="int">
-        <![CDATA[
-            SELECT COUNT(*) 
-            FROM board 
-            WHERE category = 'NOTICE'
-        ]]>
-    </select>
+	<!-- 11. 관리자 답글 등록 (부모글 ID 지정) -->
+	<insert id="insertAdminReply" parameterType="org.embed.dto.BoardDTO">
+		<![CDATA[
+			INSERT INTO board (
+				user_id, 
+				parent_id, 
+				title, 
+				content, 
+				category
+			) VALUES (
+				#{userId}, 
+				#{parentId}, 
+				#{title}, 
+				#{content}, 
+				#{category}
+			)
+		]]>
+	</insert>
 
-    <!-- 답글 미등록 요청 게시글 조회 -->
-    <select id="findUnansweredRequests" resultType="org.embed.dto.BoardDTO">
-        <![CDATA[
-            SELECT b.*, u.name AS user_name
-            FROM board b
-            INNER JOIN user u ON b.user_id = u.id
-            WHERE b.parent_id IS NULL
-              AND (
-                    #{filter} IS NULL
-                    OR #{filter} = ''
-                    OR b.category = #{filter}
-                  )
-              AND b.category IN ('QUESTION', 'SUGGESTION')
-              AND b.id NOT IN (
-                  SELECT parent_id FROM board WHERE parent_id IS NOT NULL
-              )
-            ORDER BY b.created_at DESC
-            LIMIT #{offset}, #{limit}
-        ]]>
-    </select>
+	<!-- ========================================
+	     사용자 게시글 조회 (마이페이지용)
+	======================================== -->
 
-    <!-- 답글 미등록 요청 게시글 총 개수 -->
-    <select id="countUnansweredRequests" resultType="int">
-        <![CDATA[
-            SELECT COUNT(*)
-            FROM board b
-            WHERE b.parent_id IS NULL
-              AND (
-                    #{filter} IS NULL
-                    OR #{filter} = ''
-                    OR b.category = #{filter}
-                  )
-              AND b.category IN ('QUESTION', 'SUGGESTION')
-              AND b.id NOT IN (
-                  SELECT parent_id FROM board WHERE parent_id IS NOT NULL
-              )
-        ]]>
-    </select>
+	<!-- 12. 사용자가 작성한 모든 게시글 조회 -->
+	<select id="findByUserId" parameterType="long" resultType="org.embed.dto.BoardDTO">
+		<![CDATA[
+			SELECT b.*, u.name AS user_name
+			FROM board b
+			INNER JOIN user u ON b.user_id = u.id
+			WHERE b.user_id = #{userId}
+			ORDER BY b.created_at DESC
+		]]>
+	</select>
+
+	<!-- 13. 사용자가 작성한 부모글 총 개수 -->
+	<select id="countByUserId" parameterType="long" resultType="int">
+		<![CDATA[
+			SELECT COUNT(*)
+			FROM board
+			WHERE user_id = #{userId}
+			  AND parent_id IS NULL
+		]]>
+	</select>
+
+	<!-- 14. 사용자가 작성한 부모글 목록 (페이지네이션) -->
+	<select id="findPagedByUserId" resultType="org.embed.dto.BoardDTO">
+		<![CDATA[
+			SELECT b.*, u.name AS user_name
+			FROM board b
+			INNER JOIN user u ON b.user_id = u.id
+			WHERE b.user_id = #{userId}
+			  AND b.parent_id IS NULL
+			ORDER BY b.created_at DESC
+			LIMIT #{offset}, #{limit}
+		]]>
+	</select>
+
+	<!-- ========================================
+	     관리자 공지사항 관리
+	======================================== -->
+
+	<!-- 15. 모든 공지사항 조회 (관리자용) -->
+	<select id="findAllNotices" resultType="org.embed.dto.BoardDTO">
+		<![CDATA[
+			SELECT b.*, u.name AS user_name
+			FROM board b
+			INNER JOIN user u ON b.user_id = u.id
+			WHERE b.category IN ('NOTICE','NOTICE_GENERAL','NOTICE_QUESTION','NOTICE_SUGGESTION')
+			ORDER BY b.created_at DESC
+			LIMIT #{offset}, #{limit}
+		]]>
+	</select>
+	
+	<!-- 16. 공지사항 총 개수 조회 -->
+	<select id="countAllNotices" resultType="int">
+		<![CDATA[
+			SELECT COUNT(*) 
+			FROM board 
+			WHERE category IN ('NOTICE','NOTICE_GENERAL','NOTICE_QUESTION','NOTICE_SUGGESTION')
+		]]>
+	</select>
+
+	<!-- 17. 미답변 요청 게시글 조회 (관리자 대시보드용) -->
+	<select id="findUnansweredRequests" resultType="org.embed.dto.BoardDTO">
+		<![CDATA[
+			SELECT b.*, u.name AS user_name
+			FROM board b
+			INNER JOIN user u ON b.user_id = u.id
+			WHERE b.parent_id IS NULL
+			  AND (
+					#{filter} IS NULL
+					OR #{filter} = ''
+					OR b.category = #{filter}
+				  )
+			  AND b.category IN ('QUESTION', 'SUGGESTION')
+			  AND b.id NOT IN (
+				  SELECT parent_id FROM board WHERE parent_id IS NOT NULL
+			  )
+			ORDER BY b.created_at DESC
+			LIMIT #{offset}, #{limit}
+		]]>
+	</select>
+
+	<!-- 18. 미답변 요청 게시글 총 개수 -->
+	<select id="countUnansweredRequests" resultType="int">
+		<![CDATA[
+			SELECT COUNT(*)
+			FROM board b
+			WHERE b.parent_id IS NULL
+			  AND (
+					#{filter} IS NULL
+					OR #{filter} = ''
+					OR b.category = #{filter}
+				  )
+			  AND b.category IN ('QUESTION', 'SUGGESTION')
+			  AND b.id NOT IN (
+				  SELECT parent_id FROM board WHERE parent_id IS NOT NULL
+			  )
+		]]>
+	</select>
 
 </mapper>

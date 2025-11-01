@@ -1,0 +1,209 @@
+@charset "UTF-8";
+
+/* ==============================
+   BOARD LIST PAGE (게시판 목록 페이지)
+============================== */
+
+.board-list-page { max-width:1200px; margin:0 auto; padding:40px 20px; }
+.list-header { text-align:center; margin-bottom:40px; }
+.list-header h1 { font-size:32px; font-weight:700; color:var(--color-text); margin:0; }
+
+/* ==============================
+   BOARD SEARCH SECTION (검색 영역)
+============================== */
+
+.search-section { display:flex; justify-content:space-between; align-items:center; gap:15px; margin-bottom:30px; }
+.search-section .search-form { display:flex; gap:10px; flex:1; align-items:center; margin-bottom:0; }
+.search-category { width:120px; padding:10px 12px; border:1.5px solid var(--color-border); border-radius:8px; font-size:0.95rem; background-color:#fff; cursor:pointer; flex-shrink:0; }
+.search-category:focus { outline:none; border-color:var(--color-primary); box-shadow:0 0 6px rgba(54,209,182,0.4); }
+.search-form input { flex:1; padding:10px 14px; border:1.5px solid var(--color-border); border-radius:8px; font-size:0.95rem; }
+.search-form input:focus { outline:none; border-color:var(--color-primary); box-shadow:0 0 6px rgba(54,209,182,0.4); }
+.search-form .submit-btn { width:auto; padding:10px 24px; margin-top:0; white-space:nowrap; flex-shrink:0; }
+.search-form .reset-btn { padding:10px 24px; white-space:nowrap; flex-shrink:0; }
+
+/* ==============================
+   CATEGORY TABS (카테고리 탭)
+============================== */
+
+.category-tabs { display:flex; gap:20px; border-bottom:2px solid #eee; margin-bottom:30px; }
+.category-tabs .tab { background:none; border:none; padding:12px 24px; font-weight:700; color:#555; cursor:pointer; border-bottom:3px solid transparent; transition:all 0.2s ease; text-decoration:none; }
+.category-tabs .tab:hover { color:var(--color-primary); }
+.category-tabs .tab.active { color:var(--color-text); border-color:var(--color-primary); }
+
+/* ==============================
+   POST COUNT (게시글 개수)
+============================== */
+
+.post-count { text-align:right; font-size:0.95rem; color:#666; font-weight:500; margin-bottom:20px; }
+.post-count strong { color:var(--color-text); font-weight:700; }
+
+/* ==============================
+   BOARD TABLE (게시판 테이블)
+============================== */
+
+.board-table { width:100%; border-collapse:collapse; margin:0; margin-bottom:30px; }
+.board-table thead { background-color:#fafafa; border-bottom:2px solid var(--color-text); }
+.board-table th { padding:12px; text-align:center; font-size:14px; font-weight:700; color:var(--color-text); }
+.board-table tbody tr { border-bottom:1px solid #eee; transition:background-color 0.2s ease; height:50px; }
+.board-table tbody tr:hover { background-color:#f5f5f5; }
+.notice-row { background-color:#f0f8ff; }
+.question-row { }
+.board-table td { padding:12px; font-size:14px; vertical-align:middle; }
+.col-num { width:60px; text-align:center; color:#666; }
+.col-notice { width:80px; text-align:center; }
+.col-title { width:auto; text-align:left; }
+.col-author { width:120px; text-align:center; }
+.col-date { width:120px; text-align:center; color:#999; font-size:13px; }
+.col-views { width:80px; text-align:center; color:#666; }
+.post-link { color:#333; text-decoration:none; transition:color 0.2s ease; }
+.post-link:hover { color:var(--color-primary); text-decoration:underline; }
+.badge-notice { background-color:var(--color-primary); color:#fff; padding:3px 8px; border-radius:3px; font-size:12px; font-weight:700; display:inline-block; }
+.badge-question { background-color:#ff9800; color:#fff; padding:3px 8px; border-radius:3px; font-size:12px; font-weight:700; display:inline-block; }
+.badge-suggestion { background-color:#2196f3; color:#fff; padding:3px 8px; border-radius:3px; font-size:12px; font-weight:700; display:inline-block; }
+.badge-reply { background-color:#9c27b0; color:#fff; padding:3px 8px; border-radius:3px; font-size:12px; font-weight:700; display:inline-block; }
+
+/* ==============================
+   PAGINATION (페이지네이션)
+============================== */
+
+.pagination { text-align:center; margin-top:30px; padding:20px; display:flex; justify-content:center; gap:10px; }
+.page-link { background-color:#f5f5f5; color:#333; padding:8px 15px; text-decoration:none; border-radius:3px; font-size:13px; transition:background-color 0.2s ease; cursor:pointer; border:1px solid #ddd; }
+.page-link:hover { background-color:var(--color-primary); color:#fff; }
+.page-link.active { background-color:var(--color-primary); color:#fff; }
+
+/* ==============================
+   EMPTY STATE (빈 상태)
+============================== */
+
+.empty-state { text-align:center; padding:60px 20px; color:#999; font-size:1rem; }
+
+/* ==============================
+   BOARD DETAIL PAGE (게시판 상세 페이지)
+============================== */
+
+.board-detail-page { max-width:1000px; margin:40px auto; padding:0 20px; }
+.detail-nav { margin-bottom:30px; }
+.btn-back { background-color:#f5f5f5; color:var(--color-text); padding:10px 20px; text-decoration:none; border-radius:8px; font-size:14px; transition:background-color 0.25s ease; display:inline-block; border:none; cursor:pointer; }
+.btn-back:hover { background-color:#e8e8e8; }
+.detail-container { background-color:#fff; padding:40px; border:1px solid var(--color-border); border-radius:8px; }
+
+/* ==============================
+   POST HEADER (게시글 헤더)
+============================== */
+
+.detail-header { background-color:#fff; padding:40px; border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,0.05); margin-bottom:30px; }
+.detail-header h1 { font-size:32px; font-weight:800; margin:0 0 20px 0; color:#1e2a38; line-height:1.4; }
+.post-meta { display:flex; flex-wrap:wrap; gap:20px; padding-top:15px; border-top:1px solid #eee; align-items:center; }
+.post-meta span { font-size:14px; color:#666; display:flex; align-items:center; }
+.post-meta .author::before { content:"👤 "; margin-right:4px; }
+.post-meta .date::before { content:"📅 "; margin-right:4px; }
+.post-meta .views::before { content:"👁 "; margin-right:4px; }
+.post-meta .category { background-color:#36d1b6; color:#fff; padding:4px 12px; border-radius:20px; font-size:12px; font-weight:600; }
+
+/* ==============================
+   POST CONTENT (게시글 내용)
+============================== */
+
+.detail-content { background-color:#fff; padding:40px; border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,0.05); margin-bottom:30px; }
+.post-content { min-height:300px; line-height:1.8; font-size:16px; color:#333; word-break:break-word; }
+
+/* ==============================
+   POST ACTIONS (게시글 액션)
+============================== */
+
+.detail-actions { display:flex; gap:12px; margin-bottom:30px; }
+.btn { padding:12px 24px; border-radius:8px; font-size:15px; font-weight:600; cursor:pointer; border:none; text-decoration:none; display:inline-flex; align-items:center; justify-content:center; transition:all 0.25s ease; }
+.btn-edit { background-color:#36d1b6; color:#fff; }
+.btn-edit:hover { background-color:#2cb59c; transform:translateY(-2px); box-shadow:0 4px 12px rgba(54,209,182,0.3); }
+.btn-delete { background-color:#e74c3c; color:#fff; }
+.btn-delete:hover { background-color:#c0392b; transform:translateY(-2px); box-shadow:0 4px 12px rgba(231,76,60,0.3); }
+.btn-list { background-color:#95a5a6; color:#fff; }
+.btn-list:hover { background-color:#7f8c8d; transform:translateY(-2px); box-shadow:0 4px 12px rgba(149,165,166,0.3); }
+.btn-reply { background-color:#3498db; color:#fff; }
+.btn-reply:hover { background-color:#2980b9; transform:translateY(-2px); box-shadow:0 4px 12px rgba(52,152,219,0.3); }
+
+/* ==============================
+   PARENT POST (부모 게시글)
+============================== */
+
+.parent-post { background-color:#f0f8ff; padding:20px 24px; border-radius:10px; border-left:4px solid #36d1b6; margin-bottom:30px; }
+.parent-post h3 { font-size:14px; font-weight:700; color:#36d1b6; margin:0 0 10px 0; text-transform:uppercase; letter-spacing:0.5px; }
+.parent-post a { color:#333; text-decoration:none; font-weight:600; transition:color 0.2s ease; }
+.parent-post a:hover { color:#36d1b6; text-decoration:underline; }
+
+/* ==============================
+   REPLY FORM SECTION (답글 작성 섹션)
+============================== */
+
+.reply-form-section { background-color:#fff; padding:40px; border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,0.05); margin-bottom:30px; }
+.reply-form-section h3 { font-size:20px; font-weight:700; color:#1e2a38; margin:0 0 25px 0; }
+.reply-form { display:flex; flex-direction:column; gap:20px; }
+.form-group { display:flex; flex-direction:column; }
+.form-label { font-weight:600; color:#333; margin-bottom:8px; font-size:14px; }
+.form-control { width:100%; padding:12px 14px; border:1.5px solid #ddd; border-radius:8px; font-size:14px; font-family:inherit; transition:all 0.2s ease; }
+.form-control:focus { outline:none; border-color:#36d1b6; box-shadow:0 0 6px rgba(54,209,182,0.3); }
+.form-textarea { resize:vertical; min-height:200px; }
+
+/* ==============================
+   REPLY BUTTON SECTION (답글 버튼 섹션)
+============================== */
+
+.reply-button-section { text-align:center; margin-bottom:30px; }
+.reply-button-section .btn-reply { padding:14px 40px; font-size:16px; }
+.reply-button-section .login-alert { background-color:#fffbea; padding:20px; border-radius:10px; border-left:4px solid #f39c12; color:#333; }
+.reply-button-section .login-alert a { color:#f39c12; font-weight:600; text-decoration:none; }
+.reply-button-section .login-alert a:hover { text-decoration:underline; }
+
+/* ==============================
+   BACK BUTTON (뒤로가기 버튼)
+============================== */
+
+.back-button { text-align:center; margin-top:40px; padding-top:30px; border-top:1px solid #eee; }
+.back-button .btn-list { padding:12px 40px; font-size:15px; }
+
+/* ==============================
+   FORM CONTAINER (폼 컨테이너)
+============================== */
+
+.form-container { background-color:#fff; padding:40px; border:1px solid var(--color-border); border-radius:8px; }
+
+/* ==============================
+   FORM GROUP (폼 그룹)
+============================== */
+
+.form-group { margin-bottom:25px; }
+.form-label { display:block; margin-bottom:8px; font-size:14px; font-weight:600; color:var(--color-text); }
+.required { color:var(--color-danger); margin-left:3px; }
+
+/* ==============================
+   FORM CONTROL (폼 입력 요소)
+============================== */
+
+.form-control { width:100%; box-sizing:border-box; padding:12px 14px; font-size:14px; border:1.5px solid var(--color-border); border-radius:8px; outline:none; transition:all 0.25s ease; font-family:inherit; }
+.form-control:focus { outline:none; border-color:var(--color-primary); box-shadow:0 0 6px rgba(54,209,182,0.4); }
+.form-textarea { resize:vertical; min-height:300px; }
+
+/* ==============================
+   FORM CHECKBOX (폼 체크박스)
+============================== */
+
+.form-checkbox { display:flex; align-items:center; cursor:pointer; }
+.checkbox-input { margin-right:10px; cursor:pointer; }
+
+/* ==============================
+   FORM ACTIONS (폼 액션 버튼)
+============================== */
+
+.form-actions { display:flex; justify-content:center; align-items:center; gap:15px; margin-top:30px; border-top:1px solid var(--color-border); padding-top:30px; }
+.btn-submit { background-color:var(--color-primary); color:#fff; padding:12px 40px; border:none; border-radius:8px; font-size:15px; font-weight:700; cursor:pointer; transition:background-color 0.25s ease; text-decoration:none; display:inline-block; }
+.btn-submit:hover { background-color:var(--color-primary-hover); }
+.btn-cancel { background-color:#999; color:#fff; padding:12px 40px; text-decoration:none; border-radius:8px; font-size:15px; font-weight:700; text-align:center; display:inline-block; transition:background-color 0.25s ease; cursor:pointer; border:none; }
+.btn-cancel:hover { background-color:#777; }
+
+/* ==============================
+   REPLY STYLES (답글 스타일)
+============================== */
+
+.reply-row { background-color:#fafafa; }
+.reply-indent { display:inline-block; margin-right:8px; }
+.indent-arrow { color:#999; font-weight:700; margin-right:4px; }

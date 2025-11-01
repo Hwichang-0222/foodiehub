@@ -114,4 +114,183 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
+    /* ------------------------------
+        2-1. 답글 버튼 초기화 - 페이지 로드 시 이벤트 리스너 등록
+    ------------------------------ */
+    // 모든 답글 버튼에 클릭 이벤트 등록
+    initializeReplyButtons();
+    // 모달 외부 클릭 시 닫기 이벤트 등록
+    initializeModalCloseEvent();
+    // 답글 폼 제출 이벤트 등록
+    initializeReplyFormSubmit();
+
+});
+
+// 1. 답글 버튼에 이벤트 리스너 등록
+function initializeReplyButtons() {
+	// 답글 버튼 찾기
+	const replyButtons = document.querySelectorAll('.reply-btn');
+	
+	// 각 버튼에 클릭 이벤트 등록
+	replyButtons.forEach(function(btn) {
+		btn.addEventListener('click', function() {
+			// 부모글 ID와 제목 가져오기
+			const postId = this.getAttribute('data-post-id');
+			const postTitle = this.getAttribute('data-post-title');
+			// 모달 열기
+			openReplyModal(postId, postTitle);
+		});
+	});
+}
+
+// 2. 답글 모달 열기 (화면 정중앙 위치)
+function openReplyModal(postId, postTitle) {
+	// 부모글 ID 설정 (숨김 필드)
+	document.getElementById('reply-parent-id').value = postId;
+	
+	// 제목 자동 입력: "Re: " + 원글제목
+	document.getElementById('reply-title').value = 'Re: ' + postTitle;
+	
+	// 내용 초기화 (빈칸)
+	document.getElementById('reply-content').value = '';
+	
+	// 모달 표시
+	const modal = document.getElementById('reply-modal');
+	modal.style.display = 'block';
+	
+	// 모달을 화면 정중앙에 위치
+	centerModal(modal);
+	
+	// 제목 필드에 포커스 설정
+	document.getElementById('reply-title').focus();
+}
+
+// 2-1. 모달을 화면 정중앙에 위치시키는 함수
+function centerModal(modal) {
+	// 모달 콘텐츠 찾기
+	const modalContent = modal.querySelector('.modal-content');
+	
+	// 윈도우 크기 계산
+	const windowHeight = window.innerHeight;
+	const windowWidth = window.innerWidth;
+	
+	// 모달 콘텐츠의 크기
+	const modalHeight = modalContent.offsetHeight;
+	const modalWidth = modalContent.offsetWidth;
+	
+	// 수평 정중앙 계산
+	const leftPosition = (windowWidth - modalWidth) / 2;
+	// 수직 정중앙 계산 (약간 위쪽에 위치)
+	const topPosition = (windowHeight - modalHeight) / 2 - 100;
+	
+	// 모달 콘텐츠의 위치 설정
+	modalContent.style.position = 'fixed';
+	modalContent.style.left = leftPosition + 'px';
+	modalContent.style.top = Math.max(topPosition, 50) + 'px';
+	modalContent.style.zIndex = '1001';
+}
+
+// 3. 답글 모달 닫기
+function closeReplyModal() {
+	// 모달 숨기기
+	document.getElementById('reply-modal').style.display = 'none';
+	
+	// 모달 콘텐츠 위치 초기화
+	const modalContent = document.getElementById('reply-modal').querySelector('.modal-content');
+	modalContent.style.position = '';
+	modalContent.style.left = '';
+	modalContent.style.top = '';
+	modalContent.style.zIndex = '';
+	
+	// 폼 초기화
+	document.getElementById('reply-form').reset();
+}
+
+// 4. 모달 외부 클릭 시 닫기
+function initializeModalCloseEvent() {
+	// 모달 엘리먼트 찾기
+	const modal = document.getElementById('reply-modal');
+	
+	// 윈도우 클릭 이벤트 등록
+	window.addEventListener('click', function(event) {
+		// 모달 외부를 클릭했는지 확인
+		if (event.target === modal) {
+			// 모달 닫기
+			closeReplyModal();
+		}
+	});
+}
+
+// 5. 답글 폼 제출 이벤트 등록
+function initializeReplyFormSubmit() {
+	// 답글 폼 찾기
+	const replyForm = document.getElementById('reply-form');
+	
+	if (replyForm) {
+		// 폼 제출 이벤트 등록
+		replyForm.addEventListener('submit', function(event) {
+			// 기본 폼 제출 동작 방지
+			event.preventDefault();
+			
+			// 폼 데이터 가져오기
+			const parentId = document.getElementById('reply-parent-id').value;
+			const title = document.getElementById('reply-title').value;
+			const content = document.getElementById('reply-content').value;
+			
+			// 필수 입력값 검증
+			if (!parentId || !title.trim() || !content.trim()) {
+				alert('제목과 내용을 모두 입력해주세요.');
+				return;
+			}
+			
+			// FormData 객체 생성
+			const formData = new FormData();
+			formData.append('parentId', parentId);
+			formData.append('title', title);
+			formData.append('content', content);
+			
+			// AJAX로 답글 제출
+			fetch(replyForm.action, {
+				method: 'POST',
+				body: formData
+			})
+			.then(response => {
+				// 응답 상태 확인
+				if (response.ok) {
+					// 성공 메시지 표시
+					alert('답글이 작성되었습니다.');
+					// 관리자 대시보드 답글 탭으로 이동
+					location.href = '/admin/dashboard?tab=board';
+				} else {
+					// 오류 메시지 표시
+					alert('답글 작성 중 오류가 발생했습니다.');
+				}
+			})
+			.catch(error => {
+				// 네트워크 오류 처리
+				console.error('Error:', error);
+				alert('서버 요청 중 오류가 발생했습니다.');
+			});
+		});
+	}
+}
+
+// 6. ESC 키로 모달 닫기
+document.addEventListener('keydown', function(event) {
+	// 모달이 표시 중일 때 ESC 키로 닫기
+	if (event.key === 'Escape') {
+		const modal = document.getElementById('reply-modal');
+		if (modal && modal.style.display === 'block') {
+			closeReplyModal();
+		}
+	}
+});
+
+// 7. 윈도우 리사이즈 시 모달 위치 조정
+window.addEventListener('resize', function() {
+	// 모달이 표시 중일 때만 위치 조정
+	const modal = document.getElementById('reply-modal');
+	if (modal && modal.style.display === 'block') {
+		centerModal(modal);
+	}
 });

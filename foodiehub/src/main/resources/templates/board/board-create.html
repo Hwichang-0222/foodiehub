@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="UTF-8">
+	<!-- 게시글 작성 페이지 제목 -->
+	<title>게시글 작성 | FoodieHub</title>
+	<!-- 공통 스타일 시트 -->
+	<link rel="stylesheet" th:href="@{/css/style.css}">
+	<!-- 게시판 전용 스타일 시트 -->
+	<link rel="stylesheet" th:href="@{/css/board.css}">
+</head>
+<body>
+
+	<!-- 공통 헤더 -->
+	<div th:replace="layout/header :: header"></div>
+
+	<!-- 게시글 작성 페이지 메인 콘텐츠 -->
+	<main class="board-form-page">
+
+		<!-- 게시판 폼 상단 제목 -->
+		<div class="form-header">
+			<!-- 작성 페이지 제목 -->
+			<h1>게시글 작성</h1>
+		</div>
+
+		<!-- 게시글 작성 폼 -->
+		<div class="form-container">
+			<!-- 게시글 작성 폼 -->
+			<form th:action="@{/board/save}" method="post" class="board-form">
+				
+				<!-- 사용자 ID (세션에서 자동으로 설정) -->
+				<input type="hidden" name="userId" th:value="${session.user.id}">
+
+				<!-- 카테고리 선택 -->
+				<div class="form-group">
+					<!-- 카테고리 레이블 -->
+					<label for="category" class="form-label">카테고리 <span class="required">*</span></label>
+					<!-- 카테고리 선택 드롭다운 (권한별로 다른 옵션 표시) -->
+					<select id="category" name="category" class="form-control" required>
+						<!-- 기본값 -->
+						<option value="">선택하세요</option>
+						<!-- 일반 카테고리 (모든 사용자) -->
+						<option value="GENERAL">일반</option>
+						<!-- 등급요청 카테고리 (모든 사용자) -->
+						<option value="QUESTION">등급요청</option>
+						<!-- 맛집추천 카테고리 (모든 사용자) -->
+						<option value="SUGGESTION">맛집추천</option>
+						<!-- 공지사항 카테고리 (관리자만) -->
+						<option value="NOTICE" th:if="${session.user.role == 'ROLE_ADMIN'}">공지사항</option>
+						<!-- 일반탭 공지 (관리자만) -->
+						<option value="NOTICE_GENERAL" th:if="${session.user.role == 'ROLE_ADMIN'}">일반탭 공지</option>
+						<!-- 등급요청탭 공지 (관리자만) -->
+						<option value="NOTICE_QUESTION" th:if="${session.user.role == 'ROLE_ADMIN'}">등급탭 공지</option>
+						<!-- 맛집추천탭 공지 (관리자만) -->
+						<option value="NOTICE_SUGGESTION" th:if="${session.user.role == 'ROLE_ADMIN'}">맛집탭 공지</option>
+					</select>
+				</div>
+
+				<!-- 제목 입력 -->
+				<div class="form-group">
+					<!-- 제목 레이블 -->
+					<label for="title" class="form-label">제목 <span class="required">*</span></label>
+					<!-- 제목 입력 필드 -->
+					<input type="text" id="title" name="title" class="form-control" placeholder="제목을 입력하세요" required maxlength="200">
+				</div>
+
+				<!-- 내용 입력 -->
+				<div class="form-group">
+					<!-- 내용 레이블 -->
+					<label for="content" class="form-label">내용 <span class="required">*</span></label>
+					<!-- 내용 입력 텍스트영역 -->
+					<textarea id="content" name="content" class="form-control form-textarea" placeholder="내용을 입력하세요" required rows="15"></textarea>
+				</div>
+
+				<!-- 비공개 여부 (등급요청/맛집추천 카테고리에서만 표시) -->
+				<div class="form-group" id="privateGroup" style="display:none;">
+					<!-- 비공개 체크박스 -->
+					<label class="form-checkbox">
+						<!-- 비공개 체크박스 입력 -->
+						<input type="checkbox" name="isPrivate" class="checkbox-input">
+						<!-- 비공개 설명 텍스트 -->
+						<span>비공개로 작성하기 (내용이 공개되지 않습니다)</span>
+					</label>
+				</div>
+
+				<!-- 폼 액션 버튼 -->
+				<div class="form-actions">
+					<!-- 작성 버튼 -->
+					<button type="submit" class="btn-submit">작성</button>
+					<!-- 취소 버튼 -->
+					<a th:href="@{/board/list(category='GENERAL')}" class="btn-cancel">취소</a>
+				</div>
+
+			</form>
+		</div>
+
+	</main>
+
+	<!-- 공통 푸터 -->
+	<div th:replace="layout/footer :: footer"></div>
+
+	<!-- 카테고리별 비공개 옵션 표시/숨김 스크립트 -->
+	<script>
+		// 페이지 로드 시 카테고리 변경 이벤트 핸들러 등록
+		document.addEventListener('DOMContentLoaded', function() {
+			// 카테고리 선택 요소 가져오기
+			const categorySelect = document.getElementById('category');
+			// 비공개 그룹 요소 가져오기
+			const privateGroup = document.getElementById('privateGroup');
+
+			// 카테고리 변경 이벤트 리스너
+			categorySelect.addEventListener('change', function() {
+				// 등급요청 또는 맛집추천 카테고리일 때 비공개 옵션 표시
+				if (this.value === 'QUESTION' || this.value === 'SUGGESTION') {
+					privateGroup.style.display = 'block';
+				} else {
+					// 다른 카테고리일 때 비공개 옵션 숨김
+					privateGroup.style.display = 'none';
+				}
+			});
+
+			// 초기 상태 설정 (페이지 로드 시 카테고리에 따라 비공개 옵션 표시/숨김)
+			categorySelect.dispatchEvent(new Event('change'));
+		});
+	</script>
+
+</body>
+</html>

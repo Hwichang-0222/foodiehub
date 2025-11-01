@@ -27,6 +27,10 @@ public class ReviewController {
     private final ReviewService reviewService;
     private final ImageService imageService;
 	
+	/* ====================================
+	   리뷰 작성 및 댓글 기능
+	==================================== */
+	
 	// 1. 리뷰 작성
 	@PostMapping("/write")
     public String writeReview(
@@ -38,7 +42,7 @@ public class ReviewController {
             HttpSession session, Model model
     ) throws IOException {
 		
-		// 세션 사용자 정보 조회
+		// 세션에서 사용자 정보 조회
 		Object userObj = session.getAttribute("user");
         if (userObj == null) {
             return "redirect:/user/login";
@@ -64,6 +68,7 @@ public class ReviewController {
 
 		// 이미지 여러 장 저장
         if (files != null && files.length > 0) {
+        	// 업로드 경로 설정
         	String uploadPath = System.getProperty("user.dir") + "/uploads/review/";
 
 			// 업로드 디렉토리 생성
@@ -110,9 +115,10 @@ public class ReviewController {
 			HttpSession session,
 			RedirectAttributes redirectAttributes) {
 		
-		// 세션 사용자 정보 조회
+		// 세션에서 사용자 정보 조회
 		Object userObj = session.getAttribute("user");
 		if (userObj == null) {
+			// 사용자가 로그인하지 않았을 경우 로그 기록
 			System.out.println("댓글 작성: 세션 사용자 정보 없음");
 			return "redirect:/user/login";
 		}
@@ -125,6 +131,7 @@ public class ReviewController {
 		ReviewDTO parentReview = reviewService.findReviewWithUser(parentId);
 		System.out.println("부모 리뷰 조회 결과: " + parentReview);
 		
+		// 부모 리뷰가 없으면 에러 처리
 		if (parentReview == null) {
 			System.out.println("부모 리뷰를 찾을 수 없음. parentId: " + parentId);
 			redirectAttributes.addFlashAttribute("error", "리뷰를 찾을 수 없습니다.");
@@ -152,10 +159,12 @@ public class ReviewController {
 		int result = reviewService.insertReply(reply);
 		System.out.println("댓글 저장 결과: " + result);
 		
+		// 댓글 저장 성공 여부에 따른 메시지 처리
 		if (result > 0) {
 			// 성공 메시지 설정
 			redirectAttributes.addFlashAttribute("message", "댓글이 등록되었습니다!");
 		} else {
+			// 저장 실패 로그 기록
 			System.out.println("댓글 저장 실패");
 			redirectAttributes.addFlashAttribute("error", "댓글 저장에 실패했습니다.");
 		}

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="UTF-8">
+	<!-- 게시글 상세 페이지 제목 -->
+	<title th:text="${post.title} + ' | FoodieHub'">게시글 | FoodieHub</title>
+	<!-- 공통 스타일 시트 -->
+	<link rel="stylesheet" th:href="@{/css/style.css}">
+	<!-- 게시판 전용 스타일 시트 -->
+	<link rel="stylesheet" th:href="@{/css/board.css}">
+</head>
+<body>
+
+	<!-- 공통 헤더 -->
+	<div th:replace="layout/header :: header"></div>
+
+	<main class="board-detail-page">
+
+		<!-- 게시글 상단 정보 -->
+		<div class="detail-header">
+			<!-- 게시글 제목 -->
+			<h1 th:text="${post.title}"></h1>
+			<!-- 게시글 메타 정보 -->
+			<div class="post-meta">
+				<!-- 작성자 정보 -->
+				<span class="author" th:text="'작성자: ' + ${post.userName}"></span>
+				<!-- 작성일시 -->
+				<span class="date" th:text="'작성일: ' + ${#temporals.format(post.createdAt, 'yyyy-MM-dd HH:mm')}"></span>
+				<!-- 조회수 -->
+				<span class="views" th:text="'조회수: ' + ${post.viewCount}"></span>
+				<!-- 카테고리 -->
+				<span class="category" th:text="'[' + ${post.category} + ']'"></span>
+			</div>
+		</div>
+
+		<!-- 게시글 내용 -->
+		<div class="detail-content">
+			<!-- 게시글 본문 -->
+			<div class="post-content" th:text="${post.content}"></div>
+		</div>
+
+		<!-- 게시글 액션 버튼 (작성자만 수정/삭제 표시) -->
+		<div class="detail-actions" th:if="${user != null and user.id == post.userId}">
+			<!-- 수정 버튼 (작성자만) -->
+			<a th:href="@{/board/edit/{id}(id=${post.id})}" class="btn btn-edit">수정</a>
+			<!-- 삭제 버튼 (작성자만, 폼으로 전송) -->
+			<form th:action="@{/board/delete/{id}(id=${post.id})}" method="post" style="display:inline;" onsubmit="return confirm('정말 삭제하시겠습니까?');">
+				<button type="submit" class="btn btn-delete">삭제</button>
+			</form>
+		</div>
+
+		<!-- 부모 게시글 정보 (덧글일 경우) -->
+		<div class="parent-post" th:if="${parentPost != null}">
+			<!-- 원글 제목 -->
+			<h3>원글</h3>
+			<!-- 원글 링크 -->
+			<a th:href="@{/board/detail/{id}(id=${parentPost.id})}" th:text="${parentPost.title}"></a>
+		</div>
+
+		<!-- 뒤로가기 및 목록 버튼 -->
+		<div class="back-button">
+			<!-- 목록 버튼 -->
+			<a th:href="@{/board/list(category=${post.category})}" class="btn btn-list">목록</a>
+		</div>
+
+	</main>
+
+	<!-- 공통 푸터 -->
+	<div th:replace="layout/footer :: footer"></div>
+
+</body>
+</html>
