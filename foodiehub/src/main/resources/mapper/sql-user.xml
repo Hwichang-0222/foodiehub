@@ -152,6 +152,34 @@
     </select>
 
     <!-- ======================================
+         아이디 찾기
+    ====================================== -->
+    
+    <!-- 전화번호와 이름으로 사용자 조회 -->
+    <select id="findByPhoneAndName" resultType="org.embed.dto.UserDTO">
+        <![CDATA[
+            SELECT 
+                id,
+                email,
+                password,
+                name,
+                birth_date AS birthDate,
+                gender,
+                phone,
+                address,
+                profile_image_url AS profileImageUrl,
+                provider,
+                role,
+                is_deleted AS isDeleted,
+                created_at AS createdAt
+            FROM user
+            WHERE phone = #{phone}
+              AND name = #{name}
+              AND is_deleted = 'N'
+        ]]>
+    </select>
+
+    <!-- ======================================
          관리자 기능
     ====================================== -->
     

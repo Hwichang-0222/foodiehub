@@ -42,7 +42,6 @@
 				<input type="password" id="passwordConfirm" placeholder="비밀번호를 다시 입력하세요" required>
 				<small id="passwordMatchResult" class="check-result"></small>
 
-
                 <!-- 생년월일 -->
                 <label>생년월일</label>
                 <input type="date" th:field="*{birthDate}" id="birthDate" required>
@@ -70,9 +69,15 @@
 
                 <!-- 가입하기 버튼 -->
                 <button type="submit" id="signupBtn" class="submit-btn" disabled>회원가입</button>
+
+                <!-- 오류 메시지 -->
+                <p th:if="${error}" th:text="${error}" class="error-message"></p>
             </form>
 
-            <p th:if="${error}" th:text="${error}" class="error-message"></p>
+            <!-- 로그인 페이지로 돌아가기 링크 -->
+            <div class="find-back-link">
+                <a th:href="@{/user/login}">← 로그인으로 돌아가기</a>
+            </div>
         </section>
     </main>
 

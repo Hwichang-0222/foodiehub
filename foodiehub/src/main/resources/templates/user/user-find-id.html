@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>아이디 찾기 | FoodieHub</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <script th:src="@{/js/find-id-validation.js}" defer></script>
+</head>
+<body>
+
+    <!-- 공통 헤더 -->
+    <div th:replace="layout/header :: header"></div>
+
+    <main class="signup-main">
+        <section class="signup-container">
+            <h2>아이디 찾기</h2>
+            <p class="find-subtitle">가입할 때 등록한 정보로 아이디를 찾아보세요.</p>
+
+            <!-- 아이디 찾기 폼 -->
+            <form id="findIdForm">
+                
+                <!-- 이름 -->
+                <label>이름</label>
+                <input type="text" id="name" name="name" placeholder="가입할 때 등록한 이름" required>
+
+                <!-- 휴대폰번호 -->
+                <label>휴대폰번호</label>
+                <div class="inline-input">
+                    <input type="tel" id="phone" name="phone" placeholder="010-0000-0000" required>
+                </div>
+
+                <!-- 찾기 버튼 -->
+                <button type="submit" class="submit-btn">아이디 찾기</button>
+
+                <!-- 결과 메시지 -->
+                <div id="resultMessage" class="result-message" style="display: none;"></div>
+
+                <!-- 찾은 아이디 표시 -->
+                <div id="foundIdSection" class="found-id-section" style="display: none;">
+                    <p class="found-label">찾은 아이디:</p>
+                    <p class="found-id" id="foundId"></p>
+                    <div class="id-find-actions">
+                        <a th:href="@{/user/login}" class="action-btn">로그인하기</a>
+                        <a th:href="@{/user/find-password}" class="action-btn secondary">비밀번호 찾기</a>
+                    </div>
+                </div>
+            </form>
+
+            <!-- 돌아가기 링크 -->
+            <div class="find-back-link">
+                <a th:href="@{/user/login}">← 로그인으로 돌아가기</a>
+            </div>
+        </section>
+    </main>
+
+    <!-- 공통 푸터 -->
+    <div th:replace="layout/footer :: footer"></div>
+
+</body>
+</html>

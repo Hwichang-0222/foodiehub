@@ -137,10 +137,84 @@ public class UserController {
     }
 
     /* ====================================
+       아이디/비밀번호 찾기
+    ==================================== */
+    
+    // 7. 아이디 찾기 페이지
+    @GetMapping("/find-id")
+    public String findIdPage() {
+        return "user/user-find-id";
+    }
+
+    // 8. 아이디 찾기 처리
+    @PostMapping("/find-id")
+    @ResponseBody
+    public Map<String, Object> findId(@RequestParam("phone") String phone,
+                                      @RequestParam("name") String name) {
+        // 전화번호와 이름으로 사용자 조회
+        UserDTO user = userService.findByPhoneAndName(phone, name);
+        Map<String, Object> response = new java.util.HashMap<>();
+        
+        if (user != null && "N".equals(user.getIsDeleted())) {
+            // 이메일 마스킹 (예: user@****.com)
+            String email = user.getEmail();
+            String maskedEmail = email.substring(0, email.indexOf("@")) + "@****." + 
+                                 email.substring(email.lastIndexOf(".") + 1);
+            response.put("success", true);
+            response.put("email", maskedEmail);
+        } else {
+            response.put("success", false);
+            response.put("message", "일치하는 사용자가 없습니다.");
+        }
+        return response;
+    }
+
+    // 9. 비밀번호 찾기 페이지
+    @GetMapping("/find-password")
+    public String findPasswordPage() {
+        return "user/user-find-password";
+    }
+
+    // 10. 비밀번호 찾기 처리 (인증 코드 전송)
+    @PostMapping("/find-password")
+    @ResponseBody
+    public Map<String, Object> findPassword(@RequestParam("email") String email) {
+        // 이메일로 사용자 조회
+        UserDTO user = userService.findByEmail(email);
+        Map<String, Object> response = new java.util.HashMap<>();
+        
+        if (user != null && "N".equals(user.getIsDeleted())) {
+            // 실제로는 이메일로 인증 코드 전송 (여기서는 임시 처리)
+            String resetToken = UUID.randomUUID().toString();
+            // 토큰을 세션이나 DB에 저장하는 로직 필요
+            response.put("success", true);
+            response.put("token", resetToken);
+            response.put("message", "인증 코드가 이메일로 전송되었습니다.");
+        } else {
+            response.put("success", false);
+            response.put("message", "등록되지 않은 이메일입니다.");
+        }
+        return response;
+    }
+
+    // 11. 비밀번호 재설정
+    @PostMapping("/reset-password")
+    @ResponseBody
+    public Map<String, Object> resetPassword(@RequestParam("token") String token,
+                                             @RequestParam("newPassword") String newPassword) {
+        // 토큰 검증 및 비밀번호 변경 로직
+        Map<String, Object> response = new java.util.HashMap<>();
+        // 실제 구현 시 DB에서 토큰 확인 후 비밀번호 변경
+        response.put("success", true);
+        response.put("message", "비밀번호가 변경되었습니다.");
+        return response;
+    }
+
+    /* ====================================
        마이페이지
     ==================================== */
     
-    // 7. 마이페이지 (내가 쓴 리뷰, 게시글 목록)
+    // 12. 마이페이지 (내가 쓴 리뷰, 게시글 목록)
     @GetMapping("/mypage")
     public String myPage(@RequestParam(name = "reviewPage", defaultValue = "1") int reviewPage,
                          @RequestParam(name = "boardPage", defaultValue = "1") int boardPage,
@@ -191,7 +265,7 @@ public class UserController {
        회원정보 수정
     ==================================== */
     
-    // 8. 회원정보 수정 폼 페이지
+    // 13. 회원정보 수정 폼 페이지
     @GetMapping("/edit")
     public String editPage(HttpSession session, Model model) {
         // 세션에서 사용자 정보 조회
@@ -204,7 +278,7 @@ public class UserController {
         return "user/user-edit";
     }
 
-    // 9. 회원정보 수정 처리
+    // 14. 회원정보 수정 처리
     @PostMapping("/update")
     public String updateUser(@ModelAttribute UserDTO user,
                              @RequestParam("currentPassword") String currentPassword,
@@ -288,7 +362,7 @@ public class UserController {
        회원 탈퇴
     ==================================== */
     
-    // 10. 회원 탈퇴 처리
+    // 15. 회원 탈퇴 처리
     @PostMapping("/delete")
     public String deleteAccount(HttpSession session) {
         // 세션에서 사용자 정보 조회

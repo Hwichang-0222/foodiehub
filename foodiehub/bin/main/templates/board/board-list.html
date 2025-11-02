@@ -33,17 +33,17 @@
 				</select>
 				<input type="text" name="keyword" class="search-input" placeholder="검색어를 입력하세요" th:value="${keyword}">
 				<button type="submit" class="submit-btn">검색</button>
-				<button type="reset" class="reset-btn" onclick="location.href='/board/list?category=GENERAL'">초기화</button>
+				<button type="reset" class="reset-btn" onclick="location.href='/board/search?category=GENERAL&keyword='">초기화</button>
 			</form>
 			<a th:if="${user != null}" th:href="@{/board/create}" class="btn btn-create">게시글 작성</a>
 		</div>
 
 		<!-- 게시판 카테고리 탭 영역 -->
 		<div class="category-tabs">
-			<a th:href="@{/board/list(category='NOTICE')}" th:classappend="${category == 'NOTICE'} ? 'active' : ''" class="tab">공지사항</a>
-			<a th:href="@{/board/list(category='GENERAL')}" th:classappend="${category == 'GENERAL'} ? 'active' : ''" class="tab">일반</a>
-			<a th:href="@{/board/list(category='QUESTION')}" th:classappend="${category == 'QUESTION'} ? 'active' : ''" class="tab">등급 요청</a>
-			<a th:href="@{/board/list(category='SUGGESTION')}" th:classappend="${category == 'SUGGESTION'} ? 'active' : ''" class="tab">맛집 추천</a>
+			<a th:href="@{/board/search(category='NOTICE', keyword=${keyword})}" th:classappend="${category == 'NOTICE'} ? 'active' : ''" class="tab">공지사항</a>
+			<a th:href="@{/board/search(category='GENERAL', keyword=${keyword})}" th:classappend="${category == 'GENERAL'} ? 'active' : ''" class="tab">일반</a>
+			<a th:href="@{/board/search(category='QUESTION', keyword=${keyword})}" th:classappend="${category == 'QUESTION'} ? 'active' : ''" class="tab">등급 요청</a>
+			<a th:href="@{/board/search(category='SUGGESTION', keyword=${keyword})}" th:classappend="${category == 'SUGGESTION'} ? 'active' : ''" class="tab">맛집 추천</a>
 		</div>
 
 		<!-- 게시글 총 개수 표시 -->
@@ -115,14 +115,15 @@
 			<p>등록된 게시글이 없습니다.</p>
 		</div>
 
-		<!-- 페이지네이션 -->
+		<!-- 페이지네이션 (검색 URL 통합) -->
 		<div class="pagination" th:if="${totalPages > 1}">
-			<a th:if="${currentPage > 1}" th:href="@{/board/list(category=${category}, page=${currentPage - 1})}" class="page-link prev">« 이전</a>
+			<!-- 검색 URL로 통합: keyword 없을 때는 빈 문자열로 처리되어 검색 없이 모든 글 표시 -->
+			<a th:if="${currentPage > 1}" th:href="@{/board/search(category=${category}, keyword=${keyword}, page=${currentPage - 1})}" class="page-link prev">« 이전</a>
 			<a th:each="i : ${#numbers.sequence(1, totalPages)}" 
-			   th:href="@{/board/list(category=${category}, page=${i})}" 
+			   th:href="@{/board/search(category=${category}, keyword=${keyword}, page=${i})}" 
 			   th:classappend="${i == currentPage} ? 'active' : ''"
 			   class="page-link" th:text="${i}"></a>
-			<a th:if="${currentPage < totalPages}" th:href="@{/board/list(category=${category}, page=${currentPage + 1})}" class="page-link next">다음 »</a>
+			<a th:if="${currentPage < totalPages}" th:href="@{/board/search(category=${category}, keyword=${keyword}, page=${currentPage + 1})}" class="page-link next">다음 »</a>
 		</div>
 
 	</main>

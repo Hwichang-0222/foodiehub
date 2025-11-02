@@ -14,9 +14,9 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private UserMapper userMapper;
 
-    /* ------------------------------
+    /* ======================================
        기본 CRUD
-    ------------------------------ */
+    ====================================== */
     // 1. 개별 유저 조회 (id 기준)
     @Override
     public UserDTO findById(Long id) {
@@ -47,9 +47,9 @@ public class UserServiceImpl implements UserService {
         return userMapper.softDeleteUser(id);
     }
 
-    /* ------------------------------
+    /* ======================================
        인증 관련
-    ------------------------------ */
+    ====================================== */
     // 6. 이메일 중복 확인
     @Override
     public int countByEmail(String email) {
@@ -63,28 +63,37 @@ public class UserServiceImpl implements UserService {
         return user != null && "N".equals(user.getIsDeleted()) && user.getPassword().equals(password);
     }
 
-    /* ------------------------------
+    /* ======================================
+       아이디 찾기
+    ====================================== */
+    // 8. 전화번호와 이름으로 사용자 조회
+    @Override
+    public UserDTO findByPhoneAndName(String phone, String name) {
+        return userMapper.findByPhoneAndName(phone, name);
+    }
+
+    /* ======================================
        관리자 기능
-    ------------------------------ */
-    // 8. 권한 변경
+    ====================================== */
+    // 9. 권한 변경
     @Override
     public int updateUserRole(Long id, String role) {
         return userMapper.updateUserRole(id, role);
     }
 
-    // 9. 회원 검색 (키워드/상태/역할 필터링)
+    // 10. 회원 검색 (키워드/상태/역할 필터링)
     @Override
     public List<UserDTO> searchUsers(String keyword, String status, String role, int offset, int limit) {
         return userMapper.searchUsers(keyword, status, role, offset, limit);
     }
     
-    // 10. 페이지네이션용 검색인원
+    // 11. 페이지네이션용 검색인원
     @Override
     public int countSearchUsers(String keyword, String status, String role) {
         return userMapper.countSearchUsers(keyword, status, role);
     }
 
-    // 11. 역할별 유저 조회
+    // 12. 역할별 유저 조회
     @Override
     public List<UserDTO> findByRole(String role) {
         return userMapper.findByRole(role);
