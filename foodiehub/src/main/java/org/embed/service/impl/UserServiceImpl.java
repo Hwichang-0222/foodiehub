@@ -6,6 +6,7 @@ import org.embed.dto.UserDTO;
 import org.embed.mapper.UserMapper;
 import org.embed.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -13,6 +14,12 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private UserMapper userMapper;
+    
+    /* ============================================
+       BCrypt 비밀번호 암호화
+    ============================================ */
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     /* ======================================
        기본 CRUD
@@ -29,15 +36,25 @@ public class UserServiceImpl implements UserService {
         return userMapper.findByEmail(email);
     }
 
-    // 3. 새 유저 등록
+    // 3. 새 유저 등록 - 비밀번호 암호화
     @Override
     public int insertUser(UserDTO user) {
+        // 비밀번호 BCrypt 암호화
+        if (user.getPassword() != null && !user.getPassword().isEmpty()) {
+            String encodedPassword = passwordEncoder.encode(user.getPassword());
+            user.setPassword(encodedPassword);
+        }
         return userMapper.insertUser(user);
     }
 
     // 4. 유저 정보 수정
     @Override
     public int updateUser(UserDTO user) {
+        // 새 비밀번호가 있으면 암호화
+        if (user.getPassword() != null && !user.getPassword().isEmpty()) {
+            String encodedPassword = passwordEncoder.encode(user.getPassword());
+            user.setPassword(encodedPassword);
+        }
         return userMapper.updateUser(user);
     }
 
@@ -56,11 +73,19 @@ public class UserServiceImpl implements UserService {
         return userMapper.countByEmail(email);
     }
 
-    // 7. 로그인 검증
+    // 7. 로그인 검증 - BCrypt 비밀번호 비교
     @Override
     public boolean validateLogin(String email, String password) {
-        UserDTO user = userMapper.validateLogin(email, password);
-        return user != null && "N".equals(user.getIsDeleted()) && user.getPassword().equals(password);
+        // DB에서 이메일로 사용자 조회
+        UserDTO user = userMapper.findByEmail(email);
+        
+        // 사용자 존재 여부 및 삭제 상태 확인
+        if (user == null || "Y".equals(user.getIsDeleted())) {
+            return false;
+        }
+        
+        // BCrypt를 사용하여 비밀번호 비교
+        return passwordEncoder.matches(password, user.getPassword());
     }
 
     /* ======================================

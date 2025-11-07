@@ -11,11 +11,12 @@
     <!-- 공통 헤더 -->
     <div th:replace="layout/header :: header"></div>
 
+    <!-- 로그인 메인 영역 -->
     <main class="signup-main">
         <section class="signup-container">
             <h2>로그인</h2>
 
-            <!-- 일반 로그인 폼 -->
+            <!-- 로그인 폼 -->
             <form th:action="@{/user/login}" method="post" id="loginForm">
                 
                 <!-- 이메일 -->

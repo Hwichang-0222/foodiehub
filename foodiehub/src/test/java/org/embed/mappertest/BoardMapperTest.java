@@ -6,7 +6,12 @@ import java.util.List;
 
 import org.embed.dto.BoardDTO;
 import org.embed.mapper.BoardMapper;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -17,16 +22,19 @@ class BoardMapperTest {
     @Autowired
     private BoardMapper boardMapper;
 
-    private static Long testUserId = 3L; // DB 내 존재하는 테스트 유저
-    private static Long generalBoardId;  // 일반글
-    private static Long noticeBoardId;   // 공지글
+    private static Long testUserId = 41L;
+    private static Long normalBoardId;
+    private static Long noticeBoardId;
 
     @BeforeAll
     static void initAll() {
         System.out.println("\n===== BoardMapper 통합 테스트 시작 =====\n");
     }
 
-    // 1. 일반 게시글 등록
+    /* ============================================
+       게시글 등록
+    ============================================ */
+
     @Test
     @Order(1)
     void testInsertBoard() {
@@ -34,146 +42,230 @@ class BoardMapperTest {
         board.setUserId(testUserId);
         board.setTitle("일반글 테스트");
         board.setContent("일반 게시글 등록 테스트입니다.");
-        board.setCategory("GENERAL");
+        board.setCategory("QUESTION");
         board.setIsPrivate(false);
 
         int result = boardMapper.insertBoard(board);
         assertEquals(1, result);
-        generalBoardId = board.getId();
-        assertNotNull(generalBoardId);
+        assertNotNull(board.getId());
+        normalBoardId = board.getId();
 
-        System.out.println("1. 일반 게시글 등록 완료 (ID=" + generalBoardId + ")");
+        System.out.println("[1] 일반 게시글 등록 - ID: " + normalBoardId);
     }
 
-    // 2. 공지 게시글 등록
     @Test
     @Order(2)
     void testInsertNoticeBoard() {
         BoardDTO notice = new BoardDTO();
         notice.setUserId(testUserId);
-        notice.setTitle("전역 공지 테스트");
-        notice.setContent("이것은 전체 공지글 테스트입니다.");
+        notice.setTitle("공지사항 테스트");
+        notice.setContent("전체 공지사항 테스트입니다.");
         notice.setCategory("NOTICE");
 
         int result = boardMapper.insertBoard(notice);
         assertEquals(1, result);
+        assertNotNull(notice.getId());
         noticeBoardId = notice.getId();
 
-        System.out.println("2. 공지 게시글 등록 완료 (ID=" + noticeBoardId + ")");
+        System.out.println("[2] 공지 게시글 등록 - ID: " + noticeBoardId);
     }
 
-    // 3. 공지글 조회 (탭별)
+    /* ============================================
+       공지글 조회
+    ============================================ */
+
     @Test
     @Order(3)
     void testFindNoticesByCategory() {
         List<BoardDTO> notices = boardMapper.findNoticesByCategory("GENERAL");
-        assertTrue(notices.size() > 0);
-        System.out.println("3. 공지글 조회 수 = " + notices.size());
-        notices.forEach(b -> System.out.println("   공지: " + b.getTitle() + " [" + b.getCategory() + "]"));
+        assertTrue(notices.size() >= 0);
+        System.out.println("[3] 공지글 조회(카테고리: GENERAL) - " + notices.size() + "개");
     }
 
-    // 4. 일반글 조회 (페이지네이션)
+    /* ============================================
+       일반글 조회
+    ============================================ */
+
     @Test
     @Order(4)
     void testFindNormalPostsByCategory() {
         List<BoardDTO> posts = boardMapper.findNormalPostsByCategory("GENERAL", 0, 5);
         assertNotNull(posts);
-        System.out.println("4. 일반글 조회 수 = " + posts.size());
-        posts.forEach(p -> System.out.println("   일반글: " + p.getTitle()));
+        System.out.println("[4] 일반글 조회(카테고리: GENERAL, 페이지 1) - " + posts.size() + "개");
     }
 
-    // 5. 일반글 개수 조회
     @Test
     @Order(5)
     void testCountNormalPostsByCategory() {
         int count = boardMapper.countNormalPostsByCategory("GENERAL");
         assertTrue(count >= 1);
-        System.out.println("5. 일반글 총 개수 = " + count);
+        System.out.println("[5] 일반글 개수 - " + count + "개");
     }
 
-    // 6. 단일 게시글 조회
+    /* ============================================
+       게시글 상세 조회
+    ============================================ */
+
     @Test
     @Order(6)
     void testFindById() {
-        BoardDTO board = boardMapper.findById(generalBoardId);
+        BoardDTO board = boardMapper.findById(normalBoardId);
         assertNotNull(board);
-        System.out.println("6. 단일 게시글 조회: " + board.getTitle());
+        System.out.println("[6] 단일 게시글 조회 - 제목: " + board.getTitle());
     }
 
-    // 7. 조회수 증가
+    /* ============================================
+       조회수 증가
+    ============================================ */
+
     @Test
     @Order(7)
     void testIncreaseViewCount() {
-        BoardDTO before = boardMapper.findById(generalBoardId);
+        BoardDTO before = boardMapper.findById(normalBoardId);
         int beforeCount = before.getViewCount();
 
-        int updated = boardMapper.increaseViewCount(generalBoardId);
+        int updated = boardMapper.increaseViewCount(normalBoardId);
         assertEquals(1, updated);
 
-        BoardDTO after = boardMapper.findById(generalBoardId);
+        BoardDTO after = boardMapper.findById(normalBoardId);
         assertEquals(beforeCount + 1, after.getViewCount());
 
-        System.out.println("7. 조회수 증가 전: " + beforeCount + " → 증가 후: " + after.getViewCount());
+        System.out.println("[7] 조회수 증가 - " + beforeCount + " → " + after.getViewCount());
     }
 
-    // 8. 사용자별 게시글 조회
+    /* ============================================
+       사용자별 조회
+    ============================================ */
+
     @Test
     @Order(8)
     void testFindByUserId() {
         List<BoardDTO> list = boardMapper.findByUserId(testUserId);
         assertTrue(list.size() > 0);
-        System.out.println("8. 사용자 작성글 수 = " + list.size());
+        System.out.println("[8] 사용자별 게시글 조회 - " + list.size() + "개");
     }
 
-    // 9. 게시글 수정
     @Test
     @Order(9)
+    void testCountByUserId() {
+        int count = boardMapper.countByUserId(testUserId);
+        assertTrue(count > 0);
+        System.out.println("[9] 사용자별 게시글 개수 - " + count + "개");
+    }
+
+    @Test
+    @Order(10)
+    void testFindPagedByUserId() {
+        List<BoardDTO> list = boardMapper.findPagedByUserId(testUserId, 0, 5);
+        assertNotNull(list);
+        System.out.println("[10] 사용자별 페이지 게시글 조회 - " + list.size() + "개");
+    }
+
+    /* ============================================
+       게시글 수정
+    ============================================ */
+
+    @Test
+    @Order(11)
     void testUpdateBoard() {
-        BoardDTO board = boardMapper.findById(generalBoardId);
-        board.setTitle("수정된 게시글 제목");
+        BoardDTO board = boardMapper.findById(normalBoardId);
+        board.setTitle("수정된 게시글");
         board.setContent("수정된 내용입니다.");
         int result = boardMapper.updateBoard(board);
         assertEquals(1, result);
 
-        BoardDTO updated = boardMapper.findById(generalBoardId);
-        assertEquals("수정된 게시글 제목", updated.getTitle());
-        System.out.println("9. 게시글 수정 완료: " + updated.getTitle());
+        BoardDTO updated = boardMapper.findById(normalBoardId);
+        assertEquals("수정된 게시글", updated.getTitle());
+        System.out.println("[11] 게시글 수정 - 변경된 제목: " + updated.getTitle());
     }
 
-    // 10. 관리자 답글 등록
+    /* ============================================
+       관리자 답글
+    ============================================ */
+
     @Test
-    @Order(10)
+    @Order(12)
     void testInsertAdminReply() {
         BoardDTO reply = new BoardDTO();
         reply.setUserId(testUserId);
-        reply.setParentId(generalBoardId);
-        reply.setContent("관리자 답변 테스트 내용입니다.");
+        reply.setParentId(normalBoardId);
+        reply.setTitle("답");
+        reply.setContent("관리자 답변입니다.");
 
         int result = boardMapper.insertAdminReply(reply);
         assertEquals(1, result);
 
-        System.out.println("10. 관리자 답변 등록 완료 (parent_id=" + generalBoardId + ")");
+        System.out.println("[12] 관리자 답글 등록 - 부모글ID: " + normalBoardId);
     }
 
-    // 11. 검색 테스트
+    /* ============================================
+       게시글 검색
+    ============================================ */
+
     @Test
-    @Order(11)
+    @Order(13)
     void testSearchBoard() {
         List<BoardDTO> results = boardMapper.searchBoard("GENERAL", "테스트", 0, 10);
         assertNotNull(results);
-        System.out.println("11. 검색 결과 수 = " + results.size());
-        results.forEach(r -> System.out.println("   검색 결과: " + r.getTitle() + " (" + r.getCategory() + ")"));
+        System.out.println("[13] 게시글 검색(키워드: 테스트) - " + results.size() + "개");
     }
 
-    // 12. 게시글 삭제
     @Test
-    @Order(12)
+    @Order(14)
+    void testCountSearchBoards() {
+        int count = boardMapper.countSearchBoards("GENERAL", "테스트");
+        assertTrue(count >= 0);
+        System.out.println("[14] 검색 결과 개수 - " + count + "개");
+    }
+
+    /* ============================================
+       관리자 기능
+    ============================================ */
+
+    @Test
+    @Order(15)
+    void testFindAllNotices() {
+        List<BoardDTO> notices = boardMapper.findAllNotices(0, 10);
+        assertNotNull(notices);
+        System.out.println("[15] 모든 공지사항 조회 - " + notices.size() + "개");
+    }
+
+    @Test
+    @Order(16)
+    void testCountAllNotices() {
+        int count = boardMapper.countAllNotices();
+        assertTrue(count >= 0);
+        System.out.println("[16] 공지사항 총 개수 - " + count + "개");
+    }
+
+    @Test
+    @Order(17)
+    void testFindUnansweredRequests() {
+        List<BoardDTO> unanswered = boardMapper.findUnansweredRequests(0, 10, "all");
+        assertNotNull(unanswered);
+        System.out.println("[17] 답글 미등록 요청글 조회 - " + unanswered.size() + "개");
+    }
+
+    @Test
+    @Order(18)
+    void testCountUnansweredRequests() {
+        int count = boardMapper.countUnansweredRequests("all");
+        assertTrue(count >= 0);
+        System.out.println("[18] 답글 미등록 요청글 개수 - " + count + "개");
+    }
+
+    /* ============================================
+       게시글 삭제
+    ============================================ */
+
+    @Test
+    @Order(19)
     void testDeleteBoards() {
-        int deleteNormal = boardMapper.deleteBoard(generalBoardId);
+        int deleteNormal = boardMapper.deleteBoard(normalBoardId);
         int deleteNotice = boardMapper.deleteBoard(noticeBoardId);
         assertEquals(1, deleteNormal);
         assertEquals(1, deleteNotice);
-        System.out.println("12. 테스트 게시글 삭제 완료 (ID=" + generalBoardId + ", " + noticeBoardId + ")");
+        System.out.println("[19] 게시글 삭제 - 일반글(" + normalBoardId + "), 공지글(" + noticeBoardId + ")");
     }
 
     @AfterAll

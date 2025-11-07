@@ -12,6 +12,12 @@
     <!-- 공통 헤더 -->
     <div th:replace="layout/header :: header"></div>
 
+    <!-- 페이지 헤더 -->
+    <div class="page-header">
+        <button type="button" class="btn-back-nav" onclick="history.back()">← 뒤로가기</button>
+        <h1>식당 상세</h1>
+    </div>
+
     <div class="restaurant-detail">
         <!-- 왼쪽: 이미지 + 기본 정보 -->
         <div class="detail-left">
@@ -53,6 +59,12 @@
                     <p><strong>주소:</strong> <span th:text="${restaurant.address}"></span></p>
                     <p><strong>지역:</strong> <span th:text="${restaurant.region}"></span></p>
                     <p><strong>카테고리:</strong> <span th:text="${restaurant.category}"></span></p>
+                </div>
+            </div>
+            
+            <div id="menu" class="tab-content">
+                <div class="detail-box">
+                    <h3>메뉴판 사진 기능과 메뉴 확인 기능 추가 예정 </h3>
                 </div>
             </div>
 

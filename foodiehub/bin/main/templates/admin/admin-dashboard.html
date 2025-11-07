@@ -2,13 +2,8 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <!-- 관리자 페이지 제목 -->
     <title>관리자 페이지 | FoodieHub</title>
-    <!-- 공통 스타일 시트 -->
     <link rel="stylesheet" th:href="@{/css/style.css}">
-    <!-- 관리자 전용 스타일 시트 -->
-    <link rel="stylesheet" th:href="@{/css/admin.css}">
-    <!-- 관리자 대시보드 스크립트 -->
     <script defer th:src="@{/js/admin-dashboard.js}"></script>
 </head>
 <body>
@@ -16,10 +11,13 @@
     <!-- 공통 헤더 -->
     <div th:replace="layout/header :: header"></div>
 
+    <!-- 페이지 헤더 -->
+    <div class="page-header">
+        <h1>관리자 페이지</h1>
+    </div>
+
     <!-- 관리자 컨테이너 -->
     <div class="admin-container">
-        <!-- 관리자 페이지 제목 -->
-        <h1>관리자 페이지</h1>
 
         <!-- 탭 메뉴 -->
         <div class="tab-menu">
@@ -225,7 +223,7 @@
                         <th>카테고리</th>
                         <!-- 등록일 -->
                         <th>등록일</th>
-                        <!-- 관리 버튼 -->
+                        <!-- 관리 -->
                         <th>관리</th>
                     </tr>
                 </thead>
@@ -237,59 +235,80 @@
                         <td th:text="${iStat.count}"></td>
                         <!-- 식당명 -->
                         <td th:text="${restaurant.name}"></td>
-                        <!-- 오너명 또는 미지정 표시 -->
-                        <td th:text="${restaurant.ownerName != null ? restaurant.ownerName : '미지정'}"></td>
-                        <!-- 식당 주소 -->
+                        <!-- 오너명 또는 선택 폼 -->
+                        <td>
+                            <!-- 오너가 미지정인 경우: 선택 폼 표시 -->
+                            <div th:if="${restaurant.ownerId == null}">
+                                <select name="owner" class="owner-select" th:data-restaurant-id="${restaurant.id}">
+                                    <option value="">미지정</option>
+                                    <option th:each="owner : ${owners}" 
+                                            th:value="${owner.id}" 
+                                            th:text="${owner.name}"
+                                            th:disabled="${#lists.contains(assignedOwnerIds, owner.id)}">
+                                    </option>
+                                </select>
+                                <button type="button" class="update-owner-btn">지정</button>
+                            </div>
+                            <!-- 오너가 지정된 경우: 오너명 표시 -->
+                            <div th:if="${restaurant.ownerId != null}">
+                                <span th:text="${restaurant.ownerName != null ? restaurant.ownerName : '오너명 미표시'}"></span>
+                            </div>
+                        </td>
+                        <!-- 주소 -->
                         <td th:text="${restaurant.address}"></td>
-                        <!-- 식당 지역 -->
+                        <!-- 지역 -->
                         <td th:text="${restaurant.region}"></td>
-                        <!-- 식당 카테고리 -->
+                        <!-- 카테고리 -->
                         <td th:text="${restaurant.category}"></td>
-                        <!-- 등록일 표시 -->
+                        <!-- 등록일 -->
                         <td th:text="${#temporals.format(restaurant.createdAt, 'yyyy-MM-dd')}"></td>
                         <!-- 관리 버튼 -->
                         <td>
-                            <!-- 상세 보기 버튼 -->
+                            <!-- 보기 버튼 -->
                             <a th:href="@{/restaurant/detail/{id}(id=${restaurant.id})}" class="btn">보기</a>
                             <!-- 수정 버튼 -->
                             <a th:href="@{/restaurant/edit/{id}(id=${restaurant.id})}" class="btn">수정</a>
                             <!-- 삭제 버튼 -->
-                            <a th:href="@{/restaurant/delete/{id}(id=${restaurant.id})}" class="btn delete">삭제</a>
+                            <a th:href="@{/restaurant/delete/{id}(id=${restaurant.id})}" class="btn delete" onclick="return confirm('정말 삭제하시겠습니까?');">삭제</a>
                         </td>
                     </tr>
                 </tbody>
             </table>
 
-            <!-- 식당 페이지네이션 -->
+            <!-- 식당 관리 페이지네이션 -->
             <div class="pagination">
                 <!-- 이전 버튼 -->
                 <a th:if="${restaurantPage > 1}" 
-                   th:href="@{/admin/dashboard(restaurantPage=${restaurantPage - 1}, tab='restaurant')}">&laquo; 이전</a>
+                   th:href="@{/admin/dashboard(restaurantPage=${restaurantPage - 1}, tab='restaurant', ownerFilter=${ownerFilter}, restaurantKeyword=${restaurantKeyword})}">&laquo; 이전</a>
         
                 <!-- 현재 페이지 표시 -->
-                <span th:text="' 페이지 ' + ${restaurantPage} + ' / ' + ${restaurantTotalPages}"></span>
+                <span th:text="'페이지 ' + ${restaurantPage} + ' / ' + ${restaurantTotalPages}"></span>
         
                 <!-- 다음 버튼 -->
                 <a th:if="${restaurantPage < restaurantTotalPages}" 
-                   th:href="@{/admin/dashboard(restaurantPage=${restaurantPage + 1}, tab='restaurant')}">다음 &raquo;</a>
+                   th:href="@{/admin/dashboard(restaurantPage=${restaurantPage + 1}, tab='restaurant', ownerFilter=${ownerFilter}, restaurantKeyword=${restaurantKeyword})}">다음 &raquo;</a>
             </div>
 
+            <!-- 식당 결과 없음 메시지 -->
+            <div th:if="${restaurants.size() == 0}" class="no-result">
+                검색 결과가 없습니다.
+            </div>
         </section>
 
+        
         <!-- 답글 관리 탭 -->
         <section id="board-tab" class="tab-content">
-        
-            <!-- 답글 필터 -->
-            <div class="filter-form">
-                <!-- 전체 보기 -->
+            
+            <!-- 필터 버튼 -->
+            <div class="filter-group">
+            <div class="filter-right">
                 <a th:href="@{/admin/dashboard(tab='board')}" 
-                   th:classappend="${filter == null} ? 'active' : ''" class="btn">전체보기</a>
-                <!-- 등급요청 필터 -->
+                   th:classappend="${filter == null or filter == ''} ? 'active' : ''" class="btn">전체</a>
                 <a th:href="@{/admin/dashboard(tab='board', filter='QUESTION')}" 
-                   th:classappend="${filter == 'QUESTION'} ? 'active' : ''" class="btn">등급</a>
-                <!-- 추천 필터 -->
+                   th:classappend="${filter == 'QUESTION'} ? 'active' : ''" class="btn">등급요청</a>
                 <a th:href="@{/admin/dashboard(tab='board', filter='SUGGESTION')}" 
                    th:classappend="${filter == 'SUGGESTION'} ? 'active' : ''" class="btn">추천</a>
+            </div>
             </div>
             
             <!-- 미답변 요청 테이블 -->
@@ -465,6 +484,13 @@
         // 성공 메시지 있으면 알림 표시
         if (successMessage) {
             alert(successMessage);
+        }
+        
+        
+		var errorMessage = /*[[${errorMessage}]]*/ null;
+        // 에러 메시지 있으면 알림 표시
+        if (errorMessage) {
+            alert(errorMessage);
         }
         /*]]>*/
     </script>

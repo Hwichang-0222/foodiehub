@@ -9,7 +9,14 @@
 
     <div th:replace="layout/header :: header"></div>
 
-    <main class="mypage-main">
+    <!-- 페이지 헤더 -->
+    <div class="page-header">
+        <button type="button" class="btn-back-nav" onclick="history.back()">← 뒤로가기</button>
+        <h1>마이페이지</h1>
+    </div>
+
+    <!-- 마이페이지 메인 -->
+    <main class="page-main mypage-main">
         <div class="mypage-container">
 
             <!-- 왼쪽: 프로필 -->

@@ -13,6 +13,7 @@
 
     <main class="signup-main">
         <section class="signup-container">
+            <button type="button" class="btn-back-nav" onclick="history.back()">← 뒤로가기</button>
             <h2>아이디 찾기</h2>
             <p class="find-subtitle">가입할 때 등록한 정보로 아이디를 찾아보세요.</p>
 
@@ -46,10 +47,6 @@
                 </div>
             </form>
 
-            <!-- 돌아가기 링크 -->
-            <div class="find-back-link">
-                <a th:href="@{/user/login}">← 로그인으로 돌아가기</a>
-            </div>
         </section>
     </main>
 

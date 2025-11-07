@@ -19,11 +19,14 @@ class ImageMapperTest {
     @Autowired
     private ImageMapper imageMapper;
 
-    private static Long testReviewId = 7L; // 실제 존재하는 리뷰 ID
-    private static Long testRestaurantId = 1L; // 실제 존재하는 레스토랑 ID
+    private static Long testReviewId = 7L;
+    private static Long testRestaurantId = 1L;
     private static Long insertedImageId;
 
-    // 1. 이미지 등록 테스트
+    /* ============================================
+       이미지 등록
+    ============================================ */
+
     @Test
     @Order(1)
     void testInsertImage() {
@@ -38,11 +41,14 @@ class ImageMapperTest {
         int result = imageMapper.insertImage(image);
         insertedImageId = image.getId();
 
-        System.out.println("삽입 결과: " + result + ", 생성된 이미지 ID: " + insertedImageId);
+        System.out.println("  - 삽입 결과: " + result + ", 생성된 이미지 ID: " + insertedImageId);
         Assertions.assertEquals(1, result);
     }
 
-    // 2. 리뷰별 이미지 조회
+    /* ============================================
+       이미지 조회
+    ============================================ */
+
     @Test
     @Order(2)
     void testFindByReviewId() {
@@ -50,13 +56,12 @@ class ImageMapperTest {
         List<ImageDTO> images = imageMapper.findByReviewId(testReviewId);
 
         for (ImageDTO img : images) {
-            System.out.printf("ID: %d | 파일명: %s | URL: %s%n", img.getId(), img.getFileName(), img.getFileUrl());
+            System.out.printf("  - ID: %d | 파일명: %s | URL: %s%n", img.getId(), img.getFileName(), img.getFileUrl());
         }
 
         Assertions.assertFalse(images.isEmpty());
     }
 
-    // 3. 특정 식당 전체 리뷰 이미지 조회 (사진 탭용)
     @Test
     @Order(3)
     void testFindAllByRestaurantId() {
@@ -64,13 +69,12 @@ class ImageMapperTest {
         List<ImageDTO> images = imageMapper.findAllByRestaurantId(testRestaurantId);
 
         for (ImageDTO img : images) {
-            System.out.printf("리뷰ID: %d | 파일명: %s | URL: %s%n", img.getReviewId(), img.getFileName(), img.getFileUrl());
+            System.out.printf("  - 리뷰ID: %d | 파일명: %s | URL: %s%n", img.getReviewId(), img.getFileName(), img.getFileUrl());
         }
 
         Assertions.assertFalse(images.isEmpty());
     }
 
-    // 4. 특정 식당의 최신 10장 조회 (썸네일용)
     @Test
     @Order(4)
     void testFindRecent10ByRestaurantId() {
@@ -78,16 +82,21 @@ class ImageMapperTest {
         List<ImageDTO> images = imageMapper.findRecent10ByRestaurantId(testRestaurantId);
 
         for (ImageDTO img : images) {
-            System.out.printf("리뷰ID: %d | 파일명: %s | 등록일: %s%n", img.getReviewId(), img.getFileName(), img.getCreatedAt());
+            System.out.printf("  - 리뷰ID: %d | 파일명: %s | 등록일: %s%n", img.getReviewId(), img.getFileName(), img.getCreatedAt());
         }
 
         Assertions.assertTrue(images.size() <= 10);
     }
-    
-    // 6. 사진 업데이트
+
+    /* ============================================
+       이미지 수정
+    ============================================ */
+
     @Test
     @Order(5)
     void testUpdateImage() {
+        System.out.println("[5] 이미지 수정 테스트");
+
         ImageDTO img = new ImageDTO();
         img.setId(insertedImageId);
         img.setFileName("updated_photo.jpg");
@@ -95,14 +104,21 @@ class ImageMapperTest {
         img.setFileType("image/png");
 
         int result = imageMapper.updateImage(img);
+        System.out.println("  - 수정 결과: " + result);
         Assertions.assertEquals(1, result);
     }
+
+    /* ============================================
+       이미지 삭제
+    ============================================ */
 
     @Test
     @Order(6)
     void testDeleteImageById() {
+        System.out.println("[6] 이미지 삭제 테스트");
+
         int result = imageMapper.deleteImageById(insertedImageId);
+        System.out.println("  - 삭제 결과: " + result);
         Assertions.assertEquals(1, result);
     }
-
 }

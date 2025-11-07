@@ -1,8 +1,8 @@
 @charset "UTF-8";
 
-/* ------------------------------
-   INDEX PAGE (메인 페이지)
------------------------------- */
+/* ============================================
+   메인 페이지
+============================================ */
 .main-container { display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; min-height:70vh; background:linear-gradient(180deg,#f8f9fa 0%,#ffffff 100%); }
 
 .main-title { font-size:3rem; font-weight:800; color:#1e2a38; margin-bottom:40px; letter-spacing:-1px; }

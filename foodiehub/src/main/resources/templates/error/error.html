@@ -4,21 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>에러 페이지</title>
-    <link rel="stylesheet" href="/css/error.css">
+    <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
-    <!-- 헤더 -->
-    <div id="header"></div>
+   
+    <!-- 공통 헤더 -->
+    <div th:replace="layout/header :: header"></div>
 
     <div class="error-container">
         <div class="error-content">
-            <div class="error-code" th:text="${errorCode}">500</div>
-            <div class="error-title" th:text="${errorMessage}">서버 에러</div>
-            <div class="error-detail" th:text="${errorDetail}">다시 시도해주세요</div>
+            <div class="error-title">오류가 발생했습니다</div>
+            <div class="error-detail">잠시 후 다시 시도해주세요</div>
         </div>
 
         <div class="error-actions">
-            <a href="/" class="btn-home">홈으로</a>
+            <a href="/" class="btn">홈으로</a>
             <button onclick="history.back()" class="btn-back">이전</button>
         </div>
 
@@ -34,8 +34,6 @@
     </div>
 
     <!-- 푸터 -->
-    <div id="footer"></div>
-
-    <script src="/js/common.js"></script>
+   	<div th:replace="layout/footer :: footer"></div>
 </body>
 </html>

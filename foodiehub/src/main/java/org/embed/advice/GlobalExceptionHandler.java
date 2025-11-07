@@ -16,7 +16,10 @@ import jakarta.servlet.http.HttpServletRequest;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
-	// 에러 로그 파일 저장
+	/* ============================================
+	   에러 로그 파일 저장
+	============================================ */
+	
 	private void saveErrorLog(Exception ex, HttpServletRequest request, String errorCode) {
 		try {
 			String logDir = System.getProperty("user.dir") + "/logs/error";
@@ -66,63 +69,45 @@ public class GlobalExceptionHandler {
 				request.getHeader("User-Agent"));
 	}
 
+	/* ============================================
+	   Controller 레벨 예외 처리
+	   - 로그 저장 후 에러 페이지로 이동
+	   - 에러 메시지는 화면에 표시 안 함 (로그에만 저장)
+	============================================ */
+
 	@ExceptionHandler(Exception.class)
 	public ModelAndView handleException(Exception ex, HttpServletRequest request) {
 		saveErrorLog(ex, request, "500");
-		ModelAndView mav = new ModelAndView("error/error");
-		mav.addObject("errorCode", "500");
-		mav.addObject("errorMessage", "서버 오류가 발생했습니다");
-		mav.addObject("errorDetail", "관리자에게 문의해주세요");
-		return mav;
+		return new ModelAndView("error/error");
 	}
 
 	@ExceptionHandler(RuntimeException.class)
 	public ModelAndView handleRuntimeException(RuntimeException ex, HttpServletRequest request) {
 		saveErrorLog(ex, request, "500");
-		ModelAndView mav = new ModelAndView("error/error");
-		mav.addObject("errorCode", "500");
-		mav.addObject("errorMessage", "요청 처리 중 오류가 발생했습니다");
-		mav.addObject("errorDetail", "잠시 후 다시 시도해주세요");
-		return mav;
+		return new ModelAndView("error/error");
 	}
 
 	@ExceptionHandler(NullPointerException.class)
 	public ModelAndView handleNullPointerException(NullPointerException ex, HttpServletRequest request) {
 		saveErrorLog(ex, request, "400");
-		ModelAndView mav = new ModelAndView("error/error");
-		mav.addObject("errorCode", "400");
-		mav.addObject("errorMessage", "잘못된 요청입니다");
-		mav.addObject("errorDetail", "필수 데이터가 누락되었습니다");
-		return mav;
+		return new ModelAndView("error/error");
 	}
 
 	@ExceptionHandler(NumberFormatException.class)
 	public ModelAndView handleNumberFormatException(NumberFormatException ex, HttpServletRequest request) {
 		saveErrorLog(ex, request, "400");
-		ModelAndView mav = new ModelAndView("error/error");
-		mav.addObject("errorCode", "400");
-		mav.addObject("errorMessage", "잘못된 입력 형식입니다");
-		mav.addObject("errorDetail", "숫자만 입력 가능합니다");
-		return mav;
+		return new ModelAndView("error/error");
 	}
 
 	@ExceptionHandler(IllegalArgumentException.class)
 	public ModelAndView handleIllegalArgumentException(IllegalArgumentException ex, HttpServletRequest request) {
 		saveErrorLog(ex, request, "400");
-		ModelAndView mav = new ModelAndView("error/error");
-		mav.addObject("errorCode", "400");
-		mav.addObject("errorMessage", "잘못된 값입니다");
-		mav.addObject("errorDetail", ex.getMessage() != null ? ex.getMessage() : "입력값을 다시 확인해주세요");
-		return mav;
+		return new ModelAndView("error/error");
 	}
 
 	@ExceptionHandler(Throwable.class)
 	public ModelAndView handleThrowable(Throwable ex, HttpServletRequest request) {
 		saveErrorLog((Exception) ex, request, "500");
-		ModelAndView mav = new ModelAndView("error/error");
-		mav.addObject("errorCode", "500");
-		mav.addObject("errorMessage", "예상치 못한 오류가 발생했습니다");
-		mav.addObject("errorDetail", "관리자에게 문의해주세요");
-		return mav;
+		return new ModelAndView("error/error");
 	}
 }

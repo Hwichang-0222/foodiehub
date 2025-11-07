@@ -30,10 +30,11 @@
 			SELECT b.*, u.name AS user_name
 			FROM board b
 			INNER JOIN user u ON b.user_id = u.id
-			WHERE b.parent_id IS NULL
-			  AND b.category = #{category}
+			WHERE b.category = #{category}
 			  AND b.category NOT IN ('NOTICE', 'NOTICE_GENERAL', 'NOTICE_QUESTION', 'NOTICE_SUGGESTION')
-			ORDER BY b.created_at DESC
+			ORDER BY IF(b.parent_id IS NULL, b.id, b.parent_id) DESC, 
+			         b.parent_id IS NULL DESC, 
+			         b.created_at DESC
 			LIMIT #{offset}, #{limit}
 		]]>
 	</select>
@@ -59,8 +60,7 @@
 			SELECT b.*, u.name AS user_name
 			FROM board b
 			INNER JOIN user u ON b.user_id = u.id
-			WHERE b.parent_id IS NULL
-			  AND b.category NOT IN ('NOTICE','NOTICE_GENERAL','NOTICE_QUESTION','NOTICE_SUGGESTION')
+			WHERE b.category NOT IN ('NOTICE','NOTICE_GENERAL','NOTICE_QUESTION','NOTICE_SUGGESTION')
 			  AND (
 					(#{category} = 'GENERAL' AND b.category = 'GENERAL')
 				 OR (#{category} = 'QUESTION' AND b.category = 'QUESTION')
@@ -71,7 +71,9 @@
 					OR b.content LIKE CONCAT('%', #{keyword}, '%')
 					OR u.name LIKE CONCAT('%', #{keyword}, '%')
 			  )
-			ORDER BY b.created_at DESC
+			ORDER BY IF(b.parent_id IS NULL, b.id, b.parent_id) DESC, 
+			         b.parent_id IS NULL DESC, 
+			         b.created_at DESC
 			LIMIT #{offset}, #{limit}
 		]]>
 	</select>
@@ -83,17 +85,13 @@
 			FROM board b
 			INNER JOIN user u ON b.user_id = u.id
 			WHERE b.parent_id IS NULL
-			  AND (
-					(#{category} = 'GENERAL' AND b.category IN ('NOTICE','NOTICE_GENERAL','GENERAL'))
-				 OR (#{category} = 'QUESTION' AND b.category IN ('NOTICE','NOTICE_QUESTION','QUESTION'))
-				 OR (#{category} = 'SUGGESTION' AND b.category IN ('NOTICE','NOTICE_SUGGESTION','SUGGESTION'))
-				 OR (#{category} = 'NOTICE' AND b.category = 'NOTICE')
-			  )
-			  AND (
-					b.title LIKE CONCAT('%', #{keyword}, '%')
-					OR b.content LIKE CONCAT('%', #{keyword}, '%')
-					OR u.name LIKE CONCAT('%', #{keyword}, '%')
-			  )
+			AND b.category = #{category}
+			AND b.category NOT IN ('NOTICE', 'NOTICE_GENERAL', 'NOTICE_QUESTION', 'NOTICE_SUGGESTION')
+			AND (
+				b.title LIKE CONCAT('%', #{keyword}, '%')
+				OR b.content LIKE CONCAT('%', #{keyword}, '%')
+				OR u.name LIKE CONCAT('%', #{keyword}, '%')
+			)
 		]]>
 	</select>
 
@@ -175,13 +173,15 @@
 				parent_id, 
 				title, 
 				content, 
-				category
+				category,
+				created_at
 			) VALUES (
 				#{userId}, 
 				#{parentId}, 
 				#{title}, 
 				#{content}, 
-				#{category}
+				#{category},
+				NOW()
 			)
 		]]>
 	</insert>

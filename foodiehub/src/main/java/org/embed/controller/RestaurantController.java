@@ -38,7 +38,34 @@ public class RestaurantController {
 	@Value("${kakao.map.api.key}")
 	private String kakaoMapApiKey;
 
-	// 1. 식당 목록 조회
+	/* ============================================
+	   헬퍼 메서드
+	============================================ */
+	
+	// 식당 수정 권한 확인 (ADMIN 또는 해당 식당의 OWNER)
+	private boolean hasEditPermission(UserDTO user, RestaurantDTO restaurant) {
+		if (user == null) return false;
+		
+		// ADMIN: 모든 식당 수정 가능
+		if ("ROLE_ADMIN".equals(user.getRole())) {
+			return true;
+		}
+		
+		// OWNER: 본인 식당만 수정 가능
+		if ("ROLE_OWNER".equals(user.getRole()) && 
+		    restaurant.getOwnerId() != null && 
+		    restaurant.getOwnerId().equals(user.getId())) {
+			return true;
+		}
+		
+		return false;
+	}
+
+	/* ============================================
+	   식당 목록 및 상세 조회
+	============================================ */
+
+	// 식당 목록 조회
 	@GetMapping("/list")
 	public String list(
 			@RequestParam(name="region", required=false) String region,
@@ -65,9 +92,13 @@ public class RestaurantController {
 		return "restaurant/restaurant-list";
 	}
 	
-	// 2. 식당 상세 조회
+	// 식당 상세 조회
 	@GetMapping("/detail/{id}")
-	public String getRestaurantDetail(@PathVariable("id") Long id, HttpSession session, Model model) {
+	public String getRestaurantDetail(
+			@PathVariable("id") Long id, 
+			HttpSession session, 
+			Model model) {
+		
 		RestaurantDTO restaurant = restaurantService.findById(id);
 		List<ReviewDTO> reviews = reviewService.findByRestaurantId(id);
 		
@@ -92,8 +123,12 @@ public class RestaurantController {
 
 		return "restaurant/restaurant-detail";
 	}
+
+	/* ============================================
+	   식당 등록 (ADMIN만 - Spring Security에서 체크)
+	============================================ */
 	
-	// 3. 식당 등록 폼 화면
+	// 식당 등록 폼 화면
 	@GetMapping("/add")
 	public String showAddForm(Model model) {
 		model.addAttribute("restaurant", new RestaurantDTO());
@@ -101,11 +136,12 @@ public class RestaurantController {
 		return "restaurant/restaurant-add";
 	}
 	
-	// 4. 식당 등록 처리
+	// 식당 등록 처리
 	@PostMapping("/add")
-	public String addRestaurant(@ModelAttribute RestaurantDTO restaurant,
-	                            @RequestParam(value = "mainImage", required = false) MultipartFile mainImage,
-	                            RedirectAttributes redirectAttributes) throws IOException {
+	public String addRestaurant(
+			@ModelAttribute RestaurantDTO restaurant,
+            @RequestParam(value = "mainImage", required = false) MultipartFile mainImage,
+            RedirectAttributes redirectAttributes) throws IOException {
 
 	    if (mainImage != null && !mainImage.isEmpty()) {
 	        String uploadDir = System.getProperty("user.dir") + "/uploads/restaurant/";
@@ -121,11 +157,17 @@ public class RestaurantController {
 	    redirectAttributes.addFlashAttribute("successMessage", "식당이 성공적으로 등록되었습니다.");
 	    return "redirect:/admin/dashboard?tab=restaurant";
 	}
+
+	/* ============================================
+	   식당 삭제 (ADMIN만 - Spring Security에서 체크)
+	============================================ */
 	
-	// 5. 식당 삭제
+	// 식당 삭제
 	@GetMapping("/delete/{id}")
-	public String deleteRestaurant(@PathVariable("id") Long id, 
-	                               RedirectAttributes redirectAttributes) {
+	public String deleteRestaurant(
+			@PathVariable("id") Long id, 
+            RedirectAttributes redirectAttributes) {
+		
 	    try {
 	        restaurantService.deleteRestaurant(id);
 	        redirectAttributes.addFlashAttribute("successMessage", "식당이 삭제되었습니다.");
@@ -134,32 +176,28 @@ public class RestaurantController {
 	    }
 	    return "redirect:/admin/dashboard?tab=restaurant";
 	}
+
+	/* ============================================
+	   식당 수정 (ADMIN 또는 OWNER - 추가 권한 체크)
+	============================================ */
 	
-	// 6. 식당 수정 폼 화면
+	// 식당 수정 폼 화면
 	@GetMapping("/edit/{id}")
-	public String showEditForm(@PathVariable("id") Long id, 
-	                          HttpSession session, 
-	                          Model model) {
+	public String showEditForm(
+			@PathVariable("id") Long id, 
+			HttpSession session,
+            Model model,
+            RedirectAttributes redirectAttributes) {
+		
 	    model.addAttribute("kakaoMapApiKey", kakaoMapApiKey);
+	    
+	    // 세션에서 사용자 정보 조회
 	    UserDTO user = (UserDTO) session.getAttribute("user");
-	    
-	    if (user == null) {
-	        return "redirect:/user/login";
-	    }
-	    
 	    RestaurantDTO restaurant = restaurantService.findById(id);
-	    boolean hasPermission = false;
 	    
-	    if (user.getRole().equals("ROLE_ADMIN")) {
-	        hasPermission = true;
-	    }
-	    else if (user.getRole().equals("ROLE_OWNER") && 
-	             restaurant.getOwnerId() != null && 
-	             restaurant.getOwnerId().equals(user.getId())) {
-	        hasPermission = true;
-	    }
-	    
-	    if (!hasPermission) {
+	    // 권한 체크 (ADMIN 또는 해당 식당의 OWNER만)
+	    if (!hasEditPermission(user, restaurant)) {
+	        redirectAttributes.addFlashAttribute("errorMessage", "수정 권한이 없습니다.");
 	        return "redirect:/restaurant/detail/" + id;
 	    }
 	    
@@ -167,33 +205,22 @@ public class RestaurantController {
 	    return "restaurant/restaurant-edit";
 	}
 
-	// 7. 식당 수정 처리
+	// 식당 수정 처리
 	@PostMapping("/edit/{id}")
-	public String editRestaurant(@PathVariable("id") Long id,
-	                            @ModelAttribute RestaurantDTO restaurant,
-	                            @RequestParam(value = "mainImage", required = false) MultipartFile mainImage,
-	                            HttpSession session,
-	                            RedirectAttributes redirectAttributes) throws IOException {
+	public String editRestaurant(
+			@PathVariable("id") Long id,
+            @ModelAttribute RestaurantDTO restaurant,
+            @RequestParam(value = "mainImage", required = false) MultipartFile mainImage,
+            HttpSession session,
+            RedirectAttributes redirectAttributes) throws IOException {
 	    
+	    // 세션에서 사용자 정보 조회
 	    UserDTO user = (UserDTO) session.getAttribute("user");
-	    
-	    if (user == null) {
-	        return "redirect:/user/login";
-	    }
-	    
 	    RestaurantDTO existingRestaurant = restaurantService.findById(id);
-	    boolean hasPermission = false;
 	    
-	    if (user.getRole().equals("ROLE_ADMIN")) {
-	        hasPermission = true;
-	    }
-	    else if (user.getRole().equals("ROLE_OWNER") && 
-	             existingRestaurant.getOwnerId() != null && 
-	             existingRestaurant.getOwnerId().equals(user.getId())) {
-	        hasPermission = true;
-	    }
-	    
-	    if (!hasPermission) {
+	    // 권한 체크 (ADMIN 또는 해당 식당의 OWNER만)
+	    if (!hasEditPermission(user, existingRestaurant)) {
+	        redirectAttributes.addFlashAttribute("errorMessage", "수정 권한이 없습니다.");
 	        return "redirect:/restaurant/detail/" + id;
 	    }
 	    

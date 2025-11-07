@@ -1,9 +1,9 @@
 @charset "UTF-8";
 
-/* ======================================
-   SIGNUP & LOGIN PAGE (회원가입/로그인)
-====================================== */
-.signup-main { display:flex; justify-content:center; align-items:center; min-height:100vh; background-color:#f5f7fa; padding:40px 0; }
+/* ============================================
+   로그인/회원가입 페이지
+============================================ */
+.signup-main { display:flex; justify-content:center; margin-top:60px; background-color:#f5f7fa; padding:40px 0; }
 .signup-container { background:#fff; width:640px; padding:50px 60px; border-radius:14px; box-shadow:0 5px 18px rgba(0,0,0,0.06); box-sizing:border-box; }
 .signup-container h2 { text-align:center; margin-bottom:40px; color:#1e2a38; font-size:2rem; font-weight:800; }
 .signup-container label { display:block; margin-top:18px; font-weight:600; color:#333; }
@@ -17,9 +17,9 @@
 .password-box input { width:100%; padding-right:60px; }
 .password-box .toggle-btn { position:absolute; top:50%; transform:translateY(-50%); right:12px; background:none; border:none; color:#36d1b6; font-weight:600; cursor:pointer; font-size:0.9rem; }
 
-/* ======================================
-   LOGIN PAGE - 소셜 로그인 (카카오/네이버)
-====================================== */
+/* ============================================
+   로그인 페이지 - 소셜 로그인
+============================================ */
 .divider { display:flex; align-items:center; margin:28px 0; color:#999; font-size:0.9rem; }
 .divider::before, .divider::after { content:''; flex:1; height:1px; background-color:#ddd; }
 .divider span { padding:0 12px; }
@@ -44,9 +44,9 @@
 .extra-links a::before { content:'| '; color:#ddd; margin-right:8px; }
 .extra-links a:first-child::before { content:''; margin-right:0; }
 
-/* ======================================
-   FIND ID/PASSWORD PAGE (아이디/비밀번호 찾기)
-====================================== */
+/* ============================================
+   아이디/비밀번호 찾기 페이지
+============================================ */
 .find-subtitle { text-align:center; color:#666; font-size:0.95rem; margin-bottom:30px; margin-top:-20px; }
 .find-form-step { display:block; }
 
@@ -80,10 +80,10 @@
 .resend-link a { color:#36d1b6; text-decoration:none; font-weight:600; }
 .resend-link a:hover { text-decoration:underline; }
 
-/* ======================================
-   MY PAGE (마이페이지)
-====================================== */
-.mypage-main { display:flex; justify-content:center; align-items:flex-start; min-height:80vh; background-color:#f8f9fa; padding:60px 0; }
+/* ============================================
+   마이페이지
+============================================ */
+.mypage-main { display:flex; justify-content:center; align-items:flex-start; background-color:#f8f9fa; padding:20px 0; }
 .mypage-container { display:grid; grid-template-columns:320px 1fr; gap:40px; background:#fff; border-radius:12px; box-shadow:0 3px 12px rgba(0,0,0,0.08); padding:40px 50px; width:1000px; }
 
 .mypage-left { border-right:1px solid #eee; padding-right:30px; }

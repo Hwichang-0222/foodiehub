@@ -15,16 +15,11 @@
 	<div th:replace="layout/header :: header"></div>
 
 	<!-- 게시글 수정 페이지 메인 콘텐츠 -->
-	<main class="board-form-page">
+	<main class="signup-main">
+		<section class="signup-container">
+			<button type="button" class="btn-back-nav" onclick="history.back()">← 뒤로가기</button>
+			<h2>게시글 수정</h2>
 
-		<!-- 게시판 폼 상단 제목 -->
-		<div class="form-header">
-			<!-- 수정 페이지 제목 -->
-			<h1>게시글 수정</h1>
-		</div>
-
-		<!-- 게시글 수정 폼 -->
-		<div class="form-container">
 			<!-- 게시글 수정 폼 -->
 			<form th:action="@{/board/save}" method="post" class="board-form">
 				
@@ -97,7 +92,7 @@
 				</div>
 
 			</form>
-		</div>
+		</section>
 
 	</main>
 

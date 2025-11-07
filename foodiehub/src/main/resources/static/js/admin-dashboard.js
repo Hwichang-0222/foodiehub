@@ -223,54 +223,19 @@ function initializeModalCloseEvent() {
 
 // 5. 답글 폼 제출 이벤트 등록
 function initializeReplyFormSubmit() {
-	// 답글 폼 찾기
 	const replyForm = document.getElementById('reply-form');
 	
 	if (replyForm) {
-		// 폼 제출 이벤트 등록
 		replyForm.addEventListener('submit', function(event) {
-			// 기본 폼 제출 동작 방지
-			event.preventDefault();
-			
-			// 폼 데이터 가져오기
 			const parentId = document.getElementById('reply-parent-id').value;
 			const title = document.getElementById('reply-title').value;
 			const content = document.getElementById('reply-content').value;
 			
-			// 필수 입력값 검증
 			if (!parentId || !title.trim() || !content.trim()) {
 				alert('제목과 내용을 모두 입력해주세요.');
+				event.preventDefault();
 				return;
 			}
-			
-			// FormData 객체 생성
-			const formData = new FormData();
-			formData.append('parentId', parentId);
-			formData.append('title', title);
-			formData.append('content', content);
-			
-			// AJAX로 답글 제출
-			fetch(replyForm.action, {
-				method: 'POST',
-				body: formData
-			})
-			.then(response => {
-				// 응답 상태 확인
-				if (response.ok) {
-					// 성공 메시지 표시
-					alert('답글이 작성되었습니다.');
-					// 관리자 대시보드 답글 탭으로 이동
-					location.href = '/admin/dashboard?tab=board';
-				} else {
-					// 오류 메시지 표시
-					alert('답글 작성 중 오류가 발생했습니다.');
-				}
-			})
-			.catch(error => {
-				// 네트워크 오류 처리
-				console.error('Error:', error);
-				alert('서버 요청 중 오류가 발생했습니다.');
-			});
 		});
 	}
 }

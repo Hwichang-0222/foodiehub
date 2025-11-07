@@ -80,9 +80,9 @@
 					<tr th:classappend="${board.category == 'QUESTION'} ? 'question-row' : 'post-row'">
 						<td class="col-num" th:text="${startNumber - boardStat.count + 1}"></td>
 						<td class="col-notice">
-							<span th:if="${boardCategory == 'QUESTION'}" class="badge-question">Q</span>
-							<span th:if="${boardCategory == 'SUGGESTION'}" class="badge-suggestion">건의</span>
-							<span th:if="${boardCategory == 'GENERAL'}"></span>
+							<span th:if="${board.Category == 'QUESTION'}" class="badge-question">요청</span>
+							<span th:if="${board.Category == 'SUGGESTION'}" class="badge-suggestion">추천</span>
+							<span th:if="${board.Category == 'GENERAL'}"></span>
 						</td>
 						<td class="col-title">
 							<a th:href="@{/board/detail/{id}(id=${board.id})}" class="post-link" th:text="${board.title}"></a>
@@ -95,7 +95,7 @@
 					<!-- 이 부모글의 답글들 -->
 					<tr th:each="reply : ${boards}" th:if="${reply.parentId == board.id}" class="reply-row">
 						<td class="col-num"></td>
-						<td class="col-notice"><span class="badge-reply">덧글</span></td>
+						<td class="col-notice"><span class="badge-reply">답글</span></td>
 						<td class="col-title">
 							<div class="reply-indent">
 								<span class="indent-arrow">ㄴ</span>
@@ -130,6 +130,17 @@
 
 	<!-- 공통 푸터 -->
 	<div th:replace="layout/footer :: footer"></div>
+	
+	<script th:inline="javascript">
+        /*<![CDATA[*/
+		var errorMessage = /*[[${errorMessage}]]*/ null;
+        // 에러 메시지 있으면 알림 표시
+        if (errorMessage) {
+            alert(errorMessage);
+            location.href = '/user/login';
+        }
+        /*]]>*/
+	</script>
 
 </body>
 </html>

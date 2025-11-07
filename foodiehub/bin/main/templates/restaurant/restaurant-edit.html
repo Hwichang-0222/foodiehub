@@ -9,15 +9,16 @@
     <!-- 헤더 -->
     <div th:replace="layout/header :: header"></div>
     
-    <button type="button" class="back-btn" onclick="history.back()">←</button>
+    <!-- 식당 수정 메인 영역 -->
+    <main class="signup-main">
+        <section class="signup-container">
+            <button type="button" class="btn-back-nav" onclick="history.back()">← 뒤로가기</button>
+            <h2>식당 정보 수정</h2>
 
-    <div class="form-container">
-        <h1>식당 정보 수정</h1>
-
-        <form th:action="@{/restaurant/edit/{id}(id=${restaurant.id})}" 
-              method="post" 
-              enctype="multipart/form-data"
-              class="restaurant-form">
+            <form th:action="@{/restaurant/edit/{id}(id=${restaurant.id})}" 
+                  method="post" 
+                  enctype="multipart/form-data"
+                  class="restaurant-form">
 
             <!-- [1] 식당명 (읽기전용) -->
             <label>식당명</label>
@@ -73,7 +74,8 @@
                 <a th:href="@{/restaurant/detail/{id}(id=${restaurant.id})}" class="btn cancel-btn">취소</a>
             </div>
         </form>
-    </div>
+        </section>
+    </main>
 
     <!-- 푸터 -->
     <div th:replace="layout/footer :: footer"></div>

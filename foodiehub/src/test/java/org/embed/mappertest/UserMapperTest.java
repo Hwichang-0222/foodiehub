@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 
-import org.embed.domain.Role;
 import org.embed.dto.UserDTO;
 import org.embed.mapper.UserMapper;
 import org.junit.jupiter.api.MethodOrderer;
@@ -23,15 +22,17 @@ class UserMapperTest {
     @Autowired
     private UserMapper userMapper;
 
-    // 테스트용 ID 저장
     private static Long testUserId;
 
-    // 1. 사용자 등록 테스트
+    /* ============================================
+       사용자 등록
+    ============================================ */
+
     @Test
     @Order(1)
     void testInsertUser() {
         UserDTO user = new UserDTO();
-        user.setEmail("3mapper_test@example.com");
+        user.setEmail("mapper_test@example.com");
         user.setPassword("1234");
         user.setName("매퍼테스트유저");
         user.setProfileImageUrl("https://example.com/test.png");
@@ -42,39 +43,48 @@ class UserMapperTest {
         assertNotNull(user.getId());
         testUserId = user.getId();
 
-        System.out.println("등록된 유저 ID: " + testUserId);
+        System.out.println("[1] 사용자 등록 - ID: " + testUserId);
     }
 
-    // 2. 사용자 단일 조회 (ID 기준)
+    /* ============================================
+       사용자 조회
+    ============================================ */
+
     @Test
     @Order(2)
     void testFindById() {
         UserDTO user = userMapper.findById(testUserId);
         assertNotNull(user);
-        assertEquals("3mapper_test@example.com", user.getEmail());
-        System.out.println("findById 결과: " + user);
+        assertEquals("mapper_test@example.com", user.getEmail());
+        System.out.println("[2] findById 결과: " + user.getName());
     }
 
-    // 3. 이메일로 사용자 조회
     @Test
     @Order(3)
     void testFindByEmail() {
-        UserDTO user = userMapper.findByEmail("3mapper_test@example.com");
+        UserDTO user = userMapper.findByEmail("mapper_test@example.com");
         assertNotNull(user);
         assertEquals("매퍼테스트유저", user.getName());
-        System.out.println("findByEmail 결과: " + user);
+        System.out.println("[3] findByEmail 결과: " + user.getName());
     }
 
-    // 4. 전체 사용자 조회 (is_deleted = 'N')
     @Test
     @Order(4)
-    void testFindAllActiveUsers() {
-        List<UserDTO> users = userMapper.findAllActiveUsers();
-        assertTrue(users.size() > 0);
-        System.out.println("findAllActiveUsers 결과 수: " + users.size());
+    void testFindByPhoneAndName() {
+        UserDTO user = userMapper.findById(testUserId);
+        user.setPhone("010-1234-5678");
+        userMapper.updateUser(user);
+
+        UserDTO found = userMapper.findByPhoneAndName("010-1234-5678", "매퍼테스트유저");
+        assertNotNull(found);
+        assertEquals("mapper_test@example.com", found.getEmail());
+        System.out.println("[4] findByPhoneAndName 결과: " + found.getEmail());
     }
 
-    // 5. 사용자 정보 수정
+    /* ============================================
+       사용자 수정
+    ============================================ */
+
     @Test
     @Order(5)
     void testUpdateUser() {
@@ -84,29 +94,38 @@ class UserMapperTest {
 
         UserDTO updated = userMapper.findById(testUserId);
         assertEquals("수정된테스트유저", updated.getName());
-        System.out.println("updateUser 결과: " + updated.getName());
+        System.out.println("[5] updateUser 결과: " + updated.getName());
     }
 
-    // 6. 이메일 중복 확인
+    /* ============================================
+       이메일 중복 확인
+    ============================================ */
+
     @Test
     @Order(6)
     void testCountByEmail() {
-        int count = userMapper.countByEmail("3mapper_test@example.com");
+        int count = userMapper.countByEmail("mapper_test@example.com");
         assertTrue(count > 0);
-        System.out.println("countByEmail 결과: " + count);
+        System.out.println("[6] countByEmail 결과: " + count);
     }
 
-    // 7. 로그인 검증 (이메일 + 비밀번호)
+    /* ============================================
+       로그인 검증
+    ============================================ */
+
     @Test
     @Order(7)
     void testValidateLogin() {
-        UserDTO user = userMapper.validateLogin("3mapper_test@example.com", "1234");
+        UserDTO user = userMapper.validateLogin("mapper_test@example.com", "1234");
         assertNotNull(user);
-        assertEquals("3mapper_test@example.com", user.getEmail());
-        System.out.println("validateLogin 결과: " + user.getEmail());
+        assertEquals("mapper_test@example.com", user.getEmail());
+        System.out.println("[7] validateLogin 결과: " + user.getEmail());
     }
 
-    // 8. 사용자 권한(Role) 변경
+    /* ============================================
+       권한 변경
+    ============================================ */
+
     @Test
     @Order(8)
     void testUpdateUserRole() {
@@ -114,28 +133,55 @@ class UserMapperTest {
         assertEquals(1, result);
 
         UserDTO user = userMapper.findById(testUserId);
-        assertEquals(Role.ROLE_ADMIN, user.getRole());
-        System.out.println("updateUserRole 결과: " + user.getRole());
+        assertEquals("ROLE_ADMIN", user.getRole());
+        System.out.println("[8] updateUserRole 결과: " + user.getRole());
     }
 
-    // 9. 논리 삭제 (is_deleted = 'Y')
+    /* ============================================
+       권한별 조회
+    ============================================ */
+
     @Test
     @Order(9)
+    void testFindByRole() {
+        List<UserDTO> admins = userMapper.findByRole("ROLE_ADMIN");
+        assertNotNull(admins);
+        assertTrue(admins.size() > 0);
+        System.out.println("[9] findByRole 결과 수: " + admins.size());
+    }
+
+    /* ============================================
+       회원 검색
+    ============================================ */
+
+    @Test
+    @Order(10)
+    void testSearchUsers() {
+        List<UserDTO> users = userMapper.searchUsers("테스트", "N", "ROLE_ADMIN", 0, 10);
+        assertNotNull(users);
+        System.out.println("[10] searchUsers 결과 수: " + users.size());
+    }
+
+    @Test
+    @Order(11)
+    void testCountSearchUsers() {
+        int count = userMapper.countSearchUsers("테스트", "N", "ROLE_ADMIN");
+        assertTrue(count >= 0);
+        System.out.println("[11] countSearchUsers 결과: " + count);
+    }
+
+    /* ============================================
+       논리 삭제
+    ============================================ */
+
+    @Test
+    @Order(12)
     void testSoftDeleteUser() {
         int result = userMapper.softDeleteUser(testUserId);
         assertEquals(1, result);
 
         UserDTO deleted = userMapper.findById(testUserId);
         assertEquals("Y", deleted.getIsDeleted());
-        System.out.println("softDeleteUser 결과: is_deleted=" + deleted.getIsDeleted());
-    }
-
-    // 10. 권한별 사용자 조회
-    @Test
-    @Order(10)
-    void testFindUsersByRole() {
-        List<UserDTO> admins = userMapper.findUsersByRole("ROLE_ADMIN");
-        assertNotNull(admins);
-        System.out.println("findUsersByRole 결과 수: " + admins.size());
+        System.out.println("[12] softDeleteUser 결과: is_deleted=" + deleted.getIsDeleted());
     }
 }
