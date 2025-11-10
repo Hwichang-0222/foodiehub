@@ -13,69 +13,68 @@ import org.springframework.stereotype.Service;
 @Service
 public class RestaurantServiceImpl implements RestaurantService {
 
-    @Autowired
-    private RestaurantMapper restaurantMapper;
+	@Autowired
+	private RestaurantMapper restaurantMapper;
 
-    @Override
-    public List<RestaurantDTO> findAll(String keyword, String ownerFilter, int offset, int limit) {
-        Map<String, Object> params = new HashMap<>();
-        params.put("keyword", keyword);
-        params.put("ownerFilter", ownerFilter);
-        params.put("offset", offset);
-        params.put("limit", limit);
-        return restaurantMapper.findAll(params);
-    }
-    
-    @Override
-    public int countAllWithOwner(String keyword, String ownerFilter) {
-        Map<String, Object> params = new HashMap<>();
-        params.put("keyword", keyword);
-        params.put("ownerFilter", ownerFilter);
-        return restaurantMapper.countAllWithOwner(params);
-    }
+	@Override
+	public List<RestaurantDTO> findAll(String keyword, String ownerFilter, int offset, int limit) {
+		Map<String, Object> params = new HashMap<>();
+		params.put("keyword", keyword);
+		params.put("ownerFilter", ownerFilter);
+		params.put("offset", offset);
+		params.put("limit", limit);
+		return restaurantMapper.findAll(params);
+	}
 
-    // 3. 오너 지정/변경
-    @Override
-    public void updateOwner(Long restaurantId, Long ownerId) {
-        Map<String, Object> params = new HashMap<>();
-        params.put("restaurantId", restaurantId);
-        params.put("ownerId", ownerId);
-        restaurantMapper.updateOwner(params);
-    }
+	@Override
+	public int countAllWithOwner(String keyword, String ownerFilter) {
+		Map<String, Object> params = new HashMap<>();
+		params.put("keyword", keyword);
+		params.put("ownerFilter", ownerFilter);
+		return restaurantMapper.countAllWithOwner(params);
+	}
 
-    @Override
-    public RestaurantDTO findById(Long id) {
-        return restaurantMapper.findById(id);
-    }
+	@Override
+	public void updateOwner(Long restaurantId, Long ownerId) {
+		Map<String, Object> params = new HashMap<>();
+		params.put("restaurantId", restaurantId);
+		params.put("ownerId", ownerId);
+		restaurantMapper.updateOwner(params);
+	}
 
-    @Override
-    public int insertRestaurant(RestaurantDTO restaurant) {
-        return restaurantMapper.insertRestaurant(restaurant);
-    }
+	@Override
+	public RestaurantDTO findById(Long id) {
+		return restaurantMapper.findById(id);
+	}
 
-    @Override
-    public int updateRestaurant(RestaurantDTO restaurant) {
-        return restaurantMapper.updateRestaurant(restaurant);
-    }
+	@Override
+	public int insertRestaurant(RestaurantDTO restaurant) {
+		return restaurantMapper.insertRestaurant(restaurant);
+	}
 
-    @Override
-    public int deleteRestaurant(Long id) {
-        return restaurantMapper.deleteRestaurant(id);
-    }
+	@Override
+	public int updateRestaurant(RestaurantDTO restaurant) {
+		return restaurantMapper.updateRestaurant(restaurant);
+	}
 
-    @Override
-    public List<RestaurantDTO> findByFilter(String region, String category, String keyword, int offset, int limit) {
-        return restaurantMapper.findByFilter(region, category, keyword, offset, limit);
-    }
+	@Override
+	public int deleteRestaurant(Long id) {
+		return restaurantMapper.deleteRestaurant(id);
+	}
 
-    @Override
-    public int countByFilter(String region, String category, String keyword) {
-        return restaurantMapper.countByFilter(region, category, keyword);
-    }
-    
-    @Override
-    public List<Long> findAssignedOwnerIds() {
-        return restaurantMapper.findAssignedOwnerIds();
-    }
+	@Override
+	public List<RestaurantDTO> findByFilter(String region, String category, String keyword, int offset, int limit) {
+		return restaurantMapper.findByFilter(region, category, keyword, offset, limit);
+	}
+
+	@Override
+	public int countByFilter(String region, String category, String keyword) {
+		return restaurantMapper.countByFilter(region, category, keyword);
+	}
+
+	@Override
+	public List<Long> findAssignedOwnerIds() {
+		return restaurantMapper.findAssignedOwnerIds();
+	}
 
 }
