@@ -6,16 +6,24 @@
 	<link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
+	<!-- ==========================================
+	     헤더 영역
+	========================================== -->
 	<div th:replace="layout/header :: header"></div>
 
+	<!-- ==========================================
+	     메인 콘텐츠
+	========================================== -->
 	<main class="signup-main">
 		<section class="signup-container">
 			<button type="button" class="btn-back-nav" onclick="history.back()">← 뒤로가기</button>
 			<h2>식당 추가</h2>
 
+			<!-- 식당 추가 폼 -->
 			<form th:action="@{/restaurant/add}" method="post" enctype="multipart/form-data"
 			      class="restaurant-form">
 
+			<!-- 식당명 검색 -->
 			<label>식당명</label>
 			<div class="search-group">
 				<input type="text" id="placeInput" name="name" placeholder="식당명 또는 주소로 검색">
@@ -23,9 +31,11 @@
 			</div>
 			<ul id="resultList" class="search-result"></ul>
 
+			<!-- 주소 (자동 입력) -->
 			<label>주소</label>
 			<input type="text" id="address" name="address" readonly required>
 
+			<!-- 지역 선택 -->
 			<label>지역</label>
 			<select id="regionSelect" name="region" required>
 				<option value="">지역 선택</option>
@@ -49,6 +59,7 @@
 				<option value="기타">기타</option>
 			</select>
 
+			<!-- 카테고리 선택 -->
 			<label>카테고리</label>
 			<select name="category" required>
 				<option value="">카테고리 선택</option>
@@ -66,24 +77,31 @@
 				<option>기타</option>
 			</select>
 
+			<!-- 설명 입력 -->
 			<label>설명</label>
 			<textarea name="description" rows="4" placeholder="식당 설명을 입력하세요"></textarea>
 
+			<!-- 대표 이미지 업로드 -->
 			<label>대표 이미지</label>
 			<input type="file" id="mainImage" name="mainImage" accept="image/*">
 
+			<!-- 이미지 미리보기 -->
 			<div id="preview-container">
 				<img id="preview" src="/images/default-thumbnail.png" alt="미리보기">
 			</div>
 
+			<!-- 위도 (자동 입력) -->
 			<label>위도</label>
 			<input type="text" id="latitude" name="latitude" readonly>
 
+			<!-- 경도 (자동 입력) -->
 			<label>경도</label>
 			<input type="text" id="longitude" name="longitude" readonly>
 
+			<!-- 지도 미리보기 -->
 			<div id="map"></div>
 
+			<!-- 액션 버튼 -->
 			<div class="form-actions">
 				<button type="submit" class="btn btn-create">등록</button>
 				<a th:href="@{/admin/dashboard(tab='restaurant')}" class="btn cancel-btn">취소</a>
@@ -92,10 +110,15 @@
 		</section>
 	</main>
 
+	<!-- ==========================================
+	     푸터 영역
+	========================================== -->
 	<div th:replace="layout/footer :: footer"></div>
 
+	<!-- Kakao Map API -->
 	<script th:src="'https://dapi.kakao.com/v2/maps/sdk.js?appkey=' + ${kakaoMapApiKey} + '&libraries=services'"></script>
 
+	<!-- 식당 폼 JavaScript -->
 	<script src="/js/restaurant-form.js"></script>
 </body>
 </html>

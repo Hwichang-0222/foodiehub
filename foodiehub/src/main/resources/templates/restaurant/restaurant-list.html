@@ -7,10 +7,17 @@
 </head>
 <body>
 
+	<!-- ==========================================
+	     헤더 영역
+	========================================== -->
 	<div th:replace="layout/header :: header"></div>
 
+	<!-- ==========================================
+	     메인 콘텐츠
+	========================================== -->
 	<main class="restaurant-page">
 
+		<!-- 검색 영역 -->
 		<div class="restaurant-search">
 			<form th:action="@{/restaurant/list}" method="get">
 				<input type="text" name="keyword" placeholder="맛집 이름을 검색하세요" th:value="${keyword}">
@@ -19,6 +26,7 @@
 			</form>
 		</div>
 
+		<!-- 검색 결과 수 표시 -->
 		<div class="result-count" th:if="${totalCount > 0}">
 			총 <span th:text="${totalCount}">0</span>개의 맛집이 검색되었습니다.
 		</div>
@@ -26,10 +34,13 @@
 			검색 결과가 없습니다.
 		</div>
 
+		<!-- 필터 및 목록 컨테이너 -->
 		<div class="restaurant-container-row">
 
+			<!-- 필터 영역 -->
 			<div class="filter-bar-row">
 
+				<!-- 음식 카테고리 필터 -->
 				<div class="filter-box">
 					<div class="filter-header-single">
 						<a th:href="@{/restaurant/list(region=${region}, keyword=${keyword})}">음식</a>
@@ -50,6 +61,7 @@
 					</div>
 				</div>
 
+				<!-- 지역 필터 -->
 				<div class="filter-box">
 					<div class="filter-header-single">
 						<a th:href="@{/restaurant/list(category=${category}, keyword=${keyword})}">지역</a>
@@ -77,11 +89,14 @@
 				</div>
 			</div>
 
+			<!-- 식당 목록 영역 -->
 			<section class="restaurant-list">
+				<!-- 결과 없을 때 -->
 				<div th:if="${#lists.isEmpty(restaurants)}" class="no-result">
 					<p>검색 결과가 없습니다.</p>
 				</div>
 
+				<!-- 식당 목록 반복 출력 -->
 				<div class="restaurant-item" th:each="r : ${restaurants}">
 					<a th:href="@{'/restaurant/detail/' + ${r.id}}" class="restaurant-link">
 						<img th:src="${r.mainImageUrl}" alt="thumbnail" onerror="this.src='/images/default-thumbnail.png'">
@@ -93,6 +108,7 @@
 					</a>
 				</div>
 
+				<!-- 페이지네이션 -->
 				<div class="pagination">
 					<a th:if="${currentPage > 1}" th:href="@{/restaurant/list(region=${region}, category=${category}, keyword=${keyword}, page=${currentPage - 1})}">« 이전</a>
 					<span th:text="${currentPage}"></span>
@@ -103,6 +119,9 @@
 		</div>
 	</main>
 
+	<!-- ==========================================
+	     푸터 영역
+	========================================== -->
 	<div th:replace="layout/footer :: footer"></div>
 
 </body>

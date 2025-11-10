@@ -8,14 +8,22 @@
 </head>
 <body>
 
+	<!-- ==========================================
+	     헤더 영역
+	========================================== -->
 	<div th:replace="layout/header :: header"></div>
 
+	<!-- ==========================================
+	     메인 콘텐츠
+	========================================== -->
 	<main class="board-list-page">
 
+		<!-- 페이지 헤더 -->
 		<div class="list-header">
 			<h1>게시판</h1>
 		</div>
 
+		<!-- 검색 영역 -->
 		<div class="search-section">
 			<form th:action="@{/board/search}" method="get" class="search-form">
 				<select name="category" class="search-category">
@@ -28,9 +36,11 @@
 				<button type="submit" class="submit-btn">검색</button>
 				<button type="reset" class="reset-btn" onclick="location.href='/board/search?category=GENERAL&keyword='">초기화</button>
 			</form>
+			<!-- 로그인한 사용자만 게시글 작성 가능 -->
 			<a th:if="${user != null}" th:href="@{/board/create}" class="btn btn-create">게시글 작성</a>
 		</div>
 
+		<!-- 카테고리 탭 -->
 		<div class="category-tabs">
 			<a th:href="@{/board/search(category='NOTICE', keyword=${keyword})}" th:classappend="${category == 'NOTICE'} ? 'active' : ''" class="tab">공지사항</a>
 			<a th:href="@{/board/search(category='GENERAL', keyword=${keyword})}" th:classappend="${category == 'GENERAL'} ? 'active' : ''" class="tab">일반</a>
@@ -38,10 +48,12 @@
 			<a th:href="@{/board/search(category='SUGGESTION', keyword=${keyword})}" th:classappend="${category == 'SUGGESTION'} ? 'active' : ''" class="tab">맛집 추천</a>
 		</div>
 
+		<!-- 게시글 수 표시 -->
 		<div class="post-count">
 			<p>총 <strong th:text="${totalCount}">0</strong>개의 게시글</p>
 		</div>
 
+		<!-- 게시글 목록 테이블 -->
 		<table class="board-table" th:if="${!#lists.isEmpty(boards) || !#lists.isEmpty(notices)}">
 			<thead>
 				<tr>
@@ -54,6 +66,7 @@
 				</tr>
 			</thead>
 			<tbody>
+				<!-- 공지사항 목록 (항상 상단에 고정) -->
 				<tr th:each="notice : ${notices}" class="notice-row">
 					<td class="col-num">-</td>
 					<td class="col-notice"><span class="badge-notice">공지</span></td>
@@ -63,7 +76,9 @@
 					<td class="col-views" th:text="${notice.viewCount}"></td>
 				</tr>
 
+				<!-- 일반 게시글 및 답글 목록 -->
 				<th:block th:each="board, boardStat : ${parentPosts}">
+					<!-- 부모 게시글 -->
 					<tr th:classappend="${board.category == 'QUESTION'} ? 'question-row' : 'post-row'">
 						<td class="col-num" th:text="${startNumber - boardStat.count + 1}"></td>
 						<td class="col-notice">
@@ -79,6 +94,7 @@
 						<td class="col-views" th:text="${board.viewCount}"></td>
 					</tr>
 
+					<!-- 해당 게시글의 답글 표시 (들여쓰기) -->
 					<tr th:each="reply : ${boards}" th:if="${reply.parentId == board.id}" class="reply-row">
 						<td class="col-num"></td>
 						<td class="col-notice"><span class="badge-reply">답글</span></td>
@@ -96,10 +112,12 @@
 			</tbody>
 		</table>
 
+		<!-- 게시글 없을 때 표시 -->
 		<div class="empty-state" th:if="${#lists.isEmpty(boards) && #lists.isEmpty(notices)}">
 			<p>등록된 게시글이 없습니다.</p>
 		</div>
 
+		<!-- 페이지네이션 -->
 		<div class="pagination" th:if="${totalPages > 1}">
 			<a th:if="${currentPage > 1}" th:href="@{/board/search(category=${category}, keyword=${keyword}, page=${currentPage - 1})}" class="page-link prev">« 이전</a>
 			<a th:each="i : ${#numbers.sequence(1, totalPages)}"
@@ -111,10 +129,17 @@
 
 	</main>
 
+	<!-- ==========================================
+	     푸터 영역
+	========================================== -->
 	<div th:replace="layout/footer :: footer"></div>
 
+	<!-- ==========================================
+	     인라인 JavaScript: 에러 메시지 처리
+	========================================== -->
 	<script th:inline="javascript">
 		/*<![CDATA[*/
+		// 에러 메시지 표시 후 로그인 페이지로 이동
 		var errorMessage = /*[[${errorMessage}]]*/ null;
 		if (errorMessage) {
 			alert(errorMessage);

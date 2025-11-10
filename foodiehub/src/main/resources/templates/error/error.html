@@ -8,19 +8,28 @@
 </head>
 <body>
 
+	<!-- ==========================================
+	     헤더 영역
+	========================================== -->
 	<div th:replace="layout/header :: header"></div>
 
+	<!-- ==========================================
+	     에러 메시지 컨테이너
+	========================================== -->
 	<div class="error-container">
+		<!-- 에러 메시지 -->
 		<div class="error-content">
 			<div class="error-title">오류가 발생했습니다</div>
 			<div class="error-detail">잠시 후 다시 시도해주세요</div>
 		</div>
 
+		<!-- 액션 버튼 -->
 		<div class="error-actions">
 			<a href="/" class="btn">홈으로</a>
 			<button onclick="history.back()" class="btn-back">이전</button>
 		</div>
 
+		<!-- 문제 해결 안내 -->
 		<div class="error-info">
 			<h3>문제 해결</h3>
 			<ul>
@@ -32,6 +41,9 @@
 		</div>
 	</div>
 
+	<!-- ==========================================
+	     푸터 영역
+	========================================== -->
 	<div th:replace="layout/footer :: footer"></div>
 </body>
 </html>

@@ -8,19 +8,28 @@
 </head>
 <body>
 
+	<!-- ==========================================
+	     헤더 영역
+	========================================== -->
 	<div th:replace="layout/header :: header"></div>
 
+	<!-- ==========================================
+	     메인 콘텐츠
+	========================================== -->
 	<main class="signup-main">
 		<section class="signup-container">
 			<button type="button" class="btn-back-nav" onclick="history.back()">← 뒤로가기</button>
 			<h2>아이디 찾기</h2>
 			<p class="find-subtitle">가입할 때 등록한 정보로 아이디를 찾아보세요.</p>
 
+			<!-- 아이디 찾기 폼 -->
 			<form id="findIdForm">
 
+				<!-- 이름 입력 -->
 				<label>이름</label>
 				<input type="text" id="name" name="name" placeholder="가입할 때 등록한 이름" required>
 
+				<!-- 휴대폰번호 입력 -->
 				<label>휴대폰번호</label>
 				<div class="inline-input">
 					<input type="tel" id="phone" name="phone" placeholder="010-0000-0000" required>
@@ -28,8 +37,10 @@
 
 				<button type="submit" class="submit-btn">아이디 찾기</button>
 
+				<!-- 결과 메시지 -->
 				<div id="resultMessage" class="result-message" style="display: none;"></div>
 
+				<!-- 찾은 아이디 표시 -->
 				<div id="foundIdSection" class="found-id-section" style="display: none;">
 					<p class="found-label">찾은 아이디:</p>
 					<p class="found-id" id="foundId"></p>
@@ -43,6 +54,9 @@
 		</section>
 	</main>
 
+	<!-- ==========================================
+	     푸터 영역
+	========================================== -->
 	<div th:replace="layout/footer :: footer"></div>
 
 </body>

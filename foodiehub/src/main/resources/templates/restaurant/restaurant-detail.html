@@ -6,16 +6,27 @@
 	<link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
+	<!-- 로그인 상태 체크 (JavaScript에서 사용) -->
 	<input type="hidden" name="userLoggedIn" th:value="${user != null}">
 
+	<!-- ==========================================
+	     헤더 영역
+	========================================== -->
 	<div th:replace="layout/header :: header"></div>
 
+	<!-- ==========================================
+	     페이지 제목
+	========================================== -->
 	<div class="page-header">
 		<button type="button" class="btn-back-nav" onclick="history.back()">← 뒤로가기</button>
 		<h1>식당 상세</h1>
 	</div>
 
+	<!-- ==========================================
+	     식당 상세 정보
+	========================================== -->
 	<div class="restaurant-detail">
+		<!-- 좌측: 기본 정보 -->
 		<div class="detail-left">
 			<img th:src="${restaurant.mainImageUrl}" alt="대표 이미지">
 			<div class="basic-info">
@@ -29,13 +40,16 @@
 				</div>
 			</div>
 
+			<!-- 오너인 경우 수정하기 버튼 표시 -->
 			<div class="restaurant-actions"
 			    th:if="${user != null and user.role == 'ROLE_OWNER' and user.id == restaurant.ownerId}">
 				<a th:href="@{/restaurant/edit/{id}(id=${restaurant.id})}" class="btn btn-create">수정하기</a>
 			</div>
 		</div>
 
+		<!-- 우측: 탭 콘텐츠 -->
 		<div class="detail-right">
+			<!-- 탭 메뉴 -->
 			<div class="tabs">
 				<div class="tab active" data-tab="detail">상세</div>
 				<div class="tab" data-tab="menu">메뉴</div>
@@ -45,6 +59,7 @@
 				<div class="tab" data-tab="map">지도</div>
 			</div>
 
+			<!-- 상세 정보 탭 -->
 			<div id="detail" class="tab-content active">
 				<div class="detail-box">
 					<h3>가게 설명</h3>
@@ -56,21 +71,25 @@
 				</div>
 			</div>
 
+			<!-- 메뉴 탭 -->
 			<div id="menu" class="tab-content">
 				<div class="detail-box">
 					<h3>메뉴판 사진 기능과 메뉴 확인 기능 추가 예정 </h3>
 				</div>
 			</div>
 
+			<!-- 리뷰 목록 탭 -->
 			<div id="reviews" class="tab-content">
 				<div class="review-slider">
 					<button class="prev-review">◀</button>
 
 					<div class="review-content-wrapper">
+						<!-- 리뷰 반복 출력 -->
 						<div th:each="review, stat : ${reviews}"
 						     th:classappend="${stat.index == 0} ? 'active' : ''"
 						     class="review-item">
 
+							<!-- 리뷰 헤더 -->
 							<div class="review-header">
 								<strong th:text="${review.userName}"></strong>
 								<span th:text="${#temporals.format(review.createdAt, 'yyyy-MM-dd HH:mm')}"></span>
@@ -79,12 +98,15 @@
 								</span>
 							</div>
 
+							<!-- 리뷰 본문 -->
 							<div class="review-body" th:text="${review.content}">내용이 없습니다.</div>
 
+							<!-- 리뷰 이미지 -->
 							<div class="review-images" th:if="${!#lists.isEmpty(review.images)}">
 								<img th:each="img : ${review.images}" th:src="${img.fileUrl}" alt="리뷰 이미지">
 							</div>
 
+							<!-- 댓글 목록 -->
 							<div class="review-comments">
 								<div th:each="reply : ${review.replies}" class="comment-item">
 									<p>
@@ -94,6 +116,7 @@
 									<p th:text="${reply.content}"></p>
 								</div>
 
+								<!-- 댓글 작성 폼 (로그인 사용자만) -->
 								<div th:if="${user != null}" class="comment-form">
 									<form th:action="@{/review/reply}" method="post">
 										<input type="hidden" name="parentId" th:value="${review.id}">
@@ -101,6 +124,7 @@
 										<button type="submit">등록</button>
 									</form>
 								</div>
+								<!-- 로그인 알림 -->
 								<div th:if="${user == null}">
 									<p class="login-alert">댓글을 작성하려면 <a href="/user/login">로그인</a> 해주세요.</p>
 								</div>
@@ -111,12 +135,15 @@
 					<button class="next-review">▶</button>
 				</div>
 
+				<!-- 리뷰 없을 때 -->
 				<div th:if="${#lists.isEmpty(reviews)}">
 					<p>등록된 리뷰가 없습니다.</p>
 				</div>
 			</div>
 
+			<!-- 리뷰 작성 탭 -->
 			<div id="write" class="tab-content">
+				<!-- 로그인 사용자만 리뷰 작성 가능 -->
 				<div th:if="${user != null}">
 					<form th:action="@{/review/write}" method="post" enctype="multipart/form-data">
 						<input type="hidden" name="restaurantId" th:value="${restaurant.id}">
@@ -140,11 +167,13 @@
 						</div>
 					</form>
 				</div>
+				<!-- 로그인 알림 -->
 				<div th:if="${user == null}">
 					<p class="login-alert">리뷰를 작성하려면 <a href="/user/login">로그인</a> 해주세요.</p>
 				</div>
 			</div>
 
+			<!-- 리뷰 이미지 갤러리 탭 -->
 			<div id="gallery" class="tab-content">
 				<div th:if="${#lists.isEmpty(images)}">
 					<p>등록된 이미지가 없습니다.</p>
@@ -154,15 +183,21 @@
 				</div>
 			</div>
 
+			<!-- 지도 탭 (위도/경도 데이터 속성으로 전달) -->
 			<div id="map" class="tab-content" th:attr="data-lat=${restaurant.latitude},data-lng=${restaurant.longitude}"></div>
 
 		</div>
 	</div>
 
+	<!-- ==========================================
+	     푸터 영역
+	========================================== -->
 	<div th:replace="layout/footer :: footer"></div>
 
+	<!-- Kakao Map API -->
 	<script th:src="'https://dapi.kakao.com/v2/maps/sdk.js?appkey=' + ${kakaoMapApiKey} + '&libraries=services'"></script>
 
+	<!-- 식당 상세 JavaScript -->
 	<script th:src="@{/js/restaurant-detail.js}"></script>
 </body>
 </html>

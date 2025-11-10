@@ -1,15 +1,26 @@
+/* ==========================================
+   식당 추가/수정 폼 - 전역 변수
+========================================== */
 let map, marker, ps, geocoder;
 let isEditMode = false;
 
+/* ==========================================
+   페이지 로드 시 초기화
+========================================== */
 window.addEventListener('DOMContentLoaded', () => {
 	initializeMap();
 	setupImagePreview();
 	detectPageMode();
 });
 
+/* ==========================================
+   Kakao 지도 초기화
+========================================== */
 const initializeMap = () => {
 	const latitudeInput = document.getElementById('latitude');
 	const longitudeInput = document.getElementById('longitude');
+
+	// 초기 좌표 설정 (서울 시청 기본)
 	const initialLat = latitudeInput ? parseFloat(latitudeInput.value) || 37.5665 : 37.5665;
 	const initialLng = longitudeInput ? parseFloat(longitudeInput.value) || 126.9780 : 126.9780;
 
@@ -18,16 +29,23 @@ const initializeMap = () => {
 		center: new kakao.maps.LatLng(initialLat, initialLng),
 		level: 3
 	};
+
 	map = new kakao.maps.Map(container, options);
 	marker = new kakao.maps.Marker({ position: map.getCenter(), map: map });
 	ps = new kakao.maps.services.Places();
 	geocoder = new kakao.maps.services.Geocoder();
 };
 
+/* ==========================================
+   페이지 모드 감지 (추가/수정)
+========================================== */
 const detectPageMode = () => {
 	isEditMode = !!document.getElementById('addressSearch');
 };
 
+/* ==========================================
+   장소 검색 (식당 추가 모드)
+========================================== */
 const searchPlace = () => {
 	const query = document.getElementById('placeInput').value.trim();
 	if (!query) return alert('검색어를 입력하세요.');
@@ -38,6 +56,7 @@ const searchPlace = () => {
 			return;
 		}
 
+		// 검색 결과 목록 표시
 		const resultList = document.getElementById('resultList');
 		resultList.innerHTML = '';
 		resultList.style.display = 'block';
@@ -52,21 +71,33 @@ const searchPlace = () => {
 	});
 };
 
+/* ==========================================
+   장소 선택 처리
+========================================== */
 const selectPlace = (place) => {
 	const address = place.road_address_name || place.address_name;
+
+	// 폼 필드 자동 입력
 	document.getElementById('placeInput').value = place.place_name;
 	document.getElementById('address').value = address;
 	document.getElementById('latitude').value = place.y;
 	document.getElementById('longitude').value = place.x;
 
+	// 지도 중심 이동 및 마커 표시
 	const pos = new kakao.maps.LatLng(place.y, place.x);
 	map.setCenter(pos);
 	marker.setPosition(pos);
 
+	// 지역 자동 설정
 	setRegionFromCoords(place.y, place.x);
+
+	// 검색 결과 목록 숨김
 	document.getElementById('resultList').style.display = 'none';
 };
 
+/* ==========================================
+   주소 검색 (식당 수정 모드)
+========================================== */
 const searchAddress = () => {
 	const query = document.getElementById('addressSearch').value.trim();
 	if (!query) return alert('주소를 입력하세요.');
@@ -77,6 +108,7 @@ const searchAddress = () => {
 			return;
 		}
 
+		// 검색 결과 목록 표시
 		const resultList = document.getElementById('resultList');
 		resultList.innerHTML = '';
 		resultList.style.display = 'block';
@@ -94,20 +126,29 @@ const searchAddress = () => {
 	});
 };
 
+/* ==========================================
+   주소 선택 처리 (수정 모드)
+========================================== */
 const selectAddress = (place) => {
 	const address = place.road_address ? place.road_address.address_name : place.address_name;
 
+	// 폼 필드 자동 입력
 	document.getElementById('address').value = address;
 	document.getElementById('latitude').value = place.y;
 	document.getElementById('longitude').value = place.x;
 
+	// 지도 중심 이동 및 마커 표시
 	const pos = new kakao.maps.LatLng(place.y, place.x);
 	map.setCenter(pos);
 	marker.setPosition(pos);
 
+	// 검색 결과 목록 숨김
 	document.getElementById('resultList').style.display = 'none';
 };
 
+/* ==========================================
+   좌표로부터 지역 자동 설정
+========================================== */
 const setRegionFromCoords = (lat, lng) => {
 	const regionSelect = document.getElementById('regionSelect');
 	if (!regionSelect) return;
@@ -117,6 +158,7 @@ const setRegionFromCoords = (lat, lng) => {
 			const regionInfo = result.find((r) => r.region_type === 'H') || result[0];
 			let area = regionInfo.region_1depth_name.trim();
 
+			// 지역명 매핑 (전체 이름 -> 축약형)
 			const regionMap = {
 				'서울특별시': '서울',
 				'부산광역시': '부산',
@@ -143,6 +185,9 @@ const setRegionFromCoords = (lat, lng) => {
 	});
 };
 
+/* ==========================================
+   이미지 미리보기
+========================================== */
 const setupImagePreview = () => {
 	const mainImageInput = document.getElementById('mainImage');
 	if (!mainImageInput) return;
@@ -152,6 +197,7 @@ const setupImagePreview = () => {
 		const preview = document.getElementById('preview');
 
 		if (file) {
+			// 파일 읽기 및 미리보기 표시
 			const reader = new FileReader();
 			reader.onload = (ev) => {
 				preview.src = ev.target.result;
@@ -159,6 +205,7 @@ const setupImagePreview = () => {
 			};
 			reader.readAsDataURL(file);
 		} else {
+			// 파일이 없으면 미리보기 숨김
 			preview.src = '';
 			preview.style.display = 'none';
 		}

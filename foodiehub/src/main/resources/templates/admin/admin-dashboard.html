@@ -8,14 +8,24 @@
 </head>
 <body>
 
+	<!-- ==========================================
+	     헤더 영역
+	========================================== -->
 	<div th:replace="layout/header :: header"></div>
 
+	<!-- ==========================================
+	     페이지 제목
+	========================================== -->
 	<div class="page-header">
 		<h1>관리자 페이지</h1>
 	</div>
 
+	<!-- ==========================================
+	     관리자 대시보드 컨테이너
+	========================================== -->
 	<div class="admin-container">
 
+		<!-- 탭 메뉴 -->
 		<div class="tab-menu">
 			<button class="admin-tab active" data-target="#user-tab">사용자 관리</button>
 			<button class="admin-tab" data-target="#restaurant-tab">식당 관리</button>
@@ -23,8 +33,12 @@
 			<button class="admin-tab" data-target="#notice-tab">공지사항 관리</button>
 		</div>
 
+		<!-- ==========================================
+		     사용자 관리 탭
+		========================================== -->
 		<section id="user-tab" class="tab-content active">
 
+			<!-- 검색 폼 -->
 			<form th:action="@{/admin/dashboard}" method="get" class="search-form">
 				<input type="hidden" name="tab" value="user">
 				<input type="text" name="userKeyword" placeholder="이름 또는 이메일 검색" th:value="${keyword}">
@@ -34,7 +48,9 @@
 				<a th:href="@{/admin/dashboard(tab='user')}" class="reset-btn">검색 초기화</a>
 			</form>
 
+			<!-- 필터 그룹 -->
 			<div class="filter-group">
+				<!-- 상태 필터 (활동중/탈퇴) -->
 				<div class="filter-left">
 					<a th:href="@{|/admin/dashboard?tab=user&status=&role=${role}&userKeyword=${keyword}|}"
 					   th:classappend="${status == null or status == ''} ? 'active' : ''"
@@ -47,6 +63,7 @@
 					   class="btn delete">탈퇴회원</a>
 				</div>
 
+				<!-- 역할 필터 (일반/사장/관리자) -->
 				<div class="filter-right">
 					<a th:href="@{|/admin/dashboard?tab=user&role=&status=${status}&userKeyword=${keyword}|}"
 					   th:classappend="${role == null or role == ''} ? 'active' : ''"
@@ -63,6 +80,7 @@
 				</div>
 			</div>
 
+			<!-- 사용자 목록 테이블 -->
 			<table class="admin-table">
 				<thead>
 					<tr>
@@ -76,11 +94,13 @@
 					</tr>
 				</thead>
 				<tbody>
+					<!-- 사용자 목록 반복 출력 -->
 					<tr th:each="user, iStat : ${users}">
 						<td th:text="${iStat.count}"></td>
 						<td th:text="${user.name}"></td>
 						<td th:text="${user.email}"></td>
 						<td>
+							<!-- 역할 변경 셀렉트 박스 -->
 							<select class="role-select" th:data-user-id="${user.id}">
 								<option value="ROLE_USER"
 								        th:selected="${user.role == 'ROLE_USER'}">사용자</option>
@@ -97,6 +117,7 @@
 				</tbody>
 			</table>
 
+			<!-- 페이지네이션 -->
 			<div th:if="${userTotalPages > 1 and users.size() > 0}" class="pagination">
 				<a th:if="${userPage > 1}"
 				   th:href="@{|/admin/dashboard?tab=user&userPage=${userPage - 1}&userKeyword=${keyword}&status=${status}&role=${role}|}">&laquo; 이전</a>
@@ -107,13 +128,18 @@
 				   th:href="@{|/admin/dashboard?tab=user&userPage=${userPage + 1}&userKeyword=${keyword}&status=${status}&role=${role}|}">다음 &raquo;</a>
 			</div>
 
+			<!-- 검색 결과 없을 때 -->
 			<div th:if="${users.size() == 0}" class="no-result">
 				검색 결과가 없습니다.
 			</div>
 		</section>
 
+		<!-- ==========================================
+		     식당 관리 탭
+		========================================== -->
 		<section id="restaurant-tab" class="tab-content">
 
+			<!-- 검색 폼 -->
 			<div class="restaurant-search-area">
 				<form th:action="@{/admin/dashboard}" method="get" class="search-form">
 					<input type="hidden" name="tab" value="restaurant">
@@ -122,7 +148,10 @@
 					<a th:href="@{/admin/dashboard(tab='restaurant')}" class="reset-btn">검색 초기화</a>
 				</form>
 			</div>
+
+			<!-- 필터 그룹 -->
 			<div class="filter-group">
+				<!-- 오너 필터 -->
 				<div class="filter-left">
 					<a th:href="@{/admin/dashboard(tab='restaurant')}"
 					   th:classappend="${ownerFilter == null} ? 'active' : ''" class="btn">전체보기</a>
@@ -132,11 +161,13 @@
 					   th:classappend="${ownerFilter == 'NONE'} ? 'active' : ''" class="btn">오너 없는 식당</a>
 				</div>
 
+				<!-- 식당 추가 버튼 -->
 				<div class="filter-right">
 					<a th:href="@{/restaurant/add}" class="btn-create">식당 추가</a>
 				</div>
 			</div>
 
+			<!-- 식당 목록 테이블 -->
 			<table class="admin-table">
 				<thead>
 					<tr>
@@ -151,13 +182,16 @@
 					</tr>
 				</thead>
 				<tbody>
+					<!-- 식당 목록 반복 출력 -->
 					<tr th:each="restaurant, iStat : ${restaurants}">
 						<td th:text="${iStat.count}"></td>
 						<td th:text="${restaurant.name}"></td>
 						<td>
+							<!-- 오너가 없는 경우: 오너 지정 드롭다운 -->
 							<div th:if="${restaurant.ownerId == null}">
 								<select name="owner" class="owner-select" th:data-restaurant-id="${restaurant.id}">
 									<option value="">미지정</option>
+									<!-- 오너 목록 출력 (이미 배정된 오너는 비활성화) -->
 									<option th:each="owner : ${owners}"
 									        th:value="${owner.id}"
 									        th:text="${owner.name}"
@@ -166,6 +200,7 @@
 								</select>
 								<button type="button" class="update-owner-btn">지정</button>
 							</div>
+							<!-- 오너가 있는 경우: 오너명 표시 -->
 							<div th:if="${restaurant.ownerId != null}">
 								<span th:text="${restaurant.ownerName != null ? restaurant.ownerName : '오너명 미표시'}"></span>
 							</div>
@@ -183,6 +218,7 @@
 				</tbody>
 			</table>
 
+			<!-- 페이지네이션 -->
 			<div class="pagination">
 				<a th:if="${restaurantPage > 1}"
 				   th:href="@{/admin/dashboard(restaurantPage=${restaurantPage - 1}, tab='restaurant', ownerFilter=${ownerFilter}, restaurantKeyword=${restaurantKeyword})}">&laquo; 이전</a>
@@ -193,13 +229,18 @@
 				   th:href="@{/admin/dashboard(restaurantPage=${restaurantPage + 1}, tab='restaurant', ownerFilter=${ownerFilter}, restaurantKeyword=${restaurantKeyword})}">다음 &raquo;</a>
 			</div>
 
+			<!-- 검색 결과 없을 때 -->
 			<div th:if="${restaurants.size() == 0}" class="no-result">
 				검색 결과가 없습니다.
 			</div>
 		</section>
 
+		<!-- ==========================================
+		     답글 관리 탭
+		========================================== -->
 		<section id="board-tab" class="tab-content">
 
+			<!-- 카테고리 필터 -->
 			<div class="filter-group">
 			<div class="filter-right">
 				<a th:href="@{/admin/dashboard(tab='board')}"
@@ -211,6 +252,7 @@
 			</div>
 			</div>
 
+			<!-- 게시글 목록 테이블 -->
 			<table class="admin-table">
 				<thead>
 					<tr>
@@ -223,6 +265,7 @@
 					</tr>
 				</thead>
 				<tbody>
+					<!-- 게시글 목록 반복 출력 -->
 					<tr th:each="post, iStat : ${boards}">
 						<td th:text="${iStat.count}"></td>
 						<td th:text="${post.title}"></td>
@@ -237,6 +280,7 @@
 				</tbody>
 			</table>
 
+			<!-- 페이지네이션 -->
 			<div class="pagination">
 				<a th:if="${boardPage > 1}"
 				   th:href="@{/admin/dashboard(boardPage=${boardPage - 1}, tab='board')}">&laquo; 이전</a>
@@ -247,6 +291,7 @@
 				   th:href="@{/admin/dashboard(boardPage=${boardPage + 1}, tab='board')}">다음 &raquo;</a>
 			</div>
 
+			<!-- 답글 작성 모달 -->
 			<div id="reply-modal" class="modal" style="display:none;">
 				<div class="modal-content">
 					<div class="modal-header">
@@ -275,11 +320,17 @@
 			</div>
 		</section>
 
+		<!-- ==========================================
+		     공지사항 관리 탭
+		========================================== -->
 		<section id="notice-tab" class="tab-content">
 
+			<!-- 공지 작성 버튼 -->
 			<div class="notice-header">
 				<a th:href="@{/admin/notice/create}" class="btn-create">공지 작성</a>
 			</div>
+
+			<!-- 공지사항 목록 테이블 -->
 			<table class="admin-table">
 				<thead>
 					<tr>
@@ -290,6 +341,7 @@
 					</tr>
 				</thead>
 				<tbody>
+					<!-- 공지사항 목록 반복 출력 -->
 					<tr th:each="notice, iStat : ${notices}">
 						<td th:text="${iStat.count}"></td>
 						<td th:text="${notice.title}"></td>
@@ -302,6 +354,7 @@
 				</tbody>
 			</table>
 
+			<!-- 페이지네이션 -->
 			<div class="pagination">
 				<a th:if="${noticePage > 1}"
 				   th:href="@{/admin/dashboard(noticePage=${noticePage - 1}, tab='notice')}">&laquo; 이전</a>
@@ -314,15 +367,23 @@
 		</section>
 	</div>
 
+	<!-- ==========================================
+	     푸터 영역
+	========================================== -->
 	<div th:replace="layout/footer :: footer"></div>
 
+	<!-- ==========================================
+	     인라인 JavaScript: 메시지 표시
+	========================================== -->
 	<script th:inline="javascript">
 		/*<![CDATA[*/
+		// 성공 메시지 표시
 		var successMessage = /*[[${successMessage}]]*/ null;
 		if (successMessage) {
 			alert(successMessage);
 		}
 
+		// 에러 메시지 표시
 		var errorMessage = /*[[${errorMessage}]]*/ null;
 		if (errorMessage) {
 			alert(errorMessage);

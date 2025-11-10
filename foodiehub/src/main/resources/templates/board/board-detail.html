@@ -8,10 +8,17 @@
 </head>
 <body>
 
+	<!-- ==========================================
+	     헤더 영역
+	========================================== -->
 	<div th:replace="layout/header :: header"></div>
 
+	<!-- ==========================================
+	     메인 콘텐츠
+	========================================== -->
 	<main class="board-detail-page">
 
+		<!-- 게시글 헤더 정보 -->
 		<div class="detail-header">
 			<button type="button" class="btn-back-nav" onclick="history.back()">← 뒤로가기</button>
 			<h1 th:text="${post.title}"></h1>
@@ -23,10 +30,12 @@
 			</div>
 		</div>
 
+		<!-- 게시글 본문 -->
 		<div class="detail-content">
 			<div class="post-content" th:text="${post.content}"></div>
 		</div>
 
+		<!-- 수정/삭제 버튼 (작성자만 표시) -->
 		<div class="detail-actions" th:if="${user != null and user.id == post.userId}">
 			<a th:href="@{/board/edit/{id}(id=${post.id})}" class="btn btn-edit">수정</a>
 			<form th:action="@{/board/delete/{id}(id=${post.id})}" method="post" style="display:inline;" onsubmit="return confirm('정말 삭제하시겠습니까?');">
@@ -34,17 +43,22 @@
 			</form>
 		</div>
 
+		<!-- 원글 표시 (답글인 경우) -->
 		<div class="parent-post" th:if="${parentPost != null}">
 			<h3>원글</h3>
 			<a th:href="@{/board/detail/{id}(id=${parentPost.id})}" th:text="${parentPost.title}"></a>
 		</div>
 
+		<!-- 목록으로 돌아가기 버튼 -->
 		<div class="back-button">
 			<a th:href="@{/board/list(category=${post.category})}" class="btn btn-list">목록</a>
 		</div>
 
 	</main>
 
+	<!-- ==========================================
+	     푸터 영역
+	========================================== -->
 	<div th:replace="layout/footer :: footer"></div>
 
 </body>

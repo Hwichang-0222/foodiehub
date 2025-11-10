@@ -8,9 +8,16 @@
 </head>
 <body>
 
+	<!-- ==========================================
+	     헤더 영역
+	========================================== -->
 	<div th:replace="layout/header :: header"></div>
 
+	<!-- ==========================================
+	     메인 콘텐츠
+	========================================== -->
 	<main class="main-container">
+		<!-- 히어로 섹션: 메인 타이틀 및 검색 폼 -->
 		<section class="hero-section">
 			<h1 class="main-title">FoodieHub — 당신 주변의 맛집을 찾아보세요!</h1>
 			<form id="searchForm" action="/restaurant/search" method="get">
@@ -20,6 +27,9 @@
 		</section>
 	</main>
 
+	<!-- ==========================================
+	     푸터 영역
+	========================================== -->
 	<div th:replace="layout/footer :: footer"></div>
 
 </body>

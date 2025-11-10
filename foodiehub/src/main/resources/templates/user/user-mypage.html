@@ -7,23 +7,35 @@
 </head>
 <body>
 
+	<!-- ==========================================
+	     헤더 영역
+	========================================== -->
 	<div th:replace="layout/header :: header"></div>
 
+	<!-- ==========================================
+	     페이지 제목
+	========================================== -->
 	<div class="page-header">
 		<button type="button" class="btn-back-nav" onclick="history.back()">← 뒤로가기</button>
 		<h1>마이페이지</h1>
 	</div>
 
+	<!-- ==========================================
+	     메인 콘텐츠
+	========================================== -->
 	<main class="page-main mypage-main">
 		<div class="mypage-container">
 
+			<!-- 좌측: 프로필 정보 -->
 			<section class="mypage-left">
+				<!-- 프로필 이미지 및 이름 -->
 				<div class="mypage-profile">
 					<img th:src="${user.profileImageUrl != null ? user.profileImageUrl : '/images/default-profile.png'}"
 					     alt="프로필 이미지" class="mypage-profile-img">
 					<h3 th:text="${user.name}"></h3>
 				</div>
 
+				<!-- 회원 정보 -->
 				<div class="mypage-info">
 					<p><strong>이메일:</strong> <span th:text="${user.email}"></span></p>
 					<p><strong>전화번호:</strong> <span th:text="${user.phone}"></span></p>
@@ -35,6 +47,7 @@
 					</p>
 				</div>
 
+				<!-- 액션 버튼 -->
 				<div class="mypage-actions">
 					<a href="/user/edit" class="edit-btn">정보 수정</a>
 					<form th:action="@{/user/delete}" method="post" onsubmit="return confirm('정말 탈퇴하시겠습니까?');">
@@ -43,12 +56,15 @@
 				</div>
 			</section>
 
+			<!-- 우측: 탭 콘텐츠 -->
 			<section class="mypage-right">
+				<!-- 탭 메뉴 -->
 				<div class="tab-menu">
 					<button class="tab-btn" data-tab="reviews">내가 쓴 리뷰</button>
 					<button class="tab-btn" data-tab="boards">내가 쓴 게시글</button>
 				</div>
 
+				<!-- 내가 쓴 리뷰 탭 -->
 				<div id="reviews" class="tab-content">
 					<div class="tab-content-header">
 						<h3>내가 쓴 리뷰</h3>
@@ -56,10 +72,12 @@
 						   th:text="'총 ' + (${totalReviews != null} ? ${totalReviews} : 0) + '개의 리뷰를 작성했습니다.'"></p>
 					</div>
 
+					<!-- 리뷰 없을 때 -->
 					<div th:if="${#lists.isEmpty(reviews)}" class="empty-box">
 						<p>작성한 리뷰가 없습니다.</p>
 					</div>
 
+					<!-- 리뷰 목록 -->
 					<div class="scroll-list">
 						<a th:each="r : ${reviews}"
 						   th:href="@{'/review/detail/' + ${r.id}}"
@@ -70,6 +88,7 @@
 						</a>
 					</div>
 
+					<!-- 페이지네이션 -->
 					<div class="pagination" th:if="${reviewTotalPages > 1}">
 						<a th:if="${reviewCurrentPage > 1}"
 						   th:href="@{/user/mypage(reviewPage=${reviewCurrentPage - 1}, boardPage=${boardCurrentPage})}">이전</a>
@@ -79,6 +98,7 @@
 					</div>
 				</div>
 
+				<!-- 내가 쓴 게시글 탭 -->
 				<div id="boards" class="tab-content">
 					<div class="tab-content-header">
 						<h3>내가 쓴 게시글</h3>
@@ -86,10 +106,12 @@
 						   th:text="'총 ' + (${totalBoards != null} ? ${totalBoards} : 0) + '개의 게시글을 작성했습니다.'"></p>
 					</div>
 
+					<!-- 게시글 없을 때 -->
 					<div th:if="${#lists.isEmpty(boards)}" class="empty-box">
 						<p>작성한 게시글이 없습니다.</p>
 					</div>
 
+					<!-- 게시글 목록 -->
 					<div class="scroll-list">
 						<a th:each="b : ${boards}"
 						   th:href="@{'/board/detail/' + ${b.id}}"
@@ -100,6 +122,7 @@
 						</a>
 					</div>
 
+					<!-- 페이지네이션 -->
 					<div class="pagination" th:if="${boardTotalPages > 1}">
 						<a th:if="${boardCurrentPage > 1}"
 						   th:href="@{/user/mypage(reviewPage=${reviewCurrentPage}, boardPage=${boardCurrentPage - 1})}">이전</a>
@@ -112,23 +135,33 @@
 		</div>
 	</main>
 
+	<!-- ==========================================
+	     푸터 영역
+	========================================== -->
 	<div th:replace="layout/footer :: footer"></div>
 
+	<!-- ==========================================
+	     JavaScript: 탭 전환 및 스크롤 관리
+	========================================== -->
 	<script>
+		// 스크롤 복원 비활성화
 		if ('scrollRestoration' in history) {
 			history.scrollRestoration = 'manual';
 		}
 
+		// 페이지 로드 시 스크롤 최상단으로 이동
 		window.addEventListener('load', () => {
 			requestAnimationFrame(() => {
 				window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
 			});
 		});
 
+		// 탭 전환 기능
 		document.addEventListener('DOMContentLoaded', () => {
 			const tabBtns = document.querySelectorAll('.tab-btn');
 			const tabContents = document.querySelectorAll('.tab-content');
 
+			// 탭 활성화 함수
 			const activateTab = (tabId) => {
 				tabBtns.forEach((btn) => btn.classList.toggle('active', btn.dataset.tab === tabId));
 				tabContents.forEach((content) => content.classList.toggle('active', content.id === tabId));
@@ -136,13 +169,16 @@
 				window.scrollTo({ top: 0, behavior: 'smooth' });
 			};
 
+			// 탭 버튼 클릭 이벤트
 			tabBtns.forEach((btn) => {
 				btn.addEventListener('click', () => activateTab(btn.dataset.tab));
 			});
 
+			// 해시에 따라 초기 탭 활성화
 			const currentHash = window.location.hash.replace('#', '');
 			activateTab(currentHash || 'reviews');
 
+			// 페이지네이션 클릭 시 스크롤 최상단으로 이동
 			document.querySelectorAll('.pagination a').forEach((a) => {
 				a.addEventListener('click', () => {
 					window.scrollTo({ top: 0, behavior: 'smooth' });

@@ -8,17 +8,26 @@
 </head>
 <body>
 
+	<!-- ==========================================
+	     헤더 영역
+	========================================== -->
 	<div th:replace="layout/header :: header"></div>
 
+	<!-- ==========================================
+	     메인 콘텐츠
+	========================================== -->
 	<main class="signup-main">
 		<section class="signup-container">
 			<h2>회원가입</h2>
 
+			<!-- 회원가입 폼 -->
 			<form id="signupForm" th:action="@{/user/signup}" method="post" th:object="${user}" enctype="multipart/form-data">
 
+				<!-- 이름 -->
 				<label>이름</label>
 				<input type="text" th:field="*{name}" placeholder="이름을 입력하세요" required>
 
+				<!-- 이메일 (중복 확인 필요) -->
 				<label>이메일</label>
 				<div class="inline-input">
 					<input type="email" th:field="*{email}" id="email" placeholder="example@foodiehub.com" required>
@@ -26,19 +35,23 @@
 				</div>
 				<small id="emailCheckResult" class="check-result"></small>
 
+				<!-- 비밀번호 (토글 기능) -->
 				<label>비밀번호</label>
 				<div class="password-box">
 					<input type="password" th:field="*{password}" id="password" placeholder="비밀번호를 입력하세요" required>
 					<button type="button" id="togglePassword" class="toggle-btn">보기</button>
 				</div>
 
+				<!-- 비밀번호 확인 -->
 				<label>비밀번호 확인</label>
 				<input type="password" id="passwordConfirm" placeholder="비밀번호를 다시 입력하세요" required>
 				<small id="passwordMatchResult" class="check-result"></small>
 
+				<!-- 생년월일 -->
 				<label>생년월일</label>
 				<input type="date" th:field="*{birthDate}" id="birthDate" required>
 
+				<!-- 성별 -->
 				<label>성별</label>
 				<select th:field="*{gender}" id="gender" required>
 					<option value="">선택</option>
@@ -46,27 +59,36 @@
 					<option value="F">여성</option>
 				</select>
 
+				<!-- 휴대폰 번호 -->
 				<label>휴대폰 번호</label>
 				<input type="tel" th:field="*{phone}" id="phone" placeholder="010-1234-5678" required>
 
+				<!-- 주소 -->
 				<label>주소</label>
 				<input type="text" th:field="*{address}" id="address" placeholder="주소를 입력하세요" required>
 
+				<!-- 프로필 이미지 (선택) -->
 				<label>프로필 이미지</label>
 				<input type="file" name="profileImage" id="profileImage" accept="image/*">
 				<small>선택하지 않으면 기본 이미지가 적용됩니다.</small>
 
+				<!-- 회원가입 버튼 (이메일 중복 확인 필수) -->
 				<button type="submit" id="signupBtn" class="submit-btn" disabled>회원가입</button>
 
+				<!-- 에러 메시지 표시 -->
 				<p th:if="${error}" th:text="${error}" class="error-message"></p>
 			</form>
 
+			<!-- 로그인 페이지로 돌아가기 -->
 			<div class="find-back-link">
 				<a th:href="@{/user/login}">← 로그인으로 돌아가기</a>
 			</div>
 		</section>
 	</main>
 
+	<!-- ==========================================
+	     푸터 영역
+	========================================== -->
 	<div th:replace="layout/footer :: footer"></div>
 
 </body>

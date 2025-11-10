@@ -6,18 +6,25 @@
 	<link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
+	<!-- ==========================================
+	     헤더 프래그먼트
+	========================================== -->
 	<header th:fragment="header" id="site-header" class="header">
 		<nav class="nav-bar">
+			<!-- 로고 영역 -->
 			<div class="nav-logo">
 				<a href="/" class="nav-logo-link">FoodieHub</a>
 			</div>
 
+			<!-- 중앙 메뉴 -->
 			<ul class="nav-menu-center">
 				<li class="nav-item"><a href="/restaurant/list" class="nav-link">맛집 찾기</a></li>
 				<li class="nav-item"><a href="/board/list" class="nav-link">커뮤니티</a></li>
 			</ul>
 
+			<!-- 우측 메뉴 -->
 			<ul class="nav-menu-right">
+				<!-- 로그인하지 않은 경우 -->
 				<li class="nav-item" th:if="${session.user == null}">
 					<a href="/user/login" class="nav-link">로그인</a>
 				</li>
@@ -25,11 +32,14 @@
 					<a href="/user/signup" class="nav-link">회원가입</a>
 				</li>
 
+				<!-- 로그인한 경우: 환영 메시지 -->
 				<li class="nav-item login-info" th:if="${session.user != null}">
 					<span th:text="'환영합니다. ' + ${session.user.name} + '님'"></span>
 				</li>
 
+				<!-- 로그인한 경우: 프로필 이미지 및 페이지 링크 -->
 				<li class="nav-item user-info" th:if="${session.user != null}">
+					<!-- 관리자인 경우 관리자 페이지로 이동 -->
 					<a th:if="${session.user.role == 'ROLE_ADMIN'}"
 					   href="/admin/dashboard"
 					   class="nav-link profile-link">
@@ -39,6 +49,7 @@
 						<span>관리자 페이지</span>
 					</a>
 
+					<!-- 일반 사용자인 경우 마이페이지로 이동 -->
 					<a th:if="${session.user.role != 'ROLE_ADMIN'}"
 					   href="/user/mypage"
 					   class="nav-link profile-link">
@@ -49,6 +60,7 @@
 					</a>
 				</li>
 
+				<!-- 로그인한 경우: 로그아웃 버튼 -->
 				<li class="nav-item" th:if="${session.user != null}">
 					<a href="/user/logout" class="nav-link">로그아웃</a>
 				</li>

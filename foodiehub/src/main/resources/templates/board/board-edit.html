@@ -8,19 +8,29 @@
 </head>
 <body>
 
+	<!-- ==========================================
+	     헤더 영역
+	========================================== -->
 	<div th:replace="layout/header :: header"></div>
 
+	<!-- ==========================================
+	     메인 콘텐츠
+	========================================== -->
 	<main class="signup-main">
 		<section class="signup-container">
 			<button type="button" class="btn-back-nav" onclick="history.back()">← 뒤로가기</button>
 			<h2>게시글 수정</h2>
 
+			<!-- 게시글 수정 폼 -->
 			<form th:action="@{/board/save}" method="post" class="board-form">
 
+				<!-- 게시글 ID (hidden) -->
 				<input type="hidden" name="id" th:value="${post.id}">
 
+				<!-- 사용자 ID (hidden) -->
 				<input type="hidden" name="userId" th:value="${session.user.id}">
 
+				<!-- 카테고리 선택 -->
 				<div class="form-group">
 					<label for="category" class="form-label">카테고리 <span class="required">*</span></label>
 					<select id="category" name="category" class="form-control" required>
@@ -28,6 +38,7 @@
 						<option value="GENERAL" th:selected="${post.category == 'GENERAL'}">일반</option>
 						<option value="QUESTION" th:selected="${post.category == 'QUESTION'}">등급요청</option>
 						<option value="SUGGESTION" th:selected="${post.category == 'SUGGESTION'}">맛집추천</option>
+						<!-- 관리자 전용 카테고리 -->
 						<option value="NOTICE" th:selected="${post.category == 'NOTICE'}" th:if="${session.user.role == 'ROLE_ADMIN'}">공지사항</option>
 						<option value="NOTICE_GENERAL" th:selected="${post.category == 'NOTICE_GENERAL'}" th:if="${session.user.role == 'ROLE_ADMIN'}">일반탭 공지</option>
 						<option value="NOTICE_QUESTION" th:selected="${post.category == 'NOTICE_QUESTION'}" th:if="${session.user.role == 'ROLE_ADMIN'}">등급탭 공지</option>
@@ -35,18 +46,21 @@
 					</select>
 				</div>
 
+				<!-- 제목 입력 -->
 				<div class="form-group">
 					<label for="title" class="form-label">제목 <span class="required">*</span></label>
 					<input type="text" id="title" name="title" class="form-control" placeholder="제목을 입력하세요"
 					       th:value="${post.title}" required maxlength="200">
 				</div>
 
+				<!-- 내용 입력 -->
 				<div class="form-group">
 					<label for="content" class="form-label">내용 <span class="required">*</span></label>
 					<textarea id="content" name="content" class="form-control form-textarea" placeholder="내용을 입력하세요"
 					          required rows="15" th:text="${post.content}"></textarea>
 				</div>
 
+				<!-- 비공개 체크박스 (카테고리에 따라 표시) -->
 				<div class="form-group" id="privateGroup" style="display:none;">
 					<label class="form-checkbox">
 						<input type="checkbox" name="isPrivate" class="checkbox-input" th:checked="${post.isPrivate}">
@@ -54,6 +68,7 @@
 					</label>
 				</div>
 
+				<!-- 액션 버튼 -->
 				<div class="form-actions">
 					<button type="submit" class="btn-submit">수정</button>
 					<a th:href="@{/board/detail/{id}(id=${post.id})}" class="btn-cancel">취소</a>
@@ -64,13 +79,20 @@
 
 	</main>
 
+	<!-- ==========================================
+	     푸터 영역
+	========================================== -->
 	<div th:replace="layout/footer :: footer"></div>
 
+	<!-- ==========================================
+	     JavaScript: 카테고리 변경 시 비공개 옵션 표시
+	========================================== -->
 	<script>
 		document.addEventListener('DOMContentLoaded', () => {
 			const categorySelect = document.getElementById('category');
 			const privateGroup = document.getElementById('privateGroup');
 
+			// 카테고리 변경 시 비공개 옵션 표시/숨김
 			categorySelect.addEventListener('change', () => {
 				if (categorySelect.value === 'QUESTION' || categorySelect.value === 'SUGGESTION') {
 					privateGroup.style.display = 'block';
@@ -79,6 +101,7 @@
 				}
 			});
 
+			// 페이지 로드 시 초기 상태 설정
 			categorySelect.dispatchEvent(new Event('change'));
 		});
 	</script>
