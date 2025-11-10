@@ -1,62 +1,54 @@
-// /static/js/restaurant-detail.js
 document.addEventListener('DOMContentLoaded', () => {
 
-	// 1. 탭 전환
 	const tabs = document.querySelectorAll('.tab');
 	const contents = document.querySelectorAll('.tab-content');
 
-	tabs.forEach(tab => {
+	tabs.forEach((tab) => {
 		tab.addEventListener('click', () => {
-			tabs.forEach(t => t.classList.remove('active'));
-			contents.forEach(c => c.classList.remove('active'));
+			tabs.forEach((t) => t.classList.remove('active'));
+			contents.forEach((c) => c.classList.remove('active'));
 			tab.classList.add('active');
 			const target = document.getElementById(tab.dataset.tab);
 			target.classList.add('active');
 
-			// 지도 탭 클릭 시 지도 초기화
 			if (tab.dataset.tab === 'map') {
 				initMap();
 			}
 		});
 	});
 
-	// 2. 리뷰 슬라이더
 	const reviews = document.querySelectorAll('.review-item');
 	const prevBtn = document.querySelector('.prev-review');
 	const nextBtn = document.querySelector('.next-review');
 	let currentIndex = 0;
 
-	function updateReview() {
+	const updateReview = () => {
 		reviews.forEach((review, idx) => {
 			review.classList.toggle('active', idx === currentIndex);
 		});
-		
-		// 현재 리뷰 번호 표시 (선택사항)
-		updateReviewCounter();
-	}
 
-	// 리뷰 카운터 업데이트
-	function updateReviewCounter() {
+		updateReviewCounter();
+	};
+
+	const updateReviewCounter = () => {
 		const counterElement = document.querySelector('.review-counter');
 		if (counterElement && reviews.length > 0) {
 			counterElement.textContent = `${currentIndex + 1} / ${reviews.length}`;
 		}
-	}
+	};
 
 	if (prevBtn && nextBtn && reviews.length > 0) {
 		prevBtn.addEventListener('click', () => {
 			currentIndex = (currentIndex - 1 + reviews.length) % reviews.length;
 			updateReview();
 		});
-		
+
 		nextBtn.addEventListener('click', () => {
 			currentIndex = (currentIndex + 1) % reviews.length;
 			updateReview();
 		});
 
-		// 키보드 네비게이션 추가
 		document.addEventListener('keydown', (e) => {
-			// 리뷰 탭이 활성화되어 있을 때만 작동
 			const reviewTab = document.getElementById('reviews');
 			if (!reviewTab || !reviewTab.classList.contains('active')) return;
 
@@ -67,29 +59,26 @@ document.addEventListener('DOMContentLoaded', () => {
 			}
 		});
 
-		// 버튼 비활성화 처리 (첫/마지막 리뷰일 때)
-		function updateButtonStates() {
+		const updateButtonStates = () => {
 			if (reviews.length <= 1) {
 				prevBtn.style.opacity = '0.3';
 				nextBtn.style.opacity = '0.3';
 				prevBtn.style.cursor = 'not-allowed';
 				nextBtn.style.cursor = 'not-allowed';
 			}
-		}
+		};
 		updateButtonStates();
 	}
 
-	// 3. 이미지 확대 모달
 	const reviewImages = document.querySelectorAll('.review-images img');
-	
-	reviewImages.forEach(img => {
+
+	reviewImages.forEach((img) => {
 		img.addEventListener('click', () => {
 			openImageModal(img.src);
 		});
 	});
 
-	function openImageModal(imageSrc) {
-		// 모달 생성
+	const openImageModal = (imageSrc) => {
 		const modal = document.createElement('div');
 		modal.className = 'image-modal';
 		modal.innerHTML = `
@@ -98,26 +87,22 @@ document.addEventListener('DOMContentLoaded', () => {
 				<img src="${imageSrc}" alt="확대 이미지">
 			</div>
 		`;
-		
+
 		document.body.appendChild(modal);
-		
-		// 애니메이션을 위한 약간의 지연
+
 		setTimeout(() => {
 			modal.classList.add('active');
 		}, 10);
 
-		// 닫기 버튼 이벤트
 		const closeBtn = modal.querySelector('.image-modal-close');
 		closeBtn.addEventListener('click', () => closeImageModal(modal));
 
-		// 배경 클릭 시 닫기
 		modal.addEventListener('click', (e) => {
 			if (e.target === modal) {
 				closeImageModal(modal);
 			}
 		});
 
-		// ESC 키로 닫기
 		const escHandler = (e) => {
 			if (e.key === 'Escape') {
 				closeImageModal(modal);
@@ -125,30 +110,23 @@ document.addEventListener('DOMContentLoaded', () => {
 			}
 		};
 		document.addEventListener('keydown', escHandler);
-	}
+	};
 
-	function closeImageModal(modal) {
+	const closeImageModal = (modal) => {
 		modal.classList.remove('active');
 		setTimeout(() => {
 			modal.remove();
 		}, 300);
-	}
+	};
 
-	// 4. 로그인 여부 확인 - 버그 수정!
-	// 이전: const isLoggedIn = document.body.dataset.loggedIn === 'true';
-	// 문제: data-logged-in="${user != null}"이 Thymeleaf로 평가되지 않음
-	// 해결: Thymeleaf inline 표현식 또는 hidden input 사용
-	
 	const loggedInInput = document.querySelector('input[name="userLoggedIn"]');
 	const isLoggedIn = loggedInInput ? loggedInInput.value === 'true' : false;
-	
-	// 디버깅 로그
+
 	console.log('[restaurant-detail.js] isLoggedIn:', isLoggedIn);
 	console.log('[restaurant-detail.js] loggedInInput value:', loggedInInput ? loggedInInput.value : 'not found');
 
-	// 댓글 작성 폼 제출 제어
-	document.querySelectorAll('.comment-form form').forEach(form => {
-		form.addEventListener('submit', e => {
+	document.querySelectorAll('.comment-form form').forEach((form) => {
+		form.addEventListener('submit', (e) => {
 			if (!isLoggedIn) {
 				e.preventDefault();
 				alert('로그인 후 이용 가능합니다.');
@@ -157,10 +135,9 @@ document.addEventListener('DOMContentLoaded', () => {
 		});
 	});
 
-	// 리뷰 작성 폼 제출 제어
 	const reviewForm = document.querySelector('#write form');
 	if (reviewForm) {
-		reviewForm.addEventListener('submit', e => {
+		reviewForm.addEventListener('submit', (e) => {
 			if (!isLoggedIn) {
 				e.preventDefault();
 				alert('로그인 후 이용 가능합니다.');
@@ -169,17 +146,15 @@ document.addEventListener('DOMContentLoaded', () => {
 		});
 	}
 
-	// 5. 댓글 textarea 자동 높이 조절
 	const commentTextareas = document.querySelectorAll('.comment-form textarea');
-	commentTextareas.forEach(textarea => {
+	commentTextareas.forEach((textarea) => {
 		textarea.addEventListener('input', function() {
 			this.style.height = 'auto';
 			this.style.height = (this.scrollHeight) + 'px';
 		});
 	});
 
-	// 6. 지도 초기화 함수
-	function initMap() {
+	const initMap = () => {
 		const mapContainer = document.getElementById('map');
 		if (!mapContainer) return;
 
@@ -202,9 +177,8 @@ document.addEventListener('DOMContentLoaded', () => {
 			position: new kakao.maps.LatLng(lat, lng)
 		});
 		marker.setMap(map);
-	}
+	};
 
-	// 페이지 첫 로드 시 지도 탭이 활성화되어 있다면 지도도 표시
 	const activeTab = document.querySelector('.tab.active');
 	if (activeTab && activeTab.dataset.tab === 'map') {
 		initMap();
@@ -212,7 +186,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 });
 
-/* 이미지 모달 스타일 추가 */
 const modalStyles = `
 	<style>
 		.image-modal {
@@ -276,7 +249,6 @@ const modalStyles = `
 			transform: rotate(90deg);
 		}
 
-		/* 리뷰 카운터 스타일 */
 		.review-counter {
 			text-align: center;
 			margin-top: 15px;
@@ -287,7 +259,6 @@ const modalStyles = `
 	</style>
 `;
 
-// 스타일 추가
 if (!document.querySelector('#modal-styles')) {
 	const styleElement = document.createElement('div');
 	styleElement.id = 'modal-styles';

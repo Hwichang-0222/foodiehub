@@ -1,204 +1,160 @@
-document.addEventListener("DOMContentLoaded", function () {
-    const signupForm = document.getElementById("signupForm");
-    const signupBtn = document.getElementById("signupBtn");
+let resetToken = '';
 
-    // 입력 요소
-    const nameInput = document.getElementById("name");
-    const emailInput = document.getElementById("email");
-    const checkEmailBtn = document.getElementById("checkEmailBtn");
-    const emailCheckResult = document.getElementById("emailCheckResult");
+document.getElementById('emailForm').addEventListener('submit', async (e) => {
+	e.preventDefault();
 
-    const passwordInput = document.getElementById("password");
-    const passwordConfirmInput = document.getElementById("passwordConfirm");
-    const passwordMatchResult = document.getElementById("passwordMatchResult");
-    const togglePassword = document.getElementById("togglePassword");
+	const email = document.getElementById('email').value.trim();
+	const resultMessage = document.getElementById('emailResultMessage');
 
-    const birthInput = document.getElementById("birthDate");
-    const genderSelect = document.getElementById("gender");
-    const phoneInput = document.getElementById("phone");
-    const addressInput = document.getElementById("address");
+	if (!email) {
+		resultMessage.textContent = '이메일을 입력해주세요.';
+		resultMessage.className = 'result-message error';
+		resultMessage.style.display = 'block';
+		return;
+	}
 
-    // 상태 변수
-    let emailVerified = false;
-    let passwordValid = false;
-    let passwordMatched = false;
-    let basicFieldsValid = false;
+	const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+	if (!emailRegex.test(email)) {
+		resultMessage.textContent = '올바른 이메일 형식을 입력해주세요.';
+		resultMessage.className = 'result-message error';
+		resultMessage.style.display = 'block';
+		return;
+	}
 
-    // ------------------------------
-    // 이메일 중복 확인
-    // ------------------------------
-    checkEmailBtn.addEventListener("click", async function () {
-        const email = emailInput.value.trim();
+	try {
+		const response = await fetch('/user/find-password', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/x-www-form-urlencoded',
+			},
+			body: `email=${encodeURIComponent(email)}`
+		});
 
-        if (email === "") {
-            emailCheckResult.textContent = "이메일을 입력해주세요.";
-            emailCheckResult.style.color = "red";
-            emailVerified = false;
-            updateSubmitButtonState();
-            return;
-        }
+		const data = await response.json();
 
-        try {
-            const response = await fetch(`/user/check-email?email=${encodeURIComponent(email)}`);
-            const data = await response.json();
+		if (data.success) {
+			resetToken = data.token;
+			resultMessage.textContent = '인증코드가 이메일로 전송되었습니다.';
+			resultMessage.className = 'result-message success';
+			resultMessage.style.display = 'block';
 
-            if (data.exists) {
-                emailCheckResult.textContent = "이미 사용 중인 이메일입니다.";
-                emailCheckResult.style.color = "red";
-                emailVerified = false;
-            } else {
-                emailCheckResult.textContent = "사용 가능한 이메일입니다.";
-                emailCheckResult.style.color = "green";
-                emailVerified = true;
-            }
-        } catch (error) {
-            console.error("이메일 중복 확인 오류:", error);
-            emailCheckResult.textContent = "서버 오류가 발생했습니다.";
-            emailCheckResult.style.color = "red";
-            emailVerified = false;
-        }
+			setTimeout(() => {
+				document.getElementById('emailForm').style.display = 'none';
+				document.getElementById('verifyForm').style.display = 'block';
+			}, 1500);
+		} else {
+			resultMessage.textContent = data.message || '처리 중 오류가 발생했습니다.';
+			resultMessage.className = 'result-message error';
+			resultMessage.style.display = 'block';
+		}
+	} catch (error) {
+		console.error('Error:', error);
+		resultMessage.textContent = '오류가 발생했습니다. 다시 시도해주세요.';
+		resultMessage.className = 'result-message error';
+		resultMessage.style.display = 'block';
+	}
+});
 
-        updateSubmitButtonState();
-    });
+document.getElementById('verifyForm').addEventListener('submit', async (e) => {
+	e.preventDefault();
 
-    // 이메일 수정 시 다시 확인 필요
-    emailInput.addEventListener("input", function () {
-        emailVerified = false;
-        emailCheckResult.textContent = "이메일 변경 시 다시 중복확인을 해주세요.";
-        emailCheckResult.style.color = "gray";
-        updateSubmitButtonState();
-    });
+	const authCode = document.getElementById('authCode').value.trim();
+	const resultMessage = document.getElementById('verifyResultMessage');
 
-    // ------------------------------
-    // 비밀번호 유효성 및 일치 검사
-    // ------------------------------
-    function validatePasswordStrength(password) {
-        const regex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d!@#$%^&*]{8,20}$/;
-        return regex.test(password);
-    }
+	if (!authCode || authCode.length !== 6) {
+		resultMessage.textContent = '인증코드는 6자리입니다.';
+		resultMessage.className = 'result-message error';
+		resultMessage.style.display = 'block';
+		return;
+	}
 
-    function checkPasswordValidity() {
-        const password = passwordInput.value;
-        const confirm = passwordConfirmInput.value;
+	if (authCode === '000000') {
+		resultMessage.textContent = '인증이 완료되었습니다.';
+		resultMessage.className = 'result-message success';
+		resultMessage.style.display = 'block';
 
-        if (password === "") {
-            passwordMatchResult.textContent = "";
-            passwordValid = false;
-            passwordMatched = false;
-            updateSubmitButtonState();
-            return;
-        }
+		setTimeout(() => {
+			document.getElementById('verifyForm').style.display = 'none';
+			document.getElementById('resetForm').style.display = 'block';
+		}, 1500);
+	} else {
+		resultMessage.textContent = '인증코드가 일치하지 않습니다.';
+		resultMessage.className = 'result-message error';
+		resultMessage.style.display = 'block';
+	}
+});
 
-        if (!validatePasswordStrength(password)) {
-            passwordMatchResult.textContent = "비밀번호는 8~20자, 영문과 숫자를 포함해야 합니다.";
-            passwordMatchResult.style.color = "red";
-            passwordValid = false;
-        } else {
-            passwordValid = true;
-        }
+document.getElementById('resetForm').addEventListener('submit', async (e) => {
+	e.preventDefault();
 
-        if (confirm.length > 0) {
-            if (password === confirm) {
-                passwordMatchResult.textContent = "비밀번호가 일치합니다.";
-                passwordMatchResult.style.color = "green";
-                passwordMatched = true;
-            } else {
-                passwordMatchResult.textContent = "비밀번호가 일치하지 않습니다.";
-                passwordMatchResult.style.color = "red";
-                passwordMatched = false;
-            }
-        }
+	const newPassword = document.getElementById('newPassword').value;
+	const confirmPassword = document.getElementById('confirmPassword').value;
+	const resultMessage = document.getElementById('resetResultMessage');
 
-        updateSubmitButtonState();
-    }
+	if (!newPassword || !confirmPassword) {
+		resultMessage.textContent = '비밀번호를 입력해주세요.';
+		resultMessage.className = 'result-message error';
+		resultMessage.style.display = 'block';
+		return;
+	}
 
-    passwordInput.addEventListener("input", checkPasswordValidity);
-    passwordConfirmInput.addEventListener("input", checkPasswordValidity);
+	if (newPassword.length < 8) {
+		resultMessage.textContent = '비밀번호는 8자 이상이어야 합니다.';
+		resultMessage.className = 'result-message error';
+		resultMessage.style.display = 'block';
+		return;
+	}
 
-    // ------------------------------
-    // 비밀번호 보기 토글
-    // ------------------------------
-    togglePassword.addEventListener("click", function () {
-        const type = passwordInput.getAttribute("type") === "password" ? "text" : "password";
-        passwordInput.setAttribute("type", type);
-        togglePassword.textContent = type === "password" ? "보기" : "숨기기";
-    });
+	if (newPassword !== confirmPassword) {
+		resultMessage.textContent = '비밀번호가 일치하지 않습니다.';
+		resultMessage.className = 'result-message error';
+		resultMessage.style.display = 'block';
+		return;
+	}
 
-    // ------------------------------
-    // 전화번호 자동 하이픈 입력
-    // ------------------------------
-    phoneInput.addEventListener("input", function () {
-        let value = phoneInput.value.replace(/[^0-9]/g, ""); // 숫자만 남기기
+	try {
+		const response = await fetch('/user/reset-password', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/x-www-form-urlencoded',
+			},
+			body: `token=${encodeURIComponent(resetToken)}&newPassword=${encodeURIComponent(newPassword)}`
+		});
 
-        if (value.length > 3 && value.length <= 7) {
-            value = value.replace(/(\d{3})(\d+)/, "$1-$2");
-        } else if (value.length > 7) {
-            value = value.replace(/(\d{3})(\d{4})(\d+)/, "$1-$2-$3");
-        }
+		const data = await response.json();
 
-        phoneInput.value = value;
-        validateBasicFields();
-    });
+		if (data.success) {
+			document.getElementById('resetForm').style.display = 'none';
+			document.getElementById('completeMessage').style.display = 'block';
+		} else {
+			resultMessage.textContent = data.message || '처리 중 오류가 발생했습니다.';
+			resultMessage.className = 'result-message error';
+			resultMessage.style.display = 'block';
+		}
+	} catch (error) {
+		console.error('Error:', error);
+		resultMessage.textContent = '오류가 발생했습니다. 다시 시도해주세요.';
+		resultMessage.className = 'result-message error';
+		resultMessage.style.display = 'block';
+	}
+});
 
-    // ------------------------------
-    // 기타 입력 필드 유효성 검사
-    // ------------------------------
-    function validateBasicFields() {
-        const nameValid = nameInput && nameInput.value.trim().length > 0;
-        const birthValid = birthInput && birthInput.value.trim().length > 0;
-        const genderValid = genderSelect && genderSelect.value.trim().length > 0;
-        const phoneValid = /^010-\d{4}-\d{4}$/.test(phoneInput.value.trim());
-        const addressValid = addressInput && addressInput.value.trim().length > 0;
+document.querySelectorAll('.password-box .toggle-btn').forEach((btn) => {
+	btn.addEventListener('click', (e) => {
+		e.preventDefault();
+		const input = btn.previousElementSibling;
 
-        basicFieldsValid = nameValid && birthValid && genderValid && phoneValid && addressValid;
-        updateSubmitButtonState();
-    }
+		if (input.type === 'password') {
+			input.type = 'text';
+			btn.textContent = '숨기기';
+		} else {
+			input.type = 'password';
+			btn.textContent = '보기';
+		}
+	});
+});
 
-    [nameInput, birthInput, genderSelect, addressInput].forEach(input => {
-        input.addEventListener("input", validateBasicFields);
-        input.addEventListener("change", validateBasicFields);
-    });
-
-    // ------------------------------
-    // 최종 제출 검증
-    // ------------------------------
-    signupForm.addEventListener("submit", function (e) {
-        if (!emailVerified) {
-            e.preventDefault();
-            emailCheckResult.textContent = "이메일 중복확인을 완료해주세요.";
-            emailCheckResult.style.color = "red";
-            return false;
-        }
-
-        if (!passwordValid) {
-            e.preventDefault();
-            passwordMatchResult.textContent = "비밀번호 형식이 올바르지 않습니다.";
-            passwordMatchResult.style.color = "red";
-            return false;
-        }
-
-        if (!passwordMatched) {
-            e.preventDefault();
-            passwordMatchResult.textContent = "비밀번호가 일치하지 않습니다.";
-            passwordMatchResult.style.color = "red";
-            return false;
-        }
-
-        if (!basicFieldsValid) {
-            e.preventDefault();
-            alert("모든 필드를 올바르게 입력해주세요.");
-            return false;
-        }
-    });
-
-    // ------------------------------
-    // 버튼 활성화 조건
-    // ------------------------------
-    function updateSubmitButtonState() {
-        if (emailVerified && passwordValid && passwordMatched && basicFieldsValid) {
-            signupBtn.disabled = false;
-        } else {
-            signupBtn.disabled = true;
-        }
-    }
+document.getElementById('resendBtn').addEventListener('click', (e) => {
+	e.preventDefault();
+	alert('인증코드를 다시 전송했습니다.');
 });
