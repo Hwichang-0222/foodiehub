@@ -25,212 +25,195 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class AdminController {
 
-    private final UserService userService;
-    private final BoardService boardService;
-    private final RestaurantService restaurantService;
+	private final UserService userService;
+	private final BoardService boardService;
+	private final RestaurantService restaurantService;
 
-    /* ============================================
-       관리자 대시보드
-    ============================================ */
-    
-    // 관리자 대시보드 (관리자만 접근 가능)
-    @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping("/admin/dashboard")
-    public String adminDashboard(
-            @RequestParam(name = "userPage", defaultValue = "1") int userPage,
-            @RequestParam(name = "restaurantPage", defaultValue = "1") int restaurantPage,
-            @RequestParam(name = "boardPage", defaultValue = "1") int boardPage,
-            @RequestParam(name = "noticePage", defaultValue = "1") int noticePage,
-            @RequestParam(name = "userKeyword", required = false) String userKeyword,
-            @RequestParam(name = "role", required = false) String role,
-            @RequestParam(name = "status", required = false) String status,
-            @RequestParam(name = "restaurantKeyword", required = false) String restaurantKeyword,
-            @RequestParam(name = "ownerFilter", required = false) String ownerFilter,
-            @RequestParam(name = "filter", required = false) String filter,
-            Model model) {
+	/* ============================================
+	   관리자 대시보드
+	============================================ */
 
-        int limit = 10;
+	@PreAuthorize("hasRole('ADMIN')")
+	@GetMapping("/admin/dashboard")
+	public String adminDashboard(
+			@RequestParam(name = "userPage", defaultValue = "1") int userPage,
+			@RequestParam(name = "restaurantPage", defaultValue = "1") int restaurantPage,
+			@RequestParam(name = "boardPage", defaultValue = "1") int boardPage,
+			@RequestParam(name = "noticePage", defaultValue = "1") int noticePage,
+			@RequestParam(name = "userKeyword", required = false) String userKeyword,
+			@RequestParam(name = "role", required = false) String role,
+			@RequestParam(name = "status", required = false) String status,
+			@RequestParam(name = "restaurantKeyword", required = false) String restaurantKeyword,
+			@RequestParam(name = "ownerFilter", required = false) String ownerFilter,
+			@RequestParam(name = "filter", required = false) String filter,
+			Model model) {
 
-        // 사용자 관리 데이터
-        userKeyword = normalizeParam(userKeyword);
-        status = normalizeParam(status);
-        role = normalizeParam(role);
+		int limit = 10;
 
-        int userOffset = (userPage - 1) * limit;
-        List<UserDTO> users = userService.searchUsers(userKeyword, status, role, userOffset, limit);
-        int userTotal = userService.countSearchUsers(userKeyword, status, role);
+		userKeyword = normalizeParam(userKeyword);
+		status = normalizeParam(status);
+		role = normalizeParam(role);
 
-        model.addAttribute("users", users);
-        model.addAttribute("userTotalPages", calculateTotalPages(userTotal, limit));
-        model.addAttribute("userPage", userPage);
-        model.addAttribute("keyword", userKeyword);
-        model.addAttribute("status", status);
-        model.addAttribute("role", role);
+		int userOffset = (userPage - 1) * limit;
+		List<UserDTO> users = userService.searchUsers(userKeyword, status, role, userOffset, limit);
+		int userTotal = userService.countSearchUsers(userKeyword, status, role);
 
-        // 식당 관리 데이터
-        int restaurantOffset = (restaurantPage - 1) * limit;
-        List<RestaurantDTO> restaurants = restaurantService.findAll(restaurantKeyword, ownerFilter, restaurantOffset, limit);
-        int restaurantTotal = restaurantService.countAllWithOwner(restaurantKeyword, ownerFilter);
+		model.addAttribute("users", users);
+		model.addAttribute("userTotalPages", calculateTotalPages(userTotal, limit));
+		model.addAttribute("userPage", userPage);
+		model.addAttribute("keyword", userKeyword);
+		model.addAttribute("status", status);
+		model.addAttribute("role", role);
 
-        model.addAttribute("restaurants", restaurants);
-        model.addAttribute("restaurantPage", restaurantPage);
-        model.addAttribute("restaurantTotalPages", calculateTotalPages(restaurantTotal, limit));
-        model.addAttribute("restaurantKeyword", restaurantKeyword);
-        model.addAttribute("ownerFilter", ownerFilter);
-        model.addAttribute("owners", userService.findByRole("ROLE_OWNER"));
-        model.addAttribute("assignedOwnerIds", restaurantService.findAssignedOwnerIds());
+		int restaurantOffset = (restaurantPage - 1) * limit;
+		List<RestaurantDTO> restaurants = restaurantService.findAll(restaurantKeyword, ownerFilter, restaurantOffset, limit);
+		int restaurantTotal = restaurantService.countAllWithOwner(restaurantKeyword, ownerFilter);
 
-        // 미답변 요청 데이터
-        int boardOffset = (boardPage - 1) * limit;
-        List<BoardDTO> boards = boardService.findUnansweredRequests(boardOffset, limit, filter);
-        int boardTotal = boardService.countUnansweredRequests(filter);
+		model.addAttribute("restaurants", restaurants);
+		model.addAttribute("restaurantPage", restaurantPage);
+		model.addAttribute("restaurantTotalPages", calculateTotalPages(restaurantTotal, limit));
+		model.addAttribute("restaurantKeyword", restaurantKeyword);
+		model.addAttribute("ownerFilter", ownerFilter);
+		model.addAttribute("owners", userService.findByRole("ROLE_OWNER"));
+		model.addAttribute("assignedOwnerIds", restaurantService.findAssignedOwnerIds());
 
-        model.addAttribute("boards", boards);
-        model.addAttribute("boardPage", boardPage);
-        model.addAttribute("boardTotalPages", calculateTotalPages(boardTotal, limit));
+		int boardOffset = (boardPage - 1) * limit;
+		List<BoardDTO> boards = boardService.findUnansweredRequests(boardOffset, limit, filter);
+		int boardTotal = boardService.countUnansweredRequests(filter);
 
-        // 공지사항 데이터
-        int noticeOffset = (noticePage - 1) * limit;
-        List<BoardDTO> notices = boardService.findAllNotices(noticeOffset, limit);
-        int noticeTotal = boardService.countAllNotices();
+		model.addAttribute("boards", boards);
+		model.addAttribute("boardPage", boardPage);
+		model.addAttribute("boardTotalPages", calculateTotalPages(boardTotal, limit));
 
-        model.addAttribute("notices", notices);
-        model.addAttribute("noticePage", noticePage);
-        model.addAttribute("noticeTotalPages", calculateTotalPages(noticeTotal, limit));
+		int noticeOffset = (noticePage - 1) * limit;
+		List<BoardDTO> notices = boardService.findAllNotices(noticeOffset, limit);
+		int noticeTotal = boardService.countAllNotices();
 
-        return "admin/admin-dashboard";
-    }
+		model.addAttribute("notices", notices);
+		model.addAttribute("noticePage", noticePage);
+		model.addAttribute("noticeTotalPages", calculateTotalPages(noticeTotal, limit));
 
-    // 미답변 요청 조회 (관리자만 접근 가능)
-    @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping("/admin/requests")
-    public String getAdminRequests(
-            @RequestParam(name = "filter", required = false) String filter,
-            @RequestParam(name = "page", defaultValue = "1") int page,
-            Model model) {
+		return "admin/admin-dashboard";
+	}
 
-        int limit = 10;
-        int offset = (page - 1) * limit;
+	@PreAuthorize("hasRole('ADMIN')")
+	@GetMapping("/admin/requests")
+	public String getAdminRequests(
+			@RequestParam(name = "filter", required = false) String filter,
+			@RequestParam(name = "page", defaultValue = "1") int page,
+			Model model) {
 
-        List<BoardDTO> requests = boardService.findUnansweredRequests(offset, limit, filter);
-        int totalCount = boardService.countUnansweredRequests(filter);
+		int limit = 10;
+		int offset = (page - 1) * limit;
 
-        model.addAttribute("requests", requests);
-        model.addAttribute("filter", filter);
-        model.addAttribute("currentPage", page);
-        model.addAttribute("totalPages", calculateTotalPages(totalCount, limit));
-        model.addAttribute("totalCount", totalCount);
+		List<BoardDTO> requests = boardService.findUnansweredRequests(offset, limit, filter);
+		int totalCount = boardService.countUnansweredRequests(filter);
 
-        return "admin/admin-requests";
-    }
+		model.addAttribute("requests", requests);
+		model.addAttribute("filter", filter);
+		model.addAttribute("currentPage", page);
+		model.addAttribute("totalPages", calculateTotalPages(totalCount, limit));
+		model.addAttribute("totalCount", totalCount);
 
-    /* ============================================
-       권한 관리
-    ============================================ */
-    
-    // 사용자 역할 변경 (관리자만 가능)
-    @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping("/admin/update-role")
-    public String updateUserRole(@RequestParam(name = "id") Long userId,
-                                 @RequestParam(name = "role") String role) {
-        userService.updateUserRole(userId, role);
-        return "redirect:/admin/dashboard?tab=user";
-    }
+		return "admin/admin-requests";
+	}
 
-    // 식당 오너 지정 (관리자만 가능)
-    @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping("/admin/update-owner")
-    public String updateRestaurantOwner(@RequestParam(name = "restaurantId") Long restaurantId,
-                                        @RequestParam(name = "ownerId", required = false) Long ownerId) {
-        restaurantService.updateOwner(restaurantId, ownerId);
-        return "redirect:/admin/dashboard?tab=restaurant";
-    }
+	/* ============================================
+	   권한 관리
+	============================================ */
 
-    /* ============================================
-       게시판 관리
-    ============================================ */
+	@PreAuthorize("hasRole('ADMIN')")
+	@GetMapping("/admin/update-role")
+	public String updateUserRole(@RequestParam(name = "id") Long userId,
+	                             @RequestParam(name = "role") String role) {
+		userService.updateUserRole(userId, role);
+		return "redirect:/admin/dashboard?tab=user";
+	}
 
-    // 관리자 답글 제출 (관리자만 가능)
-    @PreAuthorize("hasRole('ADMIN')")
-    @PostMapping("/admin/reply")
-    public String submitAdminReply(
-            @ModelAttribute BoardDTO reply,
-            RedirectAttributes redirectAttributes) {
+	@PreAuthorize("hasRole('ADMIN')")
+	@GetMapping("/admin/update-owner")
+	public String updateRestaurantOwner(@RequestParam(name = "restaurantId") Long restaurantId,
+	                                    @RequestParam(name = "ownerId", required = false) Long ownerId) {
+		restaurantService.updateOwner(restaurantId, ownerId);
+		return "redirect:/admin/dashboard?tab=restaurant";
+	}
 
-        try {
-            // SecurityContextHolder에서 현재 사용자 인증 정보 가져오기
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            if (authentication == null || !authentication.isAuthenticated()) {
-                redirectAttributes.addFlashAttribute("errorMessage", "로그인이 필요합니다.");
-                return "redirect:/admin/dashboard?tab=board";
-            }
+	/* ============================================
+	   게시판 관리
+	============================================ */
 
-            String email = authentication.getName();
-            UserDTO currentUser = userService.findByEmail(email);
-            if (currentUser == null) {
-                redirectAttributes.addFlashAttribute("errorMessage", "현재 사용자 정보를 찾을 수 없습니다.");
-                return "redirect:/admin/dashboard?tab=board";
-            }
+	@PreAuthorize("hasRole('ADMIN')")
+	@PostMapping("/admin/reply")
+	public String submitAdminReply(
+			@ModelAttribute BoardDTO reply,
+			RedirectAttributes redirectAttributes) {
 
-            // 부모글(원글) 정보 가져오기
-            BoardDTO parentPost = boardService.findById(reply.getParentId());
-            if (parentPost == null) {
-                redirectAttributes.addFlashAttribute("errorMessage", "해당 게시글을 찾을 수 없습니다.");
-                return "redirect:/admin/dashboard?tab=board";
-            }
+		try {
+			Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+			if (authentication == null || !authentication.isAuthenticated()) {
+				redirectAttributes.addFlashAttribute("errorMessage", "로그인이 필요합니다.");
+				return "redirect:/admin/dashboard?tab=board";
+			}
 
-            // 카테고리 검증 (QUESTION 또는 SUGGESTION만 가능)
-            if (!"QUESTION".equals(parentPost.getCategory()) && !"SUGGESTION".equals(parentPost.getCategory())) {
-                redirectAttributes.addFlashAttribute("errorMessage", "답글을 작성할 수 없는 게시글입니다.");
-                return "redirect:/admin/requests";
-            }
+			String email = authentication.getName();
+			UserDTO currentUser = userService.findByEmail(email);
+			if (currentUser == null) {
+				redirectAttributes.addFlashAttribute("errorMessage", "현재 사용자 정보를 찾을 수 없습니다.");
+				return "redirect:/admin/dashboard?tab=board";
+			}
 
-            // 답글 정보 설정
-            reply.setCategory(parentPost.getCategory());
-            reply.setUserId(currentUser.getId());
+			BoardDTO parentPost = boardService.findById(reply.getParentId());
+			if (parentPost == null) {
+				redirectAttributes.addFlashAttribute("errorMessage", "해당 게시글을 찾을 수 없습니다.");
+				return "redirect:/admin/dashboard?tab=board";
+			}
 
-            // 답글 저장
-            int result = boardService.insertAdminReply(reply);
+			if (!"QUESTION".equals(parentPost.getCategory()) && !"SUGGESTION".equals(parentPost.getCategory())) {
+				redirectAttributes.addFlashAttribute("errorMessage", "답글을 작성할 수 없는 게시글입니다.");
+				return "redirect:/admin/requests";
+			}
 
-            if (result > 0) {
-                redirectAttributes.addFlashAttribute("successMessage", "답글이 작성되었습니다.");
-                return "redirect:/admin/dashboard?tab=board";
-            } else {
-                redirectAttributes.addFlashAttribute("errorMessage", "답글 저장에 실패했습니다. DB 오류를 확인하세요.");
-                return "redirect:/admin/dashboard?tab=board";
-            }
+			reply.setCategory(parentPost.getCategory());
+			reply.setUserId(currentUser.getId());
 
-        } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage", "답글 작성 중 오류가 발생했습니다.");
-            return "redirect:/admin/dashboard?tab=board";
-        }
-    }
+			int result = boardService.insertAdminReply(reply);
 
-    /* ============================================
-       헬퍼 메서드
-    ============================================ */
+			if (result > 0) {
+				redirectAttributes.addFlashAttribute("successMessage", "답글이 작성되었습니다.");
+				return "redirect:/admin/dashboard?tab=board";
+			} else {
+				redirectAttributes.addFlashAttribute("errorMessage", "답글 저장에 실패했습니다. DB 오류를 확인하세요.");
+				return "redirect:/admin/dashboard?tab=board";
+			}
 
-    // 현재 로그인한 사용자 정보 가져오기
-    private UserDTO getCurrentUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !authentication.isAuthenticated()) {
-            return null;
-        }
-        String email = authentication.getName();
-        return userService.findByEmail(email);
-    }
+		} catch (Exception e) {
+			redirectAttributes.addFlashAttribute("errorMessage", "답글 작성 중 오류가 발생했습니다.");
+			return "redirect:/admin/dashboard?tab=board";
+		}
+	}
 
-    // 파라미터 정규화
-    private String normalizeParam(String param) {
-        if (param == null || "null".equalsIgnoreCase(param) || param.isBlank()) {
-            return null;
-        }
-        return param;
-    }
+	/* ============================================
+	   헬퍼 메서드
+	============================================ */
 
-    // 이 페이지 수 계산
-    private int calculateTotalPages(int total, int limit) {
-        if (total == 0) return 0;
-        return (int) Math.ceil((double) total / limit);
-    }
+	private UserDTO getCurrentUser() {
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		if (authentication == null || !authentication.isAuthenticated()) {
+			return null;
+		}
+		String email = authentication.getName();
+		return userService.findByEmail(email);
+	}
+
+	private String normalizeParam(String param) {
+		if (param == null || "null".equalsIgnoreCase(param) || param.isBlank()) {
+			return null;
+		}
+		return param;
+	}
+
+	private int calculateTotalPages(int total, int limit) {
+		if (total == 0) return 0;
+		return (int) Math.ceil((double) total / limit);
+	}
 }

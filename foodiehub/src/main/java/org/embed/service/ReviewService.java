@@ -5,40 +5,29 @@ import java.util.List;
 
 public interface ReviewService {
 
-    // 1. 맛집별 리뷰 목록 (댓글 제외)
-    List<ReviewDTO> findByRestaurantId(Long restaurantId);
+	List<ReviewDTO> findByRestaurantId(Long restaurantId);
 
-    // 2. 단일 리뷰 조회 (본문 + 작성자 정보)
-    ReviewDTO findReviewWithUser(Long id);
+	ReviewDTO findReviewWithUser(Long id);
 
-    // 3. 댓글/대댓글 조회
-    List<ReviewDTO> findRepliesByParentId(Long parentId);
+	List<ReviewDTO> findRepliesByParentId(Long parentId);
 
-    // 4. 리뷰 등록
-    int insertReview(ReviewDTO review);
+	int insertReview(ReviewDTO review);
 
-    // 5. 댓글/대댓글 등록
-    int insertReply(ReviewDTO reply);
+	int insertReply(ReviewDTO reply);
 
-    // 6. 리뷰 수정
-    int updateReview(ReviewDTO review);
+	int updateReview(ReviewDTO review);
 
-    // 7. 리뷰 삭제
-    int deleteReview(Long id);
+	int deleteReview(Long id);
 
-    // 8. 특정 맛집의 최신 리뷰 5개
-    List<ReviewDTO> findTop5Reviews(Long restaurantId);
+	List<ReviewDTO> findTop5Reviews(Long restaurantId);
 
-    // 9. 페이징 처리용 (리뷰 목록)
-    List<ReviewDTO> findPagedReviews(Long restaurantId, int offset, int limit);
+	List<ReviewDTO> findPagedReviews(Long restaurantId, int offset, int limit);
 
-    // 10. 맛집별 평균 별점
-    Double findAverageRating(Long restaurantId);
-    
-    // 11. 사용자별 리뷰 조회
-    List<ReviewDTO> findByUserId(Long userId);
-    
-    int countByUserId(Long userId);
-    List<ReviewDTO> findPagedByUserId(Long userId, int offset, int limit);
+	Double findAverageRating(Long restaurantId);
+
+	List<ReviewDTO> findByUserId(Long userId);
+
+	int countByUserId(Long userId);
+	List<ReviewDTO> findPagedByUserId(Long userId, int offset, int limit);
 
 }

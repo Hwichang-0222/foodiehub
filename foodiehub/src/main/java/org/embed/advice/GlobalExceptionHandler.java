@@ -16,10 +16,10 @@ import jakarta.servlet.http.HttpServletRequest;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
-	/* ============================================
-	   에러 로그 파일 저장
-	============================================ */
-	
+	/* ========================================== */
+	/*         에러 로그 파일 저장                */
+	/* ========================================== */
+
 	private void saveErrorLog(Exception ex, HttpServletRequest request, String errorCode) {
 		try {
 			String logDir = System.getProperty("user.dir") + "/logs/error";
@@ -69,11 +69,9 @@ public class GlobalExceptionHandler {
 				request.getHeader("User-Agent"));
 	}
 
-	/* ============================================
-	   Controller 레벨 예외 처리
-	   - 로그 저장 후 에러 페이지로 이동
-	   - 에러 메시지는 화면에 표시 안 함 (로그에만 저장)
-	============================================ */
+	/* ========================================== */
+	/*       Controller 레벨 예외 처리            */
+	/* ========================================== */
 
 	@ExceptionHandler(Exception.class)
 	public ModelAndView handleException(Exception ex, HttpServletRequest request) {

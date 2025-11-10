@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 public class RestaurantDTO {
-	
+
 	private Long id;
 	private Long ownerId;
 	private String name;
@@ -17,8 +17,8 @@ public class RestaurantDTO {
 	private Double longitude;
 	private String mainImageUrl;
 	private LocalDateTime createdAt;
-	private Double avgRating;			//별점 평균 계산용
-	private Integer reviewCount;		//리뷰갯수 카운팅
+	private Double avgRating;
+	private Integer reviewCount;
 	private String ownerName;
-	
+
 }

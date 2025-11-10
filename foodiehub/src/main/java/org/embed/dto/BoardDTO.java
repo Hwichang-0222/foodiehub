@@ -5,16 +5,15 @@ import lombok.Data;
 
 @Data
 public class BoardDTO {
-    private Long id;
-    private Long userId;
-    private Long parentId;        // 관리자 답변용
-    private String title;
-    private String content;
-    private String category;      // NOTICE, GENERAL, QUESTION, SUGGESTION
-    private Boolean isPrivate;    // 문의/건의 비공개 여부
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
-    private int viewCount;
-    // join용
-    private String userName;
+	private Long id;
+	private Long userId;
+	private Long parentId;
+	private String title;
+	private String content;
+	private String category;
+	private Boolean isPrivate;
+	private LocalDateTime createdAt;
+	private LocalDateTime updatedAt;
+	private int viewCount;
+	private String userName;
 }
