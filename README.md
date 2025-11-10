@@ -336,7 +336,7 @@ user (1) ─── (N) review ─── (N) image
 
 ## 👥 기여자
 
-- **개발자** - [@your-username](https://github.com/your-username)
+- **개발자** - [@Hwichang-0222](https://github.com/Hwichang-0222)
 
 ---
 
