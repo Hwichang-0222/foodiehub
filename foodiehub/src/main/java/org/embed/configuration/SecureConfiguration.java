@@ -43,7 +43,7 @@ public class SecureConfiguration {
                 /* ============================================
                    사용자 인증 (회원가입, 로그인)
                 ============================================ */
-                .requestMatchers("/user/signup", "/user/login", "/user/logout", "/user/check-email", 
+                .requestMatchers("/oauth/**", "/user/signup", "/user/login", "/user/logout", "/user/check-email", 
                                 "/user/find-id", "/user/find-password").permitAll()
                 
                 /* ============================================

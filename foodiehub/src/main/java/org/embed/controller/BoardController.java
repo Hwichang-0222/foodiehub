@@ -66,7 +66,7 @@ public class BoardController {
 		List<BoardDTO> notices = boardService.findNoticesByCategory(category);
 		// 일반 게시글 조회
 		List<BoardDTO> boards = boardService.findNormalPostsByCategory(category, offset, limit);
-		// 일반 게시글 이 개수
+		// 일반 게시글 총 개수
 		int totalCount = boardService.countNormalPostsByCategory(category);
 		int totalPages = (int) Math.ceil((double) totalCount / limit);
 		int startNumber = totalCount - offset;
@@ -107,7 +107,7 @@ public class BoardController {
 		List<BoardDTO> boards = boardService.searchBoard(category, keyword, offset, limit);
 		// 공지사항 조회
 		List<BoardDTO> notices = boardService.findNoticesByCategory(category);
-		// 검색 결과 이 개수
+		// 검색 결과 총 개수
 		int totalCount = boardService.countSearchBoards(category, keyword);
 		int totalPages = (int) Math.ceil((double) totalCount / limit);
 		int startNumber = totalCount - offset;
@@ -147,9 +147,17 @@ public class BoardController {
 
 		// 조회하려는 게시글 정보 조회
 		BoardDTO post = boardService.findById(id);
+		
+		// 게시글이 존재하지 않으면 목록으로 이동
+		if (post == null) {
+			redirectAttributes.addFlashAttribute("errorMessage", "존재하지 않는 게시물입니다.");
+			return "redirect:/board/list";
+		}
+		
 		// 세션에서 현재 로그인한 사용자 정보 조회
 		UserDTO user = getSessionUser(session);
 		
+		// GENERAL 카테고리 - 로그인 필수
 		if ("GENERAL".equals(post.getCategory())) {
 			if (user == null) {
 				redirectAttributes.addFlashAttribute("errorMessage", "로그인 후 이용 부탁드립니다.");
@@ -160,7 +168,8 @@ public class BoardController {
 		// QUESTION, SUGGESTION 카테고리 - 작성자와 관리자만 조회 가능
 		if ("QUESTION".equals(post.getCategory()) || "SUGGESTION".equals(post.getCategory())) {
 		    if (!canView(user, post)) {
-		        redirectAttributes.addFlashAttribute("errorMessage", "로그인 후 이용 부탁드립니다.");
+		        // 권한 없음 → 목록으로 명확하게 리다이렉트
+		        redirectAttributes.addFlashAttribute("errorMessage", "조회할 수 없는 게시물입니다.");
 		        return "redirect:/board/list?category=" + post.getCategory();
 		    }
 		}
@@ -168,11 +177,13 @@ public class BoardController {
 		// 댓글인 경우 - 부모글 작성자와 관리자만 조회 가능
 		if (post.getParentId() != null) {
 			BoardDTO parentPost = boardService.findById(post.getParentId());
-			if (!canView(user, parentPost)) {
-				redirectAttributes.addFlashAttribute("errorMessage", "로그인 후 이용 부탁드립니다.");
+			if (parentPost != null && !canView(user, parentPost)) {
+				redirectAttributes.addFlashAttribute("errorMessage", "조회할 수 없는 게시물입니다.");
 				return "redirect:/board/list?category=" + post.getCategory();
 			}
-			model.addAttribute("parentPost", parentPost);
+			if (parentPost != null) {
+				model.addAttribute("parentPost", parentPost);
+			}
 		}
 
 		// 조회수 증가
@@ -324,7 +335,7 @@ public class BoardController {
 
 		// 공지사항 조회
 		List<BoardDTO> notices = boardService.findAllNotices(offset, limit);
-		// 공지사항 이 개수
+		// 공지사항 총 개수
 		int totalCount = boardService.countAllNotices();
 		int totalPages = (int) Math.ceil((double) totalCount / limit);
 
