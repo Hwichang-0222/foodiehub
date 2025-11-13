@@ -180,7 +180,7 @@ FoodieHub/
 
 ## 🏗️ 시스템 플로우차트
 
-<img src="images/architecture/flowchart.jpg" alt="FoodieHub 플로우차트" width="100%"/>
+<img src="images/architecture/flowchart.png" alt="FoodieHub 플로우차트" width="100%"/>
 
 **주요 흐름:**
 - **사용자 플로우:** 로그인 → 메인페이지 → 맛집 검색 → 상세보기 → 리뷰 작성 → 마이페이지
