@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.embed.mapper.AiReviewSummaryMapper">
+
+    <!-- ======================================
+         AI 리뷰 요약 CRUD
+    ====================================== -->
+
+    <!-- 식당 ID로 AI 리뷰 요약 조회 -->
+    <select id="findByRestaurantId" parameterType="long" resultType="org.embed.dto.AiReviewSummaryDTO">
+        <![CDATA[
+            SELECT
+                id,
+                restaurant_id,
+                summary_text,
+                updated_at
+            FROM ai_review_summary
+            WHERE restaurant_id = #{restaurantId}
+        ]]>
+    </select>
+
+    <!-- AI 리뷰 요약 저장 -->
+    <insert id="insertSummary" parameterType="org.embed.dto.AiReviewSummaryDTO" useGeneratedKeys="true" keyProperty="id">
+        <![CDATA[
+            INSERT INTO ai_review_summary (
+                restaurant_id,
+                summary_text
+            ) VALUES (
+                #{restaurantId},
+                #{summaryText}
+            )
+        ]]>
+    </insert>
+
+    <!-- AI 리뷰 요약 수정 -->
+    <update id="updateSummary" parameterType="org.embed.dto.AiReviewSummaryDTO">
+        <![CDATA[
+            UPDATE ai_review_summary
+            SET
+                summary_text = #{summaryText}
+            WHERE restaurant_id = #{restaurantId}
+        ]]>
+    </update>
+
+    <!-- AI 리뷰 요약 삭제 -->
+    <delete id="deleteSummary" parameterType="long">
+        <![CDATA[
+            DELETE FROM ai_review_summary
+            WHERE restaurant_id = #{restaurantId}
+        ]]>
+    </delete>
+
+</mapper>

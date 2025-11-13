@@ -4,10 +4,12 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+import org.embed.dto.AiReviewSummaryDTO;
 import org.embed.dto.ImageDTO;
 import org.embed.dto.RestaurantDTO;
 import org.embed.dto.ReviewDTO;
 import org.embed.dto.UserDTO;
+import org.embed.service.AiReviewSummaryService;
 import org.embed.service.ImageService;
 import org.embed.service.RestaurantService;
 import org.embed.service.ReviewService;
@@ -25,7 +27,9 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/restaurant")
@@ -34,6 +38,7 @@ public class RestaurantController {
 	private final RestaurantService restaurantService;
 	private final ReviewService reviewService;
 	private final ImageService imageService;
+	private final AiReviewSummaryService aiReviewSummaryService;
 	
 	@Value("${kakao.map.api.key}")
 	private String kakaoMapApiKey;
@@ -115,10 +120,14 @@ public class RestaurantController {
 		List<ImageDTO> images = imageService.findAllByRestaurantId(id);
 		UserDTO user = (UserDTO) session.getAttribute("user");
 
+		// AI 리뷰 요약 조회
+		AiReviewSummaryDTO aiSummary = aiReviewSummaryService.findByRestaurantId(id);
+
 		model.addAttribute("restaurant", restaurant);
 		model.addAttribute("reviews", reviews);
 		model.addAttribute("images", images);
 		model.addAttribute("user", user);
+		model.addAttribute("aiSummary", aiSummary);
 		model.addAttribute("kakaoMapApiKey", kakaoMapApiKey);
 
 		return "restaurant/restaurant-detail";
@@ -239,8 +248,49 @@ public class RestaurantController {
 	    restaurant.setId(id);
 	    restaurant.setOwnerId(existingRestaurant.getOwnerId());
 	    restaurantService.updateRestaurant(restaurant);
-	    
+
 	    redirectAttributes.addFlashAttribute("successMessage", "식당 정보가 수정되었습니다.");
 	    return "redirect:/restaurant/detail/" + id;
+	}
+
+	/* ============================================
+	   AI 리뷰 요약 생성
+	============================================ */
+
+	// AI 리뷰 요약 생성
+	@PostMapping("/generate-ai-summary/{id}")
+	public String generateAiSummary(
+			@PathVariable("id") Long id,
+			HttpSession session,
+			RedirectAttributes redirectAttributes) {
+
+		log.info("===== AI 요약 생성 요청: restaurantId={} =====", id);
+
+		UserDTO user = (UserDTO) session.getAttribute("user");
+		RestaurantDTO restaurant = restaurantService.findById(id);
+
+		// 권한 체크 (ADMIN 또는 해당 식당의 OWNER만)
+		if (!hasEditPermission(user, restaurant)) {
+			redirectAttributes.addFlashAttribute("errorMessage", "권한이 없습니다.");
+			return "redirect:/restaurant/detail/" + id;
+		}
+
+		try {
+			log.info("AI 요약 생성 시작");
+			AiReviewSummaryDTO summary = aiReviewSummaryService.generateAndSaveSummary(id);
+
+			if (summary != null) {
+				log.info("AI 요약 생성 성공: {}", summary.getSummaryText());
+				redirectAttributes.addFlashAttribute("successMessage", "AI 리뷰 요약이 생성되었습니다!");
+			} else {
+				log.warn("리뷰 없음 - 요약 생성 불가");
+				redirectAttributes.addFlashAttribute("errorMessage", "리뷰가 없어 요약을 생성할 수 없습니다.");
+			}
+		} catch (Exception e) {
+			log.error("AI 요약 생성 실패", e);
+			redirectAttributes.addFlashAttribute("errorMessage", "AI 요약 생성에 실패했습니다: " + e.getMessage());
+		}
+
+		return "redirect:/restaurant/detail/" + id;
 	}
 }

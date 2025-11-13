@@ -33,9 +33,18 @@
                 </div>
             </div>
 
+            <!-- 수정 버튼 (OWNER만) -->
             <div class="restaurant-actions"
                 th:if="${user != null and user.role == 'ROLE_OWNER' and user.id == restaurant.ownerId}">
                 <a th:href="@{/restaurant/edit/{id}(id=${restaurant.id})}" class="btn btn-create">수정하기</a>
+            </div>
+
+            <!-- AI 요약 생성 버튼 (ADMIN 또는 OWNER) -->
+            <div class="restaurant-actions" style="margin-top: 10px;"
+                th:if="${user != null and (user.role == 'ROLE_ADMIN' or (user.role == 'ROLE_OWNER' and user.id == restaurant.ownerId))}">
+                <form th:action="@{/restaurant/generate-ai-summary/{id}(id=${restaurant.id})}" method="post" style="margin: 0;">
+                    <button type="submit" class="btn btn-create" style="width: 100%;">🤖 AI 리뷰 요약 생성</button>
+                </form>
             </div>
         </div>
 
@@ -44,6 +53,7 @@
             <div class="tabs">
                 <div class="tab active" data-tab="detail">상세</div>
                 <div class="tab" data-tab="menu">메뉴</div>
+                <div class="tab" data-tab="ai-summary">AI 리뷰 요약</div>
                 <div class="tab" data-tab="reviews">리뷰</div>
                 <div class="tab" data-tab="write">리뷰작성</div>
                 <div class="tab" data-tab="gallery">리뷰 이미지</div>
@@ -68,62 +78,89 @@
                 </div>
             </div>
 
+            <!-- AI 리뷰 요약 -->
+            <div id="ai-summary" class="tab-content">
+                <div class="detail-box ai-summary-box">
+                    <h3>🤖 AI 리뷰 요약</h3>
+                    <div th:if="${aiSummary != null and aiSummary.summaryText != null}">
+                        <div class="ai-summary-content">
+                            <p th:text="${aiSummary.summaryText}"></p>
+                            <small class="ai-summary-updated">
+                                마지막 업데이트: <span th:text="${#temporals.format(aiSummary.updatedAt, 'yyyy-MM-dd HH:mm')}"></span>
+                            </small>
+                        </div>
+                    </div>
+                    <div th:if="${aiSummary == null or aiSummary.summaryText == null}">
+                        <p class="no-summary">아직 AI 리뷰 요약이 생성되지 않았습니다.</p>
+                        <p class="no-summary-hint">리뷰가 추가되면 자동으로 AI 요약이 생성됩니다.</p>
+                    </div>
+                </div>
+            </div>
+
             <!-- 리뷰 -->
             <div id="reviews" class="tab-content">
-            	<!-- 디버깅: 페이지 상단에서 user 값 확인 -->
-            	<!-- user 값: ${user} -->
-                <div class="review-slider">
-				    <button class="prev-review">◀</button>
-				
-				    <div class="review-content-wrapper">
-				        <div th:each="review, stat : ${reviews}" 
-				             th:classappend="${stat.index == 0} ? 'active' : ''"
-				             class="review-item">
-				             
-				            <div class="review-header">
-				                <strong th:text="${review.userName}"></strong>
-				                <span th:text="${#temporals.format(review.createdAt, 'yyyy-MM-dd HH:mm')}"></span>
-				                <span class="stars">
-				                    <span th:each="i : ${#numbers.sequence(1, review.rating)}">★</span>
-				                </span>
-				            </div>
-				
-				            <div class="review-body" th:text="${review.content}">내용이 없습니다.</div>
-				
-				            <div class="review-images" th:if="${!#lists.isEmpty(review.images)}">
-				                <img th:each="img : ${review.images}" th:src="${img.fileUrl}" alt="리뷰 이미지">
-				            </div>
-				
-				            <!-- 댓글 영역 -->
-				            <div class="review-comments">
-				                <div th:each="reply : ${review.replies}" class="comment-item">
-				                    <p>
-				                        <strong th:text="${reply.userName}"></strong>
-				                        <small th:text="${#temporals.format(reply.createdAt, 'yyyy-MM-dd HH:mm')}"></small>
-				                    </p>
-				                    <p th:text="${reply.content}"></p>
-				                </div>
-				
-				                <!-- 댓글 입력 폼 또는 로그인 안내 -->
-				                <div th:if="${user != null}" class="comment-form">
-				                    <form th:action="@{/review/reply}" method="post">
-				                        <input type="hidden" name="parentId" th:value="${review.id}">
-				                        <textarea name="content" placeholder="댓글을 입력하세요" required></textarea>
-				                        <button type="submit">등록</button>
-				                    </form>
-				                </div>
-				                <div th:if="${user == null}">
-				                    <p class="login-alert">댓글을 작성하려면 <a href="/user/login">로그인</a> 해주세요.</p>
-				                </div>
-				            </div>
+                <div class="detail-box">
+                    <h3>💬 리뷰 목록 (<span th:text="${#lists.size(reviews)}">0</span>개)</h3>
+
+                    <div th:if="${!#lists.isEmpty(reviews)}">
+                        <div th:each="review, stat : ${reviews}" class="review-item">
+                            <div class="review-header">
+                                <div class="review-header-left">
+                                    <strong th:text="${review.userName}">작성자</strong>
+                                    <span class="review-date" th:text="${#temporals.format(review.createdAt, 'yyyy-MM-dd HH:mm')}"></span>
+                                </div>
+                                <div class="review-header-right">
+                                    <span class="stars">
+                                        <span th:each="i : ${#numbers.sequence(1, review.rating)}">★</span>
+                                        <span th:each="i : ${#numbers.sequence(1, 5 - review.rating)}">☆</span>
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="review-body">
+                                <p th:text="${review.content}">내용이 없습니다.</p>
+                            </div>
+
+                            <div class="review-images" th:if="${review.images != null and !#lists.isEmpty(review.images)}">
+                                <img th:each="img : ${review.images}"
+                                     th:src="${img.fileUrl}"
+                                     alt="리뷰 이미지"
+                                     class="review-image">
+                            </div>
+
+                            <!-- 댓글 영역 -->
+                            <div class="review-comments" th:if="${review.replies != null and !#lists.isEmpty(review.replies)}">
+                                <hr>
+                                <h4>답글</h4>
+                                <div th:each="reply : ${review.replies}" class="comment-item">
+                                    <p>
+                                        <strong th:text="${reply.userName}"></strong>
+                                        <small th:text="${#temporals.format(reply.createdAt, 'yyyy-MM-dd HH:mm')}"></small>
+                                    </p>
+                                    <p th:text="${reply.content}"></p>
+                                </div>
+                            </div>
+
+                            <!-- 댓글 입력 폼 -->
+                            <div class="comment-form-section">
+                                <div th:if="${user != null}" class="comment-form">
+                                    <form th:action="@{/review/reply}" method="post">
+                                        <input type="hidden" name="parentId" th:value="${review.id}">
+                                        <textarea name="content" placeholder="댓글을 입력하세요" required rows="2"></textarea>
+                                        <button type="submit" class="btn-comment-submit">댓글 등록</button>
+                                    </form>
+                                </div>
+                                <div th:if="${user == null}" class="login-alert-box">
+                                    <p class="login-alert">댓글을 작성하려면 <a href="/user/login">로그인</a> 해주세요.</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
-                    <button class="next-review">▶</button>
-                </div>
-
-                <div th:if="${#lists.isEmpty(reviews)}">
-                    <p>등록된 리뷰가 없습니다.</p>
+                    <div th:if="${#lists.isEmpty(reviews)}" class="no-reviews">
+                        <p>아직 등록된 리뷰가 없습니다.</p>
+                        <p>첫 번째 리뷰를 작성해보세요!</p>
+                    </div>
                 </div>
             </div>
 
