@@ -59,7 +59,10 @@ public class SecureConfiguration {
                 // ADMIN: 모든 맛집 수정 가능
                 // OWNER: 본인 맛집만 수정 가능 (owner_id == user.id 비교)
                 .requestMatchers("/restaurant/edit/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_OWNER")
-                
+
+                // AI 리뷰 요약 생성 - ADMIN 또는 OWNER
+                .requestMatchers("/restaurant/generate-ai-summary/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_OWNER")
+
                 // 맛집 삭제 (P0: 3번 - ADMIN만)
                 .requestMatchers("/restaurant/delete/**").hasAuthority("ROLE_ADMIN")
                 

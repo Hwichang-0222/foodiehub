@@ -43,6 +43,7 @@
             <div class="restaurant-actions" style="margin-top: 10px;"
                 th:if="${user != null and (user.role == 'ROLE_ADMIN' or (user.role == 'ROLE_OWNER' and user.id == restaurant.ownerId))}">
                 <form th:action="@{/restaurant/generate-ai-summary/{id}(id=${restaurant.id})}" method="post" style="margin: 0;">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
                     <button type="submit" class="btn btn-create" style="width: 100%;">🤖 AI 리뷰 요약 생성</button>
                 </form>
             </div>
