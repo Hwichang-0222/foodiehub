@@ -3,6 +3,7 @@ package org.embed.service.impl;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.embed.service.ClovaApiService;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,9 +23,6 @@ public class ClovaApiServiceImpl implements ClovaApiService {
     @Value("${naver.clova.api.key}")
     private String apiKey;
 
-    @Value("${naver.clova.api.gateway.key}")
-    private String gatewayKey;
-
     @Value("${naver.clova.studio.url}")
     private String apiUrl;
 
@@ -35,11 +33,11 @@ public class ClovaApiServiceImpl implements ClovaApiService {
         log.debug("클로바 RAG Reasoning API 호출 시작");
 
         try {
-            // 요청 헤더 설정
+            // 요청 헤더 설정 (curl 예제 형식)
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
-            headers.set("X-NCP-CLOVASTUDIO-API-KEY", apiKey);
-            headers.set("X-NCP-APIGW-API-KEY", gatewayKey);
+            headers.set("Authorization", "Bearer " + apiKey);
+            headers.set("X-NCP-CLOVASTUDIO-REQUEST-ID", UUID.randomUUID().toString().replace("-", ""));
 
             // 요청 바디 생성
             Map<String, Object> requestBody = new HashMap<>();
@@ -51,18 +49,19 @@ public class ClovaApiServiceImpl implements ClovaApiService {
 
             requestBody.put("messages", List.of(userMessage));
 
-            // 추가 파라미터 (필요시)
+            // curl 예제와 동일한 파라미터
             requestBody.put("topP", 0.8);
             requestBody.put("topK", 0);
-            requestBody.put("maxTokens", 500);
+            requestBody.put("maxTokens", 1024);
             requestBody.put("temperature", 0.5);
-            requestBody.put("repeatPenalty", 5.0);
-            requestBody.put("stopBefore", List.of());
+            requestBody.put("repetitionPenalty", 1.1);
+            requestBody.put("stop", List.of());
+            requestBody.put("seed", 0);
             requestBody.put("includeAiFilters", true);
 
             HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
 
-            log.debug("CLOVA API 요청: URL={}, Headers={}", apiUrl, headers.keySet());
+            log.debug("CLOVA API 요청: URL={}", apiUrl);
 
             // API 호출
             ResponseEntity<Map> response = restTemplate.postForEntity(apiUrl, entity, Map.class);
