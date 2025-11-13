@@ -70,20 +70,20 @@ public class OAuthController {
         
         try {
             String accessToken = getKakaoAccessToken(code);
-            System.out.println("✅ accessToken 받음: " + accessToken);
+            System.out.println("accessToken 받음: " + accessToken);
             
             Map<String, Object> userInfo = getKakaoUserInfo(accessToken);
-            System.out.println("✅ userInfo: " + userInfo);
+            System.out.println("userInfo: " + userInfo);
             
             Long kakaoId = ((Number) userInfo.get("id")).longValue();
-            System.out.println("✅ kakaoId: " + kakaoId);
+            System.out.println("kakaoId: " + kakaoId);
             
             Map<String, Object> kakaoAccount = (Map<String, Object>) userInfo.get("kakao_account");
             Map<String, Object> profile = (Map<String, Object>) kakaoAccount.get("profile");
             String nickname = (String) profile.get("nickname");
             
             String email = "kakao_" + kakaoId + "@kakao.user";
-            System.out.println("✅ 생성된 이메일: " + email);
+            System.out.println("생성된 이메일: " + email);
             
             UserDTO user = userService.findByEmail(email);
             
@@ -103,7 +103,7 @@ public class OAuthController {
             return "redirect:/";
             
         } catch (Exception e) {
-            System.out.println("❌ 카카오 로그인 에러!");
+            System.out.println("카카오 로그인 에러!");
             e.printStackTrace();
             return "redirect:/user/login?error=true";
         }
@@ -167,23 +167,23 @@ public class OAuthController {
         
         try {
             String accessToken = getNaverAccessToken(code, state);
-            System.out.println("✅ accessToken 받음: " + accessToken);
+            System.out.println("accessToken 받음: " + accessToken);
             
             Map<String, Object> userInfo = getNaverUserInfo(accessToken);
-            System.out.println("✅ userInfo: " + userInfo);
+            System.out.println("userInfo: " + userInfo);
             
             Map<String, Object> response = (Map<String, Object>) userInfo.get("response");
             String naverId = (String) response.get("id");
             String nickname = (String) response.get("name");
             String email = (String) response.get("email");
             
-            System.out.println("✅ naverId: " + naverId);
-            System.out.println("✅ nickname: " + nickname);
-            System.out.println("✅ email: " + email);
+            System.out.println("naverId: " + naverId);
+            System.out.println("nickname: " + nickname);
+            System.out.println("email: " + email);
             
             if (email == null || email.isEmpty()) {
                 email = "naver_" + naverId + "@naver.user";
-                System.out.println("✅ 생성된 이메일: " + email);
+                System.out.println("생성된 이메일: " + email);
             }
             
             UserDTO user = userService.findByEmail(email);
@@ -204,7 +204,7 @@ public class OAuthController {
             return "redirect:/";
             
         } catch (Exception e) {
-            System.out.println("❌ 네이버 로그인 에러!");
+            System.out.println("네이버 로그인 에러!");
             e.printStackTrace();
             return "redirect:/user/login?error=true";
         }
@@ -253,7 +253,7 @@ public class OAuthController {
         // 1. 권한(Role) 객체 생성
         Collection<GrantedAuthority> authorities = new ArrayList<>();
         authorities.add(new SimpleGrantedAuthority(user.getRole()));
-        System.out.println("✅ 권한 설정: " + user.getRole());
+        System.out.println("권한 설정: " + user.getRole());
         
         // 2. Authentication 객체 생성
         Authentication authentication = new UsernamePasswordAuthenticationToken(
@@ -261,23 +261,19 @@ public class OAuthController {
             null,                       // credentials (OAuth는 비밀번호 없음)
             authorities                 // authorities (권한 목록)
         );
-        System.out.println("✅ Authentication 객체 생성");
+        System.out.println("Authentication 객체 생성");
         
         // 3. SecurityContext 생성 및 저장
         SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
         securityContext.setAuthentication(authentication);
         SecurityContextHolder.setContext(securityContext);
-        System.out.println("✅ SecurityContext에 인증 정보 저장");
+        System.out.println("SecurityContext에 인증 정보 저장");
         
         // 4. 세션에 저장 (Thymeleaf 템플릿에서 사용)
         session.setAttribute("user", user);
-        System.out.println("✅ 세션에 사용자 정보 저장");
+        System.out.println("세션에 사용자 정보 저장");
         
-        /* ============================================
-           5. ⭐️ 매우 중요!!! SecurityContext를 세션에 저장
-           다음 요청에서 Spring Security가 세션에서 복원할 수 있음
-        ============================================ */
         session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, securityContext);
-        System.out.println("✅ SecurityContext를 세션에 저장 (다음 요청에서 복원 가능)");
+        System.out.println("SecurityContext를 세션에 저장 (다음 요청에서 복원 가능)");
     }
 }
