@@ -14,7 +14,7 @@
 
 .filter-bar-row { display:flex; flex-direction:row; flex:0 0 30%; gap:15px; }
 
-.filter-box { flex:1; background-color:#fff; padding:18px 22px; border-radius:12px; box-shadow:0 3px 8px rgba(0,0,0,0.06); transition:transform 0.2s ease; }
+.filter-box { flex:1; background-color:#fff; min-width: 150px; padding:18px 22px; border-radius:12px; box-shadow:0 3px 8px rgba(0,0,0,0.06); transition:transform 0.2s ease; }
 .filter-box:hover { transform:translateY(-2px); box-shadow:0 5px 12px rgba(0,0,0,0.1); }
 
 .filter-header-single a { font-weight:700; border-bottom:2px solid #36d1b6; display:block; text-align:center; padding-bottom:5px; margin-bottom:12px; color:#1e2a38; text-decoration:none; }
