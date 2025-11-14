@@ -24,6 +24,9 @@ public interface RestaurantMapper {
 
     // 맛집 삭제
     int deleteRestaurant(@Param("id") Long id);
+    
+    // AI 전용 메서드
+    List<RestaurantDTO> findAllForAI();
 
     /* ------------------------------
        검색/필터링

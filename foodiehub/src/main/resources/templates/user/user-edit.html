@@ -4,6 +4,11 @@
     <meta charset="UTF-8">
     <title>회원정보 수정 | FoodieHub</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
+
+    <!-- 공통 주소/지역 JS -->
+    <script th:src="@{/js/user-address.js}" defer></script>
+
+    <!-- 수정 페이지 전용 validation -->
     <script th:src="@{/js/edit-validation.js}" defer></script>
 </head>
 <body>
@@ -13,51 +18,77 @@
 
     <main class="signup-main">
         <section class="signup-container">
-        <button type="button" class="btn-back-nav" onclick="history.back()">← 뒤로가기</button>
+            <button type="button" class="btn-back-nav" onclick="history.back()">← 뒤로가기</button>
             <h2>회원정보 수정</h2>
 
             <form th:action="@{/user/update}" method="post" 
-			      th:object="${user}" enctype="multipart/form-data">
-			
-			    <label>현재 비밀번호</label>
-			    <input type="password" name="currentPassword" id="currentPassword" placeholder="현재 비밀번호를 입력하세요" required>
-			
-			    <label>새 비밀번호</label>
-			    <input type="password" name="newPassword" id="newPassword" placeholder="변경할 비밀번호 (변경 시만 입력)">
-			
-			    <label>이름</label>
-			    <input type="text" th:field="*{name}" required>
-			
-			    <label>휴대폰 번호</label>
-			    <input type="tel" th:field="*{phone}" placeholder="010-1234-5678" required>
-			
-			    <label>주소</label>
-			    <input type="text" th:field="*{address}" required>
-			
-			    <label>프로필 이미지</label>
-			    <input type="file" name="profileImage" accept="image/*">
-			
-			    <button type="submit" class="submit-btn">수정 완료</button>
-			
-			    <p th:if="${error}" th:text="${error}" class="error-message"></p>
-			</form>
+                  th:object="${user}" enctype="multipart/form-data" id="updateForm">
 
+                <!-- 현재 비밀번호 -->
+                <label>현재 비밀번호</label>
+                <input type="password" name="currentPassword" id="currentPassword"
+                       placeholder="현재 비밀번호를 입력하세요" required>
+
+                <!-- 새 비밀번호 -->
+                <label>새 비밀번호</label>
+                <input type="password" name="newPassword" id="newPassword"
+                       placeholder="변경 시에만 입력">
+
+                <!-- 이름 -->
+                <label>이름</label>
+                <input type="text" th:field="*{name}" required>
+
+                <!-- 휴대폰 번호 -->
+                <label>휴대폰 번호</label>
+                <input type="tel" th:field="*{phone}" placeholder="010-1234-5678" required>
+
+                <!-- 주소 (3단 구성) -->
+                <label>주소</label>
+
+                <!-- 1) 우편번호 -->
+                <div class="inline-input">
+                    <input type="text" id="baseAddress" placeholder="우편번호" readonly required>
+                    <button type="button" class="check-btn" onclick="openAddressSearch()">주소 검색</button>
+                </div>
+
+                <!-- 2) 도로명 주소 -->
+                <input type="text" id="roadAddr" placeholder="도로명 주소" readonly>
+
+                <!-- 3) 상세주소 -->
+                <input type="text" id="detail" placeholder="상세주소 (건물명/동·호수 등)">
+
+                <!-- hidden: 최종 조립 주소 -->
+                <input type="hidden" th:field="*{address}" id="address">
+
+                <!-- hidden: region level -->
+                <input type="hidden" th:field="*{regionLevel1}" id="region_level1">
+                <input type="hidden" th:field="*{regionLevel2}" id="region_level2">
+                <input type="hidden" th:field="*{regionLevel3}" id="region_level3">
+
+                <!-- 프로필 이미지 -->
+                <label>프로필 이미지</label>
+                <input type="file" name="profileImage" accept="image/*">
+
+                <button type="submit" class="submit-btn">수정 완료</button>
+
+                <p th:if="${error}" th:text="${error}" class="error-message"></p>
+            </form>
         </section>
     </main>
 
     <!-- 공통 푸터 -->
     <div th:replace="layout/footer :: footer"></div>
-    
+
+    <!-- 현재 비밀번호 미입력 방지 -->
     <script>
-	document.querySelector("form").addEventListener("submit", e => {
-		const currentPw = document.getElementById("currentPassword").value.trim();
-		if (!currentPw) {
-			alert("현재 비밀번호를 입력해야 수정할 수 있습니다.");
-			e.preventDefault();
-	  }
-	});
-	</script>
-    
+        document.querySelector("#updateForm").addEventListener("submit", e => {
+            const currentPw = document.getElementById("currentPassword").value.trim();
+            if (!currentPw) {
+                alert("현재 비밀번호를 입력해야 수정할 수 있습니다.");
+                e.preventDefault();
+            }
+        });
+    </script>
 
 </body>
 </html>

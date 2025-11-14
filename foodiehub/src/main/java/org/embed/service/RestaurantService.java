@@ -33,5 +33,8 @@ public interface RestaurantService {
     void updateOwner(Long restaurantId, Long ownerId);
     
     List<Long> findAssignedOwnerIds();
+    
+    // AI 전용 메서드
+    List<RestaurantDTO> findAllForAI();
 
 }

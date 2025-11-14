@@ -16,7 +16,7 @@ document.addEventListener("DOMContentLoaded", () => {
 			window.location.href = "/restaurant/list";
 		} else {
 			// 검색어가 있으면 검색 페이지로 이동
-			window.location.href = `/restaurant/search?keyword=${encodeURIComponent(keyword)}`;
+			window.location.href = `/restaurant/list?keyword=${encodeURIComponent(keyword)}`;
 		}
 	});
 });

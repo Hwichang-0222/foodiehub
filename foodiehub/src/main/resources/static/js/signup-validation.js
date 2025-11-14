@@ -1,4 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () {
+
     const signupForm = document.getElementById("signupForm");
     const signupBtn = document.getElementById("signupBtn");
 
@@ -10,13 +11,31 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const passwordInput = document.getElementById("password");
     const passwordConfirmInput = document.getElementById("passwordConfirm");
-    const passwordMatchResult = document.getElementById("passwordMatchResult");
+
+    const passwordRuleMsg = document.getElementById("passwordRuleMsg");
+    const passwordMatchMsg = document.getElementById("passwordMatchMsg");
+
     const togglePassword = document.getElementById("togglePassword");
 
     const birthInput = document.getElementById("birthDate");
     const genderSelect = document.getElementById("gender");
     const phoneInput = document.getElementById("phone");
-    const addressInput = document.getElementById("address");
+	
+    // 주소 필드들 (hidden address 대신 실제 입력 필드들 체크)
+    const baseAddressInput = document.getElementById("baseAddress");
+    const roadAddrInput = document.getElementById("roadAddr");
+	
+	// 요소 확인
+    console.log("=== 요소 확인 ===");
+    console.log("nameInput:", nameInput);
+    console.log("emailInput:", emailInput);
+    console.log("passwordInput:", passwordInput);
+    console.log("birthInput:", birthInput);
+    console.log("genderSelect:", genderSelect);
+    console.log("phoneInput:", phoneInput);
+    console.log("baseAddressInput:", baseAddressInput);
+    console.log("roadAddrInput:", roadAddrInput);
+    console.log("signupBtn:", signupBtn);
 
     // 상태 변수
     let emailVerified = false;
@@ -70,65 +89,71 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     // ------------------------------
-    // 비밀번호 유효성 및 일치 검사
+    // 비밀번호 유효성 검사 함수
     // ------------------------------
     function validatePasswordStrength(password) {
         const regex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d!@#$%^&*]{8,20}$/;
         return regex.test(password);
     }
 
-    function checkPasswordValidity() {
-        const password = passwordInput.value;
-        const confirm = passwordConfirmInput.value;
+    // ------------------------------
+    // 비밀번호 유효성 + 일치 검사
+    // ------------------------------
+    function checkPassword() {
+        const pw = passwordInput.value;
+        const pwC = passwordConfirmInput.value;
 
-        if (password === "") {
-            passwordMatchResult.textContent = "";
+        // 1) 비밀번호 유효성 검사
+        if (pw.length === 0) {
+            passwordRuleMsg.textContent = "";
             passwordValid = false;
-            passwordMatched = false;
-            updateSubmitButtonState();
-            return;
-        }
-
-        if (!validatePasswordStrength(password)) {
-            passwordMatchResult.textContent = "비밀번호는 8~20자, 영문과 숫자를 포함해야 합니다.";
-            passwordMatchResult.style.color = "red";
+        } else if (!validatePasswordStrength(pw)) {
+            passwordRuleMsg.textContent = "비밀번호는 8~20자, 영문 + 숫자 포함해야 합니다.";
+            passwordRuleMsg.style.color = "red";
             passwordValid = false;
         } else {
+            passwordRuleMsg.textContent = "사용 가능한 비밀번호입니다.";
+            passwordRuleMsg.style.color = "green";
             passwordValid = true;
         }
 
-        if (confirm.length > 0) {
-            if (password === confirm) {
-                passwordMatchResult.textContent = "비밀번호가 일치합니다.";
-                passwordMatchResult.style.color = "green";
-                passwordMatched = true;
-            } else {
-                passwordMatchResult.textContent = "비밀번호가 일치하지 않습니다.";
-                passwordMatchResult.style.color = "red";
-                passwordMatched = false;
-            }
+        // 2) 비밀번호 일치 검사
+        if (pwC.length === 0) {
+            passwordMatchMsg.textContent = "";
+            passwordMatched = false;
+        } else if (pw === pwC) {
+            passwordMatchMsg.textContent = "비밀번호가 일치합니다.";
+            passwordMatchMsg.style.color = "green";
+            passwordMatched = true;
+        } else {
+            passwordMatchMsg.textContent = "비밀번호가 일치하지 않습니다.";
+            passwordMatchMsg.style.color = "red";
+            passwordMatched = false;
         }
 
         updateSubmitButtonState();
     }
 
-    passwordInput.addEventListener("input", checkPasswordValidity);
-    passwordConfirmInput.addEventListener("input", checkPasswordValidity);
+    passwordInput.addEventListener("input", checkPassword);
+    passwordConfirmInput.addEventListener("input", checkPassword);
 
     // ------------------------------
-    // 비밀번호 보기 토글
+    // 비밀번호 동시에 보기/숨기기
     // ------------------------------
     togglePassword.addEventListener("click", function () {
-        const type = passwordInput.getAttribute("type") === "password" ? "text" : "password";
-        passwordInput.setAttribute("type", type);
-        togglePassword.textContent = type === "password" ? "보기" : "숨기기";
+        const newType = passwordInput.getAttribute("type") === "password" ? "text" : "password";
+
+        passwordInput.setAttribute("type", newType);
+        passwordConfirmInput.setAttribute("type", newType);
+
+        togglePassword.textContent = newType === "password" ? "보기" : "숨기기";
     });
 
     // ------------------------------
-    // 전화번호 자동 하이픈 입력
+    // 전화번호 자동 하이픈
     // ------------------------------
     phoneInput.addEventListener("input", function () {
-        let value = phoneInput.value.replace(/[^0-9]/g, ""); // 숫자만 남기기
+        let value = phoneInput.value.replace(/[^0-9]/g, "");
 
         if (value.length > 3 && value.length <= 7) {
             value = value.replace(/(\d{3})(\d+)/, "$1-$2");
@@ -141,26 +166,47 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     // ------------------------------
-    // 기타 입력 필드 유효성 검사
+    // 기본 필드 유효성 검사
     // ------------------------------
     function validateBasicFields() {
         const nameValid = nameInput && nameInput.value.trim().length > 0;
-        const birthValid = birthInput && birthInput.value.trim().length > 0;
-        const genderValid = genderSelect && genderSelect.value.trim().length > 0;
+        const birthValid = birthInput.value.trim().length > 0;
+        const genderValid = genderSelect.value !== "";
         const phoneValid = /^010-\d{4}-\d{4}$/.test(phoneInput.value.trim());
-        const addressValid = addressInput && addressInput.value.trim().length > 0;
+        // 주소는 baseAddress와 roadAddr 둘 다 체크
+        const addressValid = baseAddressInput.value.trim().length > 0 && 
+                           roadAddrInput.value.trim().length > 0;
+						   
+	   console.log("=== 기본 필드 검증 ===");
+	   console.log("이름:", nameValid, nameInput ? nameInput.value : "null");
+	   console.log("생년월일:", birthValid, birthInput.value);
+	   console.log("성별:", genderValid, genderSelect.value);
+	   console.log("전화번호:", phoneValid, phoneInput.value);
+	   console.log("우편번호:", baseAddressInput.value);
+	   console.log("도로명:", roadAddrInput.value);
+	   console.log("주소:", addressValid);
 
         basicFieldsValid = nameValid && birthValid && genderValid && phoneValid && addressValid;
         updateSubmitButtonState();
     }
 
-    [nameInput, birthInput, genderSelect, addressInput].forEach(input => {
-        input.addEventListener("input", validateBasicFields);
-        input.addEventListener("change", validateBasicFields);
+    // 주소 검색 버튼 클릭 후에도 검증 실행
+    if (baseAddressInput) {
+        baseAddressInput.addEventListener("change", validateBasicFields);
+    }
+    if (roadAddrInput) {
+        roadAddrInput.addEventListener("change", validateBasicFields);
+    }
+
+    [nameInput, birthInput, genderSelect].forEach(input => {
+        if (input) {
+            input.addEventListener("input", validateBasicFields);
+            input.addEventListener("change", validateBasicFields);
+        }
     });
 
     // ------------------------------
-    // 최종 제출 검증
+    // 제출 검증
     // ------------------------------
     signupForm.addEventListener("submit", function (e) {
         if (!emailVerified) {
@@ -172,15 +218,15 @@ document.addEventListener("DOMContentLoaded", function () {
 
         if (!passwordValid) {
             e.preventDefault();
-            passwordMatchResult.textContent = "비밀번호 형식이 올바르지 않습니다.";
-            passwordMatchResult.style.color = "red";
+            passwordRuleMsg.textContent = "비밀번호 형식이 올바르지 않습니다.";
+            passwordRuleMsg.style.color = "red";
             return false;
         }
 
         if (!passwordMatched) {
             e.preventDefault();
-            passwordMatchResult.textContent = "비밀번호가 일치하지 않습니다.";
-            passwordMatchResult.style.color = "red";
+            passwordMatchMsg.textContent = "비밀번호가 일치하지 않습니다.";
+            passwordMatchMsg.style.color = "red";
             return false;
         }
 
@@ -195,10 +241,22 @@ document.addEventListener("DOMContentLoaded", function () {
     // 버튼 활성화 조건
     // ------------------------------
     function updateSubmitButtonState() {
-        if (emailVerified && passwordValid && passwordMatched && basicFieldsValid) {
-            signupBtn.disabled = false;
-        } else {
-            signupBtn.disabled = true;
-        }
+		
+		console.log("=== 버튼 활성화 체크 ===");
+		       console.log("emailVerified:", emailVerified);
+		       console.log("passwordValid:", passwordValid);
+		       console.log("passwordMatched:", passwordMatched);
+		       console.log("basicFieldsValid:", basicFieldsValid);
+		       console.log("최종 결과:", emailVerified && passwordValid && passwordMatched && basicFieldsValid);
+		
+        signupBtn.disabled = !(emailVerified && passwordValid && passwordMatched && basicFieldsValid);
     }
+
+    // ------------------------------
+    // 초기 검증 실행
+    // ------------------------------
+    validateBasicFields();
+    checkPassword();
+    updateSubmitButtonState();
+
 });

@@ -242,5 +242,28 @@
             WHERE owner_id IS NOT NULL
         ]]>
     </select>
+    
+    <select id="findAllForAI" resultType="org.embed.dto.RestaurantDTO">
+	    <![CDATA[
+		    SELECT
+		        r.id,
+		        r.name,
+		        r.category,
+		        r.region,
+		        r.address,
+		        r.rating,
+		        r.main_image_url,
+		
+		        m.id AS menu_id,
+		        m.name AS menu_name,
+		        m.price AS menu_price,
+		        m.description AS menu_description
+		
+		    FROM restaurant r
+		    LEFT JOIN menu m ON r.id = m.restaurant_id
+		
+		    ORDER BY r.id ASC
+	    ]]>
+	</select>
 
 </mapper>
