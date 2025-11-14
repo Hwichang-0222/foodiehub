@@ -118,12 +118,23 @@ document.addEventListener('DOMContentLoaded', () => {
 	[5] 메뉴 더보기 버튼
 	--------------------------------------------------- */
 	const moreBtn = document.getElementById("menuMoreBtn");
-	if (moreBtn) {
-		moreBtn.addEventListener('click', () => {
-			document.querySelectorAll(".hidden-menu").forEach(m => m.style.display = "block");
-			moreBtn.style.display = "none";
-		});
-	}
+
+    if (!moreBtn) return;
+
+    moreBtn.addEventListener('click', () => {
+        const hiddenMenus = document.querySelectorAll(".hidden-menu");
+        const isHidden = hiddenMenus[0].style.display === 'none' || hiddenMenus[0].style.display === '';
+
+        if (isHidden) {
+            // 펼치기
+            hiddenMenus.forEach(m => m.style.display = "block");
+            moreBtn.textContent = "접기 ▲";
+        } else {
+            // 접기
+            hiddenMenus.forEach(m => m.style.display = "none");
+            moreBtn.textContent = "전체 메뉴 보기 ▼";
+        }
+    });
 
 
 	/* ---------------------------------------------------

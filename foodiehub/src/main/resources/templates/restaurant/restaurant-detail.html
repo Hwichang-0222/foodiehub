@@ -91,55 +91,55 @@
             </div>
             
             <div id="menu" class="tab-content">
-                <!-- [1] 메뉴판 사진 영역] -->
-			    <div class="menu-image-slider" 
-				     th:if="${!#lists.isEmpty(menuImages)}">
-				
-				    <div class="menu-image-track">
-				        <img th:each="img : ${menuImages}"
-				             th:src="${img.imageUrl}"
-				             class="menu-thumbnail"
-				             onclick="openImageModal(this.src)"
-				             onerror="this.src='/images/default-thumbnail.png'">
-				    </div>
-				</div>
-				
-				<!-- 메뉴판이 없을 때 기본 이미지 표시 -->
-				<div class="menu-image-slider" th:if="${#lists.isEmpty(menuImages)}">
-				    <div class="menu-image-track">
-				        <img src="/images/default-menu-thumbnail.png"
-				             class="menu-thumbnail"
-				             onclick="openImageModal('/images/default-menu-thumbnail.png')">
-				    </div>
-				</div>
-			    
-			    <hr class="menu-divider">
-			
-			    <!-- [2] 메뉴 리스트] -->
-			    <div class="detail-box">
-			        <h3>메뉴</h3>
-			
-			        <div id="menuList">
-			            <div class="menu-item"
-			                 th:each="menu, stat : ${menus}"
-			                 th:classappend="${stat.index > 2} ? 'hidden-menu'">
-			                <p>
-			                    <strong th:text="${menu.name}"></strong>
-			                    <span style="float:right;" 
-			                          th:text="${#numbers.formatInteger(menu.price, 0)} + '원'"></span>
-			                </p>
-			                <p th:text="${menu.description}"></p>
-			            </div>
-			        </div>
-			        <!-- 더보기 버튼 -->
-			        <button id="menuMoreBtn"
-			                class="btn"
-			                th:if="${menus.size() > 3}"
-			                onclick="showAllMenus()">
-			            전체 메뉴 보기 ▼
-			        </button>
-			    </div>
-            </div>
+
+		    <!-- [1] 메뉴판 이미지 영역] -->
+		    <div class="menu-image-slider" th:if="${!#lists.isEmpty(menuImages)}">
+		        <div class="menu-image-track">
+		            <img th:each="img : ${menuImages}"
+		                 th:src="${img.imageUrl}"
+		                 class="menu-thumbnail"
+		                 onclick="openImageModal(this.src)"
+		                 onerror="this.src='/images/default-thumbnail.png'">
+		        </div>
+		    </div>
+		
+		    <!-- 메뉴판 이미지 없을 때 기본 이미지 -->
+		    <div class="menu-image-slider" th:if="${#lists.isEmpty(menuImages)}">
+		        <div class="menu-image-track">
+		            <img src="/images/default-menu-thumbnail.png"
+		                 class="menu-thumbnail"
+		                 onclick="openImageModal('/images/default-menu-thumbnail.png')">
+		        </div>
+		    </div>
+		
+		    <hr class="menu-divider">
+		
+		    <!-- [2] 메뉴 리스트 영역]-->
+		    <div class="detail-box">
+		        <h3>메뉴</h3>
+		
+		        <div id="menuList">
+		            <div class="menu-item"
+		                 th:each="menu, stat : ${menus}"
+		                 th:classappend="${stat.index > 2} ? ' hidden-menu'">
+		                <p>
+		                    <strong th:text="${menu.name}"></strong>
+		                    <span style="float:right;"
+		                          th:text="${#numbers.formatInteger(menu.price, 0)} + '원'"></span>
+		                </p>
+		                <p th:text="${menu.description}"></p>
+		            </div>
+		        </div>
+		
+		        <!-- 더보기 버튼 -->
+		        <button id="menuMoreBtn"
+		                class="btn menu-toggle-btn"
+		                th:if="${menus.size() > 3}">
+		            전체 메뉴 보기 ▼
+		        </button>
+		    </div>
+		
+		</div>
 
             <!-- 리뷰 -->
             <div id="reviews" class="tab-content">
