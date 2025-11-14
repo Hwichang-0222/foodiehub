@@ -21,7 +21,9 @@
     <div class="restaurant-detail">
         <!-- 왼쪽: 이미지 + 기본 정보 -->
         <div class="detail-left">
-            <img th:src="${restaurant.mainImageUrl}" alt="대표 이미지">
+            <img th:src="${restaurant.mainImageUrl}"
+		     alt="대표 이미지"
+		     onerror="this.src='/images/default-thumbnail.png'">
             <div class="basic-info">
                 <h2 th:text="${restaurant.name}"></h2>
                 <p><strong>카테고리:</strong> <span th:text="${restaurant.category}"></span></p>
@@ -37,6 +39,12 @@
                 th:if="${user != null and user.role == 'ROLE_OWNER' and user.id == restaurant.ownerId}">
                 <a th:href="@{/restaurant/edit/{id}(id=${restaurant.id})}" class="btn btn-create">수정하기</a>
             </div>
+            
+	        <a th:href="@{/menu/manage(restaurantId=${restaurant.id})}"
+	           class="btn btn-create"
+	           style="width:100%; margin-top:10px;">
+	           메뉴 관리
+	        </a>
  
             <!-- AI 요약 생성 버튼 (ADMIN 또는 OWNER) -->
             <div class="restaurant-actions" style="margin-top: 10px;"
@@ -83,14 +91,63 @@
             </div>
             
             <div id="menu" class="tab-content">
-                <div class="detail-box">
-                    <h3>메뉴판 사진 기능과 메뉴 확인 기능 추가 예정 </h3>
-                </div>
+                <!-- [1] 메뉴판 사진 영역] -->
+			    <div class="menu-image-slider" 
+				     th:if="${!#lists.isEmpty(menuImages)}">
+				
+				    <div class="menu-image-track">
+				        <img th:each="img : ${menuImages}"
+				             th:src="${img.imageUrl}"
+				             class="menu-thumbnail"
+				             onclick="openImageModal(this.src)"
+				             onerror="this.src='/images/default-thumbnail.png'">
+				    </div>
+				</div>
+				
+				<!-- 메뉴판이 없을 때 기본 이미지 표시 -->
+				<div class="menu-image-slider" th:if="${#lists.isEmpty(menuImages)}">
+				    <div class="menu-image-track">
+				        <img src="/images/default-menu-thumbnail.png"
+				             class="menu-thumbnail"
+				             onclick="openImageModal('/images/default-menu-thumbnail.png')">
+				    </div>
+				</div>
+			    
+			    <hr class="menu-divider">
+			
+			    <!-- [2] 메뉴 리스트] -->
+			    <div class="detail-box">
+			        <h3>메뉴</h3>
+			
+			        <div id="menuList">
+			            <div class="menu-item"
+			                 th:each="menu, stat : ${menus}"
+			                 th:classappend="${stat.index > 2} ? 'hidden-menu'">
+			                <p>
+			                    <strong th:text="${menu.name}"></strong>
+			                    <span style="float:right;" 
+			                          th:text="${#numbers.formatInteger(menu.price, 0)} + '원'"></span>
+			                </p>
+			                <p th:text="${menu.description}"></p>
+			            </div>
+			        </div>
+			        <!-- 더보기 버튼 -->
+			        <button id="menuMoreBtn"
+			                class="btn"
+			                th:if="${menus.size() > 3}"
+			                onclick="showAllMenus()">
+			            전체 메뉴 보기 ▼
+			        </button>
+			    </div>
             </div>
 
             <!-- 리뷰 -->
             <div id="reviews" class="tab-content">
             	<!-- 디버깅: 페이지 상단에서 user 값 확인 -->
+            	
+                <div th:if="${#lists.isEmpty(reviews)}">
+                    <p>등록된 리뷰가 없습니다.</p>
+                </div>
             	<!-- user 값: ${user} -->
                 <div class="review-slider">
 				    <button class="prev-review">◀</button>
@@ -141,10 +198,6 @@
 
                     <button class="next-review">▶</button>
                 </div>
-
-                <div th:if="${#lists.isEmpty(reviews)}">
-                    <p>등록된 리뷰가 없습니다.</p>
-                </div>
             </div>
 
             <!-- 리뷰 작성 -->
@@ -179,13 +232,26 @@
 
             <!-- 이미지 -->
             <div id="gallery" class="tab-content">
-                <div th:if="${#lists.isEmpty(images)}">
-                    <p>등록된 이미지가 없습니다.</p>
-                </div>
-                <div class="gallery">
-                    <img th:each="img : ${images}" th:src="${img.fileUrl}" alt="리뷰 이미지">
-                </div>
-            </div>
+		
+		    <!-- 이미지 있을 때 -->
+		    <div class="gallery" th:if="${!#lists.isEmpty(images)}">
+		        <img th:each="img : ${images}"
+		             th:src="${img.fileUrl}"
+		             alt="리뷰 이미지"
+		             class="review-thumbnail"
+		             onclick="openImageModal(this.src)"
+		             onerror="this.src='/images/default-thumbnail.png'">
+		    </div>
+		
+		    <!-- 이미지 없을 때 기본 이미지 1장 표시 -->
+		    <div class="gallery" th:if="${#lists.isEmpty(images)}">
+		        <img src="/images/default-review-thumbnail.png" 
+			         onclick="openImageModal('/images/default-review-thumbnail.png')"
+			         class="review-thumbnail"
+			         alt="기본 이미지">
+		    </div>
+		
+		</div>
 
             <!-- 지도 -->
             <div id="map" class="tab-content" th:attr="data-lat=${restaurant.latitude},data-lng=${restaurant.longitude}"></div>

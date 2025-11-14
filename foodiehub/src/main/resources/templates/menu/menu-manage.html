@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>메뉴 관리</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+	<!-- 로그인 상태 전달 (JavaScript에서 사용) -->
+	<input type="hidden" name="userLoggedIn" th:value="${user != null}">
+	
+    <!-- 공통 헤더 -->
+    <div th:replace="layout/header :: header"></div>
+
+	<div class="page-header">
+	    <button onclick="history.back()" class="btn-back-nav">← 뒤로가기</button>
+	    <h2>메뉴 관리</h2>
+	</div>
+	
+	<div class="menu-manage-container">
+	
+	    <!-- ▣ 메뉴판 이미지 영역 -->
+	    <div class="menu-image-section">
+	        <h2>메뉴판 이미지</h2>
+	
+	        <div class="menu-image-list">
+			    <!-- div wrapper로 감싸고 삭제 버튼 추가 -->
+			    <div th:each="img : ${menuImages}" 
+			         th:id="'menuImg-' + ${img.id}"
+			         class="menu-image-wrapper">
+			        <img th:src="${img.imageUrl}"
+			             class="menu-image-thumb"
+			             onclick="openImageModal(this.src)"
+			             onerror="this.src='/images/default-menu-thumbnail.png'">
+			        <button class="btn btn-danger" 
+			                th:onclick="'deleteMenuImage(' + ${img.id} + ')'">삭제</button>
+			    </div>
+			</div>
+	
+	        <!-- 메뉴판 이미지 업로드 -->
+	        <form id="menuImageUploadForm" enctype="multipart/form-data">
+	            <input type="hidden" name="restaurantId" th:value="${restaurantId}">
+	            <label>이미지 선택</label>
+	            <input type="file" name="file" accept="image/*" onchange="previewMenuImage(event)">
+	            <img id="menuImagePreview" class="preview">
+	            <button type="submit" class="btn btn-create">이미지 추가</button>
+	        </form>
+	    </div>
+	
+	    <hr>
+	
+	    <!-- ▣ 메뉴 목록 테이블 -->
+	    <div>
+	        <h2>메뉴 목록</h2>
+	
+	        <table class="menu-table">
+	            <thead>
+	            <tr>
+	                <th>메뉴명</th>
+	                <th>설명</th>
+	                <th>가격</th>
+	                <th>수정</th>
+	                <th>삭제</th>
+	            </tr>
+	            </thead>
+	
+	            <tbody id="menuTableBody">
+	            <tr th:each="m : ${menus}" 
+	                th:id="'menuRow-' + ${m.id}"
+	                th:data-menu-id="${m.id}"
+	                th:data-menu-name="${m.name}"
+	                th:data-menu-price="${m.price}"
+	                th:data-menu-description="${m.description}">
+	                <td th:text="${m.name}"></td>
+	                <td th:text="${m.description}"></td>
+	                <td th:text="${m.price}"></td>
+	                <td><button th:onclick="'openEditMenu(' + ${m.id} + ')'" class="btn">수정</button></td>
+	                <td><button th:onclick="'deleteMenu(' + ${m.id} + ')'" class="btn btn-danger">삭제</button></td>
+	            </tr>
+	            </tbody>
+	        </table>
+	    </div>
+	
+	    <hr>
+	
+	    <!-- ▣ 메뉴 추가 폼 -->
+	    <div class="menu-add-section">
+	        <h2>메뉴 추가</h2>
+	
+	        <form id="addMenuForm">
+	            <input type="hidden" name="restaurantId" th:value="${restaurantId}">
+	
+	            <div class="form-field">
+	                <label>메뉴명</label>
+	                <input type="text" name="name" required>
+	            </div>
+	
+	            <div class="form-field">
+	                <label>설명</label>
+	                <textarea name="description" rows="1"></textarea>
+	            </div>
+	
+	            <div class="form-field">
+	                <label>가격</label>
+	                <input type="number" name="price" required>
+	            </div>
+	
+	            <button type="submit" class="btn btn-create">추가</button>
+	        </form>
+	    </div>
+	
+	</div>
+
+    <!-- 공통 푸터 -->
+    <div th:replace="layout/footer :: footer"></div>
+
+<script src="/js/menu-manage.js"></script>
+
+</body>
+</html>

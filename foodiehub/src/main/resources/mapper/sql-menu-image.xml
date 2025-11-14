@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.embed.mapper.MenuImageMapper">
+
+    <!-- 이미지 등록 -->
+    <insert id="insertMenuImage" parameterType="org.embed.dto.MenuImageDTO" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO menu_image (restaurant_id, image_url)
+        VALUES (#{restaurantId}, #{imageUrl})
+    </insert>
+
+    <!-- 특정 식당의 메뉴 이미지 전체 조회 -->
+    <select id="findByRestaurantId" parameterType="Long" resultType="org.embed.dto.MenuImageDTO">
+        SELECT
+            id,
+            restaurant_id,
+            image_url,
+            created_at
+        FROM menu_image
+        WHERE restaurant_id = #{restaurantId}
+        ORDER BY id DESC
+    </select>
+
+    <!-- 단일 이미지 조회 -->
+    <select id="findById" parameterType="Long" resultType="org.embed.dto.MenuImageDTO">
+        SELECT
+            id,
+            restaurant_id,
+            image_url,
+            created_at
+        FROM menu_image
+        WHERE id = #{id}
+    </select>
+
+    <!-- 이미지 삭제 (하드삭제) -->
+    <delete id="deleteMenuImage" parameterType="Long">
+        DELETE FROM menu_image
+        WHERE id = #{id}
+    </delete>
+
+    <!-- 식당 삭제 시 전체 이미지 삭제 -->
+    <delete id="deleteByRestaurantId" parameterType="Long">
+        DELETE FROM menu_image
+        WHERE restaurant_id = #{restaurantId}
+    </delete>
+
+</mapper>

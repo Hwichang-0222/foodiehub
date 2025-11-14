@@ -6,11 +6,15 @@ import java.util.List;
 
 import org.embed.dto.AiReviewSummaryDTO;
 import org.embed.dto.ImageDTO;
+import org.embed.dto.MenuDTO;
+import org.embed.dto.MenuImageDTO;
 import org.embed.dto.RestaurantDTO;
 import org.embed.dto.ReviewDTO;
 import org.embed.dto.UserDTO;
 import org.embed.service.AiReviewSummaryService;
 import org.embed.service.ImageService;
+import org.embed.service.MenuImageService;
+import org.embed.service.MenuService;
 import org.embed.service.RestaurantService;
 import org.embed.service.ReviewService;
 import org.springframework.beans.factory.annotation.Value;
@@ -39,6 +43,8 @@ public class RestaurantController {
 	private final ReviewService reviewService;
 	private final ImageService imageService;
 	private final AiReviewSummaryService aiReviewSummaryService;
+	private final MenuService menuService;
+	private final MenuImageService menuImageService;
 	
 	@Value("${kakao.map.api.key}")
 	private String kakaoMapApiKey;
@@ -125,6 +131,12 @@ public class RestaurantController {
 		// AI 리뷰 요약 조회
 		AiReviewSummaryDTO aiSummary = aiReviewSummaryService.findByRestaurantId(id);
 		
+		List<MenuDTO> menus = menuService.findByRestaurantId(id);
+	    List<MenuImageDTO> menuImages = menuImageService.findByRestaurantId(id);
+
+	    model.addAttribute("menus", menus);
+	    model.addAttribute("menuImages", menuImages);
+	    
 		model.addAttribute("restaurant", restaurant);
 		model.addAttribute("reviews", reviews);
 		model.addAttribute("images", images);

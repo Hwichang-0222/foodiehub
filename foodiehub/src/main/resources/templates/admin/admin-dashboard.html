@@ -257,18 +257,16 @@
                         <!-- 주소 -->
                         <td th:text="${restaurant.address}"></td>
                         <!-- 지역 -->
-                        <td th:text="${restaurant.region}"></td>
+                        <td th:text="${restaurant.regionLevel1}"></td>
                         <!-- 카테고리 -->
                         <td th:text="${restaurant.category}"></td>
                         <!-- 등록일 -->
                         <td th:text="${#temporals.format(restaurant.createdAt, 'yyyy-MM-dd')}"></td>
                         <!-- 관리 버튼 -->
                         <td>
-                            <!-- 보기 버튼 -->
                             <a th:href="@{/restaurant/detail/{id}(id=${restaurant.id})}" class="btn">보기</a>
-                            <!-- 수정 버튼 -->
+                            <a th:href="@{/menu/manage(restaurantId=${restaurant.id})}" class="btn btn-create">메뉴 관리</a>
                             <a th:href="@{/restaurant/edit/{id}(id=${restaurant.id})}" class="btn">수정</a>
-                            <!-- 삭제 버튼 -->
                             <a th:href="@{/restaurant/delete/{id}(id=${restaurant.id})}" class="btn delete" onclick="return confirm('정말 삭제하시겠습니까?');">삭제</a>
                         </td>
                     </tr>

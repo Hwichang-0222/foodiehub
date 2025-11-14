@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.embed.mapper.MenuMapper">
+
+    <!-- 메뉴 등록 -->
+    <insert id="insertMenu" parameterType="org.embed.dto.MenuDTO">
+        INSERT INTO menu (restaurant_id, name, price, description)
+        VALUES (#{restaurantId}, #{name}, #{price}, #{description})
+    </insert>
+
+    <!-- 특정 식당 메뉴 전체 조회 -->
+    <select id="findByRestaurantId" resultType="org.embed.dto.MenuDTO">
+        SELECT
+            id,
+            restaurant_id,
+            name,
+            price,
+            description,
+            created_at
+        FROM menu
+        WHERE restaurant_id = #{restaurantId}
+        ORDER BY id DESC
+    </select>
+
+    <!-- 단일 메뉴 조회 -->
+    <select id="findById" resultType="org.embed.dto.MenuDTO">
+        SELECT
+            id,
+            restaurant_id,
+            name,
+            price,
+            description,
+            created_at
+        FROM menu
+        WHERE id = #{id}
+    </select>
+
+    <!-- 메뉴 수정 -->
+    <update id="updateMenu" parameterType="org.embed.dto.MenuDTO">
+        UPDATE menu
+        SET
+            name = #{name},
+            price = #{price},
+            description = #{description}
+        WHERE id = #{id}
+    </update>
+
+    <!-- 메뉴 삭제 (하드삭제) -->
+    <delete id="deleteMenu">
+        DELETE FROM menu
+        WHERE id = #{id}
+    </delete>
+
+    <!-- 식당 삭제 시 메뉴 전체 삭제 -->
+    <delete id="deleteByRestaurantId">
+        DELETE FROM menu
+        WHERE restaurant_id = #{restaurantId}
+    </delete>
+
+</mapper>

@@ -35,7 +35,7 @@ public class SecureConfiguration {
                 // 맛집
                 .requestMatchers("/restaurant/list", "/restaurant/detail/**").permitAll()
                 .requestMatchers("/restaurant/add").hasAuthority("ROLE_ADMIN")
-                .requestMatchers("/restaurant/edit/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_OWNER")
+                .requestMatchers("/restaurant/edit/**", "/menu/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_OWNER")
                 .requestMatchers("/restaurant/delete/**").hasAuthority("ROLE_ADMIN")
                 
                 // AI 리뷰 요약 생성 - ADMIN 또는 OWNER
