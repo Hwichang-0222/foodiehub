@@ -25,7 +25,7 @@
             <div class="basic-info">
                 <h2 th:text="${restaurant.name}"></h2>
                 <p><strong>카테고리:</strong> <span th:text="${restaurant.category}"></span></p>
-                <p><strong>지역:</strong> <span th:text="${restaurant.region}"></span></p>
+                <p><strong>지역:</strong> <span th:text="${restaurant.regionLevel1}"></span></p>
                 <p><strong>주소:</strong> <span th:text="${restaurant.address}"></span></p>
                 <div class="stats">
                     평균 별점: <span th:text="${restaurant.avgRating}">0.0</span><br>
@@ -36,6 +36,15 @@
             <div class="restaurant-actions"
                 th:if="${user != null and user.role == 'ROLE_OWNER' and user.id == restaurant.ownerId}">
                 <a th:href="@{/restaurant/edit/{id}(id=${restaurant.id})}" class="btn btn-create">수정하기</a>
+            </div>
+ 
+            <!-- AI 요약 생성 버튼 (ADMIN 또는 OWNER) -->
+            <div class="restaurant-actions" style="margin-top: 10px;"
+                th:if="${user != null and (user.role == 'ROLE_ADMIN' or (user.role == 'ROLE_OWNER' and user.id == restaurant.ownerId))}">
+               <form th:action="@{/restaurant/generate-ai-summary/{id}(id=${restaurant.id})}" method="post" style="margin: 0;"
+                      onsubmit="console.log('Form submitting with method:', this.method); alert('Form 제출 중... Method: ' + this.method); return true;">
+                    <button type="submit" class="btn btn-create" style="width: 100%;">🤖 AI 리뷰 요약 생성</button>
+                </form>
             </div>
         </div>
 
@@ -57,9 +66,20 @@
                     <p th:text="${restaurant.description}">식당 설명이 없습니다.</p>
                     <hr>
                     <p><strong>주소:</strong> <span th:text="${restaurant.address}"></span></p>
-                    <p><strong>지역:</strong> <span th:text="${restaurant.region}"></span></p>
+                    <p><strong>지역:</strong> <span th:text="${restaurant.regionLevel1}"></span></p>
                     <p><strong>카테고리:</strong> <span th:text="${restaurant.category}"></span></p>
                 </div>
+                
+                <!-- AI 리뷰 요약 박스 -->
+			    <div class="detail-box ai-summary-box" th:if="${aiSummary != null and aiSummary.summaryText != null}" style="margin-bottom: 20px;">
+			        <h3>🤖 AI 리뷰 요약</h3>
+			        <div class="ai-summary-content">
+			            <p th:text="${aiSummary.summaryText}"></p>
+			            <small class="ai-summary-updated">
+			                마지막 업데이트: <span th:text="${#temporals.format(aiSummary.updatedAt, 'yyyy-MM-dd HH:mm')}"></span>
+			            </small>
+			        </div>
+			    </div>
             </div>
             
             <div id="menu" class="tab-content">

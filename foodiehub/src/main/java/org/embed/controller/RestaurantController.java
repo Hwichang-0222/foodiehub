@@ -4,10 +4,12 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+import org.embed.dto.AiReviewSummaryDTO;
 import org.embed.dto.ImageDTO;
 import org.embed.dto.RestaurantDTO;
 import org.embed.dto.ReviewDTO;
 import org.embed.dto.UserDTO;
+import org.embed.service.AiReviewSummaryService;
 import org.embed.service.ImageService;
 import org.embed.service.RestaurantService;
 import org.embed.service.ReviewService;
@@ -25,7 +27,9 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/restaurant")
@@ -34,6 +38,7 @@ public class RestaurantController {
 	private final RestaurantService restaurantService;
 	private final ReviewService reviewService;
 	private final ImageService imageService;
+	private final AiReviewSummaryService aiReviewSummaryService;
 	
 	@Value("${kakao.map.api.key}")
 	private String kakaoMapApiKey;
@@ -68,7 +73,8 @@ public class RestaurantController {
 	// 식당 목록 조회
 	@GetMapping("/list")
 	public String list(
-			@RequestParam(name="region", required=false) String region,
+			@RequestParam(name="regionLevel1", required=false) String regionLevel1,
+			@RequestParam(name="regionLevel2", required=false) String regionLevel2,
 			@RequestParam(name="category", required=false) String category,
 			@RequestParam(name="keyword", required=false) String keyword,
 			@RequestParam(name="page", defaultValue="1") int page,
@@ -77,8 +83,8 @@ public class RestaurantController {
 		int limit = 5;
 		int offset = (page - 1) * limit;
 
-		List<RestaurantDTO> restaurants = restaurantService.findByFilter(region, category, keyword, offset, limit);
-		int totalCount = restaurantService.countByFilter(region, category, keyword);
+		List<RestaurantDTO> restaurants = restaurantService.findByFilter(regionLevel1, regionLevel2, category, keyword, offset, limit);
+		int totalCount = restaurantService.countByFilter(regionLevel1, regionLevel2, category, keyword);
 		int totalPages = (int) Math.ceil((double) totalCount / limit);
 
 		model.addAttribute("restaurants", restaurants);
@@ -86,7 +92,8 @@ public class RestaurantController {
 		model.addAttribute("currentPage", page);
 		model.addAttribute("totalPages", totalPages);
 		model.addAttribute("category", category);
-		model.addAttribute("region", region);
+		model.addAttribute("regionLevel1", regionLevel1);
+	    model.addAttribute("regionLevel2", regionLevel2);
 		model.addAttribute("keyword", keyword);
 
 		return "restaurant/restaurant-list";
@@ -114,13 +121,17 @@ public class RestaurantController {
 
 		List<ImageDTO> images = imageService.findAllByRestaurantId(id);
 		UserDTO user = (UserDTO) session.getAttribute("user");
-
+		
+		// AI 리뷰 요약 조회
+		AiReviewSummaryDTO aiSummary = aiReviewSummaryService.findByRestaurantId(id);
+		
 		model.addAttribute("restaurant", restaurant);
 		model.addAttribute("reviews", reviews);
 		model.addAttribute("images", images);
 		model.addAttribute("user", user);
+		model.addAttribute("aiSummary", aiSummary);
 		model.addAttribute("kakaoMapApiKey", kakaoMapApiKey);
-
+		
 		return "restaurant/restaurant-detail";
 	}
 
@@ -241,6 +252,45 @@ public class RestaurantController {
 	    restaurantService.updateRestaurant(restaurant);
 	    
 	    redirectAttributes.addFlashAttribute("successMessage", "식당 정보가 수정되었습니다.");
+	    return "redirect:/restaurant/detail/" + id;
+	}
+	
+	/* ============================================
+	   AI 리뷰 요약 생성 (ADMIN 또는 OWNER)
+	============================================ */
+
+	@PostMapping("/generate-ai-summary/{id}")
+	public String generateAiSummary(
+	        @PathVariable("id") Long id,
+	        HttpSession session,
+	        RedirectAttributes redirectAttributes) {
+	    
+	    log.info("===== AI 요약 생성 요청: restaurantId={} =====", id);
+	    
+	    UserDTO user = (UserDTO) session.getAttribute("user");
+	    RestaurantDTO restaurant = restaurantService.findById(id);
+	    
+	    // 권한 체크 (ADMIN 또는 해당 식당의 OWNER)
+	    if (!hasEditPermission(user, restaurant)) {
+	        log.warn("권한 없음: user={}", user);
+	        redirectAttributes.addFlashAttribute("errorMessage", "권한이 없습니다.");
+	        return "redirect:/restaurant/detail/" + id;
+	    }
+	    
+	    try {
+	        log.info("AI 요약 생성 서비스 호출");
+	        AiReviewSummaryDTO summary = aiReviewSummaryService.generateAndSaveSummary(id);
+	        
+	        if (summary != null) {
+	            redirectAttributes.addFlashAttribute("successMessage", "AI 리뷰 요약이 생성되었습니다!");
+	        } else {
+	            redirectAttributes.addFlashAttribute("errorMessage", "리뷰가 없어 요약을 생성할 수 없습니다.");
+	        }
+	    } catch (Exception e) {
+	        log.error("AI 요약 생성 실패", e);
+	        redirectAttributes.addFlashAttribute("errorMessage", "AI 요약 생성에 실패했습니다: " + e.getMessage());
+	    }
+	    
 	    return "redirect:/restaurant/detail/" + id;
 	}
 }

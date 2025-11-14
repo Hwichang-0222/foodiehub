@@ -38,7 +38,9 @@
 
             <!-- [4] 지역 (읽기전용) -->
             <label>지역</label>
-            <input type="text" th:value="${restaurant.region}" name="region" readonly>
+            <input type="text" th:value="${restaurant.regionLevel1}" name="regionLevel1" readonly>
+            <input type="hidden" id="regionLevel2" name="regionLevel2" th:value="${restaurant.regionLevel2}">
+			<input type="hidden" id="regionLevel3" name="regionLevel3" th:value="${restaurant.regionLevel3}">
 
             <!-- [5] 카테고리 (읽기전용) -->
 			<label>카테고리</label>

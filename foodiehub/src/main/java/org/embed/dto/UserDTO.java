@@ -15,6 +15,9 @@ public class UserDTO {
 	private String gender;
 	private String phone;
 	private String address;
+	private String regionLevel1;
+	private String regionLevel2;
+	private String regionLevel3;
 	private String profileImageUrl;
 	private String provider;
 	private String role;

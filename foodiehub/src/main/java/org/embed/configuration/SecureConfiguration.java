@@ -25,7 +25,7 @@ public class SecureConfiguration {
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
                 // 공개 페이지
-                .requestMatchers("/", "/css/**", "/js/**", "/images/**", "/debug/auth").permitAll()
+                .requestMatchers("/", "/css/**", "/js/**", "/images/**", "/data/**", "/debug/auth").permitAll()
                 .requestMatchers("/error", "/error/**").permitAll()
 
                 // 사용자 인증 관련
@@ -37,6 +37,9 @@ public class SecureConfiguration {
                 .requestMatchers("/restaurant/add").hasAuthority("ROLE_ADMIN")
                 .requestMatchers("/restaurant/edit/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_OWNER")
                 .requestMatchers("/restaurant/delete/**").hasAuthority("ROLE_ADMIN")
+                
+                // AI 리뷰 요약 생성 - ADMIN 또는 OWNER
+                .requestMatchers("/restaurant/generate-ai-summary/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_OWNER")
 
                 // 리뷰
                 .requestMatchers("/review/write", "/review/reply").authenticated()

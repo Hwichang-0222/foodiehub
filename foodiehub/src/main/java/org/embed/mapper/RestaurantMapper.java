@@ -30,16 +30,17 @@ public interface RestaurantMapper {
     ------------------------------ */
     // 카테고리 / 지역 / 키워드 기반 검색 (페이지네이션)
     List<RestaurantDTO> findByFilter(
-            @Param("region") String region,
+            @Param("regionLevel1") String regionLevel1,
+            @Param("regionLevel2") String regionLevel2,
             @Param("category") String category,
             @Param("keyword") String keyword,
             @Param("offset") int offset,
             @Param("limit") int limit
     );
 
-    // 검색 결과 총 개수
     int countByFilter(
-            @Param("region") String region,
+            @Param("regionLevel1") String regionLevel1,
+            @Param("regionLevel2") String regionLevel2,
             @Param("category") String category,
             @Param("keyword") String keyword
     );

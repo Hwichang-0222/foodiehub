@@ -21,6 +21,9 @@
                 gender,
                 phone,
                 address,
+                addr_level1,
+                addr_level2,
+                addr_level3,
                 profile_image_url AS profileImageUrl,
                 provider,
                 role,
@@ -44,6 +47,9 @@
                 gender,
                 phone,
                 address,
+                addr_level1,
+                addr_level2,
+                addr_level3,
                 profile_image_url AS profileImageUrl,
                 provider,
                 role,
@@ -65,7 +71,10 @@
                 birth_date, 
                 gender, 
                 phone, 
-                address, 
+                address,
+                addr_level1,
+                addr_level2,
+                addr_level3,
                 profile_image_url, 
                 provider, 
                 role, 
@@ -78,7 +87,10 @@
                 #{birthDate}, 
                 #{gender}, 
                 #{phone}, 
-                #{address}, 
+                #{address},
+                #{addrLevel1},
+                #{addrLevel2},
+                #{addrLevel3},
                 #{profileImageUrl}, 
                 #{provider}, 
                 #{role}, 
@@ -97,13 +109,16 @@
                 name = #{name},
                 phone = #{phone},
                 address = #{address},
+                addr_level1 = #{addrLevel1},
+                addr_level2 = #{addrLevel2},
+                addr_level3 = #{addrLevel3},
                 profile_image_url = #{profileImageUrl}
             WHERE id = #{id}
               AND is_deleted = 'N'
         ]]>
     </update>
 
-    <!-- 논리 삭제 (회원 탈퇴) -->
+    <!-- 논리 삭제 -->
     <update id="softDeleteUser" parameterType="long">
         <![CDATA[
             UPDATE user
@@ -139,6 +154,9 @@
                 gender,
                 phone,
                 address,
+                addr_level1,
+                addr_level2,
+                addr_level3,
                 profile_image_url AS profileImageUrl,
                 provider,
                 role,
@@ -155,7 +173,6 @@
          아이디 찾기
     ====================================== -->
     
-    <!-- 전화번호와 이름으로 사용자 조회 -->
     <select id="findByPhoneAndName" resultType="org.embed.dto.UserDTO">
         <![CDATA[
             SELECT 
@@ -167,6 +184,9 @@
                 gender,
                 phone,
                 address,
+                addr_level1,
+                addr_level2,
+                addr_level3,
                 profile_image_url AS profileImageUrl,
                 provider,
                 role,
@@ -193,7 +213,7 @@
         ]]>
     </update>
 
-    <!-- 회원 검색 (키워드/상태/역할 필터링) -->
+    <!-- 회원 검색 -->
     <select id="searchUsers" resultType="org.embed.dto.UserDTO">
         <![CDATA[
             SELECT 
@@ -227,7 +247,7 @@
         ]]>
     </select>
 
-    <!-- 회원 검색 결과 수 카운트 -->
+    <!-- 회원 검색 결과 카운트 -->
     <select id="countSearchUsers" resultType="int">
         <![CDATA[
             SELECT COUNT(*) 

@@ -64,13 +64,13 @@ public class RestaurantServiceImpl implements RestaurantService {
     }
 
     @Override
-    public List<RestaurantDTO> findByFilter(String region, String category, String keyword, int offset, int limit) {
-        return restaurantMapper.findByFilter(region, category, keyword, offset, limit);
+    public List<RestaurantDTO> findByFilter(String regionLevel1, String regionLevel2, String category, String keyword, int offset, int limit) {
+        return restaurantMapper.findByFilter(regionLevel1, regionLevel2, category, keyword, offset, limit);
     }
 
     @Override
-    public int countByFilter(String region, String category, String keyword) {
-        return restaurantMapper.countByFilter(region, category, keyword);
+    public int countByFilter(String regionLevel1, String regionLevel2, String category, String keyword) {
+        return restaurantMapper.countByFilter(regionLevel1, regionLevel2, category, keyword);
     }
     
     @Override

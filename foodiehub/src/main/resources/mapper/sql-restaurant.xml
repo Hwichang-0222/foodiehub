@@ -1,15 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper
-    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="org.embed.mapper.RestaurantMapper">
 
     <!-- ======================================
-         기본 CRUD
+         개별 맛집 조회 (+평균점수 +리뷰수)
     ====================================== -->
-    
-    <!-- 개별 맛집 조회 -->
     <select id="findById" parameterType="long" resultType="org.embed.dto.RestaurantDTO">
         <![CDATA[
             SELECT
@@ -17,8 +15,7 @@
                 u.name AS owner_name,
                 COALESCE(ROUND(AVG(rv.rating), 1), 0) AS avg_rating,
                 COALESCE(COUNT(rv.id), 0) AS review_count
-            FROM 
-                restaurant r
+            FROM restaurant r
             LEFT JOIN user u ON r.owner_id = u.id
             LEFT JOIN review rv ON r.id = rv.restaurant_id
             WHERE r.id = #{id}
@@ -26,107 +23,107 @@
         ]]>
     </select>
 
-    <!-- 맛집 등록 -->
-    <insert id="insertRestaurant" parameterType="org.embed.dto.RestaurantDTO" useGeneratedKeys="true" keyProperty="id">
+
+    <!-- ======================================
+         INSERT
+    ====================================== -->
+    <insert id="insertRestaurant" parameterType="org.embed.dto.RestaurantDTO"
+            useGeneratedKeys="true" keyProperty="id">
         <![CDATA[
             INSERT INTO restaurant (
                 owner_id,
-                name, 
-                description, 
-                address, 
-                region, 
-                category, 
-                latitude, 
-                longitude, 
+                name,
+                description,
+                address,
+                region_level1,
+                region_level2,
+                region_level3,
+                category,
+                latitude,
+                longitude,
                 main_image_url
             ) VALUES (
                 #{ownerId},
-                #{name}, 
-                #{description}, 
-                #{address}, 
-                #{region}, 
+                #{name},
+                #{description},
+                #{address},
+                #{regionLevel1},
+                #{regionLevel2},
+                #{regionLevel3},
                 #{category},
-                #{latitude}, 
-                #{longitude}, 
+                #{latitude},
+                #{longitude},
                 #{mainImageUrl}
             )
         ]]>
     </insert>
 
-    <!-- 맛집 수정 -->
+
+    <!-- ======================================
+         UPDATE
+    ====================================== -->
     <update id="updateRestaurant" parameterType="org.embed.dto.RestaurantDTO">
         <![CDATA[
             UPDATE restaurant
             SET
-                name = #{name},
-                description = #{description},
-                address = #{address},
-                region = #{region},
-                category = #{category},
-                latitude = #{latitude},
-                longitude = #{longitude},
+                owner_id       = #{ownerId},
+                name           = #{name},
+                description    = #{description},
+                address        = #{address},
+                region_level1  = #{regionLevel1},
+                region_level2  = #{regionLevel2},
+                region_level3  = #{regionLevel3},
+                category       = #{category},
+                latitude       = #{latitude},
+                longitude      = #{longitude},
                 main_image_url = #{mainImageUrl}
             WHERE id = #{id}
         ]]>
     </update>
 
-    <!-- 맛집 삭제 -->
+
+    <!-- ======================================
+         DELETE
+    ====================================== -->
     <delete id="deleteRestaurant" parameterType="long">
         <![CDATA[
-            DELETE FROM restaurant 
-            WHERE id = #{id}
+            DELETE FROM restaurant WHERE id = #{id}
         ]]>
     </delete>
 
+
+
     <!-- ======================================
-         검색/필터링
+         사용자용 검색/필터
     ====================================== -->
-    
-    <!-- 필터 검색 (카테고리 / 지역 / 키워드, 평균 별점 포함) -->
-    <select id="findByFilter" resultType="org.embed.dto.RestaurantDTO">
+    <select id="findByFilter" parameterType="map" resultType="org.embed.dto.RestaurantDTO">
         <![CDATA[
             SELECT 
-                r.*, 
+                r.*,
                 COALESCE(ROUND(AVG(rv.rating), 1), 0) AS avg_rating
-            FROM 
-                restaurant r
+            FROM restaurant r
             LEFT JOIN review rv ON r.id = rv.restaurant_id
         ]]>
         <where>
-            <!-- 지역 필터 -->
-            <choose>
-                <when test="region == '기타'">
-                    r.region NOT IN (
-                        '서울','부산','대구','인천','광주','대전','울산','세종',
-                        '경기','강원','충북','충남','전북','전남','경북','경남','제주'
-                    )
-                </when>
-                <otherwise>
-                    <if test="region != null and region != ''">
-                        r.region = #{region}
-                    </if>
-                </otherwise>
-            </choose>
 
-            <!-- 카테고리 필터 -->
-            <choose>
-                <when test="category == '기타'">
-                    AND r.category NOT IN (
-                        '한식','중식','일식','양식','분식',
-                        '패스트푸드','카페','디저트','고기','해산물','술집'
-                    )
-                </when>
-                <otherwise>
-                    <if test="category != null and category != ''">
-                        AND r.category = #{category}
-                    </if>
-                </otherwise>
-            </choose>
+            <!-- 지역  -->
+            <if test="regionLevel1 != null and regionLevel1 != ''">
+                r.region_level1 = #{regionLevel1}
+            </if>
+            <if test="regionLevel2 != null and regionLevel2 != ''">
+                AND r.region_level2 = #{regionLevel2}
+            </if>
+      
+            <!-- 카테고리 -->
+            <if test="category != null and category != ''">
+                AND r.category = #{category}
+            </if>
 
-            <!-- 키워드 (이름 검색) -->
+            <!-- 키워드 -->
             <if test="keyword != null and keyword != ''">
                 AND r.name LIKE CONCAT('%', #{keyword}, '%')
             </if>
+
         </where>
         <![CDATA[
             GROUP BY r.id
@@ -135,73 +132,66 @@
         ]]>
     </select>
 
+
     <!-- 검색 결과 총 개수 -->
-    <select id="countByFilter" resultType="int">
+    <select id="countByFilter" parameterType="map" resultType="int">
         <![CDATA[
-            SELECT COUNT(*) 
+            SELECT COUNT(*)
             FROM restaurant r
         ]]>
         <where>
-            <choose>
-                <when test="region == '기타'">
-                    r.region NOT IN (
-                        '서울','부산','대구','인천','광주','대전','울산','세종',
-                        '경기','강원','충북','충남','전북','전남','경북','경남','제주'
-                    )
-                </when>
-                <otherwise>
-                    <if test="region != null and region != ''">
-                        r.region = #{region}
-                    </if>
-                </otherwise>
-            </choose>
 
-            <choose>
-                <when test="category == '기타'">
-                    AND r.category NOT IN (
-                        '한식','중식','일식','양식','분식',
-                        '패스트푸드','카페','디저트','고기','해산물','술집'
-                    )
-                </when>
-                <otherwise>
-                    <if test="category != null and category != ''">
-                        AND r.category = #{category}
-                    </if>
-                </otherwise>
-            </choose>
+            <!-- 지역 3단 필터 -->
+            <if test="regionLevel1 != null and regionLevel1 != ''">
+                r.region_level1 = #{regionLevel1}
+            </if>
+            <if test="regionLevel2 != null and regionLevel2 != ''">
+                AND r.region_level2 = #{regionLevel2}
+            </if>
 
+
+            <!-- 카테고리 -->
+            <if test="category != null and category != ''">
+                AND r.category = #{category}
+            </if>
+
+            <!-- 키워드 -->
             <if test="keyword != null and keyword != ''">
                 AND r.name LIKE CONCAT('%', #{keyword}, '%')
             </if>
+
         </where>
     </select>
 
+
+
     <!-- ======================================
-         관리자 기능
+         관리자용 리스트 + 필터 + 페이지네이션
     ====================================== -->
-    
-    <!-- 전체 맛집 조회 (오너 정보 + 평균 별점 + 검색/필터/페이지네이션) -->
     <select id="findAll" parameterType="map" resultType="org.embed.dto.RestaurantDTO">
         <![CDATA[
             SELECT 
-                r.*, 
+                r.*,
                 u.name AS owner_name,
                 COALESCE(ROUND(AVG(rv.rating), 1), 0) AS avg_rating
-            FROM 
-                restaurant r
+            FROM restaurant r
             LEFT JOIN user u ON r.owner_id = u.id
             LEFT JOIN review rv ON r.id = rv.restaurant_id
         ]]>
         <where>
+
             <if test="keyword != null and keyword != ''">
                 r.name LIKE CONCAT('%', #{keyword}, '%')
             </if>
+
             <if test="ownerFilter != null and ownerFilter == 'HAS'">
                 AND r.owner_id IS NOT NULL
             </if>
+
             <if test="ownerFilter != null and ownerFilter == 'NONE'">
                 AND r.owner_id IS NULL
             </if>
+
         </where>
         <![CDATA[
             GROUP BY r.id
@@ -210,25 +200,31 @@
         ]]>
     </select>
 
-    <!-- 총 식당 개수 (검색/오너 필터 포함) -->
+
     <select id="countAllWithOwner" parameterType="map" resultType="int">
         <![CDATA[
-            SELECT COUNT(*) FROM restaurant r
+            SELECT COUNT(*)
+            FROM restaurant r
         ]]>
         <where>
+
             <if test="keyword != null and keyword != ''">
                 r.name LIKE CONCAT('%', #{keyword}, '%')
             </if>
+
             <if test="ownerFilter != null and ownerFilter == 'HAS'">
                 AND r.owner_id IS NOT NULL
             </if>
+
             <if test="ownerFilter != null and ownerFilter == 'NONE'">
                 AND r.owner_id IS NULL
             </if>
+
         </where>
     </select>
 
-    <!-- 식당 오너 지정/변경 -->
+
+    <!-- 오너 지정 -->
     <update id="updateOwner" parameterType="map">
         <![CDATA[
             UPDATE restaurant
@@ -236,8 +232,9 @@
             WHERE id = #{restaurantId}
         ]]>
     </update>
-    
-    <!-- 전체 오너 배정된 유저 ID 목록 -->
+
+
+    <!-- 오너가 있는 restaurant owner_id 목록 -->
     <select id="findAssignedOwnerIds" resultType="long">
         <![CDATA[
             SELECT DISTINCT owner_id

@@ -21,10 +21,10 @@ public interface RestaurantService {
     int deleteRestaurant(Long id);
 
     // 6. 조건 검색 (지역 / 카테고리 / 키워드)
-    List<RestaurantDTO> findByFilter(String region, String category, String keyword, int offset, int limit);
+    List<RestaurantDTO> findByFilter(String regionLevel1, String regionLevel2, String category, String keyword, int offset, int limit);
 
     // 7. 조건 기반 총 개수 조회
-    int countByFilter(String region, String category, String keyword);
+    int countByFilter(String regionLevel1, String regionLevel2, String category, String keyword);
     
 	// 8. 총 식당 개수 (검색/필터 조건 포함)
     int countAllWithOwner(String keyword, String ownerFilter);

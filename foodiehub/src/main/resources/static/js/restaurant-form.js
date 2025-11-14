@@ -165,6 +165,10 @@ function setRegionFromCoords(lat, lng) {
 			// 축약명으로 select 값 설정
 			const shortRegion = regionMap[area] || '기타';
 			regionSelect.value = shortRegion;
+			
+			document.getElementById("regionLevel2").value = regionInfo.region_2depth_name;
+			document.getElementById("regionLevel3").value = regionInfo.region_3depth_name;
+
 		}
 	});
 }

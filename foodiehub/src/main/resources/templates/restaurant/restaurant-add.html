@@ -32,7 +32,7 @@
 
             <!-- [3] 지역 자동 설정 -->
 			<label>지역</label>
-			<select id="regionSelect" name="region" required>
+			<select id="regionSelect" name="regionLevel1" required>
 			    <option value="">지역 선택</option>
 			    <option value="서울">서울</option>
 			    <option value="부산">부산</option>
@@ -53,6 +53,9 @@
 			    <option value="제주">제주</option>
 			    <option value="기타">기타</option>
 			</select>
+			
+			<input type="hidden" id="regionLevel2" name="regionLevel2">
+			<input type="hidden" id="regionLevel3" name="regionLevel3">
 
             <!-- [4] 카테고리 선택 -->
             <label>카테고리</label>
