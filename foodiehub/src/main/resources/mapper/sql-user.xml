@@ -102,21 +102,31 @@
 
     <!-- 회원정보 수정 -->
     <update id="updateUser" parameterType="org.embed.dto.UserDTO">
-        <![CDATA[
-            UPDATE user
-            SET 
-                password = #{password},
-                name = #{name},
-                phone = #{phone},
-                address = #{address},
-                region_level1 = #{regionLevel1},
-                region_level2 = #{regionLevel2},
-                region_level3 = #{regionLevel3},
-                profile_image_url = #{profileImageUrl}
-            WHERE id = #{id}
-              AND is_deleted = 'N'
-        ]]>
-    </update>
+	    <![CDATA[
+	        UPDATE user
+	    ]]>
+	    <set>
+	        <if test="password != null and password != ''">
+	            <![CDATA[
+	                password = #{password},
+	            ]]>
+	        </if>
+	
+	        <![CDATA[
+	            name = #{name},
+	            phone = #{phone},
+	            address = #{address},
+	            region_level1 = #{regionLevel1},
+	            region_level2 = #{regionLevel2},
+	            region_level3 = #{regionLevel3},
+	            profile_image_url = #{profileImageUrl}
+	        ]]>
+	    </set>
+	    <![CDATA[
+	        WHERE id = #{id}
+	          AND is_deleted = 'N'
+	    ]]>
+	</update>
 
     <!-- 논리 삭제 -->
     <update id="softDeleteUser" parameterType="long">
@@ -124,6 +134,7 @@
             UPDATE user
             SET 
                 is_deleted = 'Y'
+                email = CONCAT(email, '_deleted_', NOW())
             WHERE id = #{id}
         ]]>
     </update>

@@ -27,6 +27,7 @@ public class SecureConfiguration {
                 // 공개 페이지
                 .requestMatchers("/", "/css/**", "/js/**", "/images/**", "/data/**", "/debug/auth").permitAll()
                 .requestMatchers("/error", "/error/**").permitAll()
+                .requestMatchers("/recommend/**").permitAll()
 
                 // 사용자 인증 관련
                 .requestMatchers("/oauth/**", "/user/signup", "/user/login", "/user/logout",

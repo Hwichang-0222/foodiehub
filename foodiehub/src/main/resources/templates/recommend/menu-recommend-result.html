@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 추천 결과 | FoodieHub</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/recommend.css}">
+</head>
+<body>
+
+    <!-- 공통 헤더 -->
+    <div th:replace="~{layout/header :: header}"></div>
+
+    <main class="result-main">
+        
+        <div class="result-container">
+
+            <div class="result-header">
+                <div class="success-icon">✅</div>
+                <h1>AI 맞춤 추천 완료!</h1>
+                <p class="result-subtitle">당신을 위한 특별한 맛집을 찾았어요</p>
+            </div>
+
+            <div class="result-cards" th:if="${restaurants != null and !restaurants.isEmpty()}">
+                <a th:each="restaurant : ${restaurants}" 
+                   th:href="@{/restaurant/detail/{id}(id=${restaurant.id})}" 
+                   class="restaurant-card">
+                   
+                    <img th:src="${restaurant.mainImageUrl}" 
+                         th:alt="${restaurant.name}" 
+                         class="card-image"
+                         onerror="this.src='/images/default-thumbnail.png'">
+                    
+                    <div class="card-body">
+                        <h3 class="card-title" th:text="${restaurant.name}">맛집 이름</h3>
+                        
+                        <span class="card-category" th:text="${restaurant.category}">카테고리</span>
+                        
+                        <div class="card-info">
+                            <span>📍 <span th:text="${restaurant.address}">주소</span></span>
+                        </div>
+                        
+                        <div class="card-stats">
+                            <span>⭐ 평점 
+                                <strong th:text="${restaurant.avgRating != null ? restaurant.avgRating : '0.0'}">0.0</strong>
+                            </span>
+                            <span>💬 리뷰 
+                                <strong th:text="${restaurant.reviewCount != null ? restaurant.reviewCount : 0}">0</strong>개
+                            </span>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <div class="no-result" th:if="${restaurants == null or restaurants.isEmpty()}">
+                <div class="no-result-icon">😢</div>
+                <h3>추천 가능한 맛집을 찾지 못했어요</h3>
+                <p>조건을 조금 바꿔서 다시 시도해보세요!</p>
+            </div>
+
+            <div class="result-actions">
+                <a th:href="@{/recommend/menu}" class="btn-retry">다시 추천 받기</a>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- 공통 푸터 -->
+    <div th:replace="~{layout/footer :: footer}"></div>
+
+</body>
+</html>

@@ -5,6 +5,31 @@
 
 <mapper namespace="org.embed.mapper.RestaurantMapper">
 
+	<resultMap id="restaurantWithMenusMap" type="org.embed.dto.RestaurantDTO">
+	
+	    <id     property="id"             column="id"/>
+	    <result property="name"           column="name"/>
+	    <result property="category"       column="category"/>
+	    <result property="regionLevel1"   column="region_level1"/>
+	    <result property="regionLevel2"   column="region_level2"/>
+	    <result property="regionLevel3"   column="region_level3"/>
+	    <result property="address"        column="address"/>
+	
+	    <!-- 평점 / 리뷰 갯수 -->
+	    <result property="avgRating"      column="avg_rating"/>
+	    <result property="reviewCount"    column="review_count"/>
+	
+	    <result property="mainImageUrl"   column="main_image_url"/>
+	
+	    <!-- 메뉴 리스트 -->
+	    <collection property="menus" ofType="org.embed.dto.MenuDTO">
+	        <id     property="id"          column="menu_id"/>
+	        <result property="name"        column="menu_name"/>
+	        <result property="price"       column="menu_price"/>
+	        <result property="description" column="menu_description"/>
+	    </collection>
+	</resultMap>
+
     <!-- ======================================
          개별 맛집 조회 (+평균점수 +리뷰수)
     ====================================== -->
@@ -243,15 +268,18 @@
         ]]>
     </select>
     
-    <select id="findAllForAI" resultType="org.embed.dto.RestaurantDTO">
+    <select id="findAllForAI" resultMap="restaurantWithMenusMap">
 	    <![CDATA[
-		    SELECT
+	        SELECT
 		        r.id,
 		        r.name,
 		        r.category,
-		        r.region,
+		        r.region_level1,
+		        r.region_level2,
+		        r.region_level3,
 		        r.address,
-		        r.rating,
+		        IFNULL(rv.avg_rating, 0) AS avg_rating,
+		        IFNULL(rv.review_count, 0) AS review_count,
 		        r.main_image_url,
 		
 		        m.id AS menu_id,
@@ -260,10 +288,20 @@
 		        m.description AS menu_description
 		
 		    FROM restaurant r
+		
+		    LEFT JOIN (
+		        SELECT restaurant_id,
+		               AVG(rating) AS avg_rating,
+		               COUNT(id) AS review_count
+		        FROM review
+		        GROUP BY restaurant_id
+		    ) rv ON r.id = rv.restaurant_id
+		
 		    LEFT JOIN menu m ON r.id = m.restaurant_id
 		
 		    ORDER BY r.id ASC
 	    ]]>
 	</select>
+
 
 </mapper>

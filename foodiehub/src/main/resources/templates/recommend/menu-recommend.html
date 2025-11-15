@@ -1,10 +1,275 @@
 <!DOCTYPE html>
-<html>
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
-<meta charset="UTF-8">
-<title>Insert title here</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 맛집 추천 | FoodieHub</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/recommend.css}">
 </head>
 <body>
 
+    <!-- 공통 헤더 -->
+    <div th:replace="layout/header :: header"></div>
+
+    <main class="recommend-main">
+        
+        <!-- ============================================
+             설문 폼
+        ============================================ -->
+        <form id="surveyForm" method="post" th:action="@{/recommend/menu}">
+        
+        <input type="hidden" id="loginGender" th:value="${loginUser != null ? loginUser.gender : ''}">
+		<input type="hidden" id="loginBirth" th:value="${loginUser != null ? loginUser.birthDate : ''}">
+		<input type="hidden" id="loginRegion1" th:value="${loginUser != null ? loginUser.regionLevel1 : ''}">
+		<input type="hidden" id="loginRegion2" th:value="${loginUser != null ? loginUser.regionLevel2 : ''}">
+        
+        
+        <div class="survey-container">
+            
+            <!-- 진행바 -->
+            <div class="progress-wrapper">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div class="step-indicator">
+                    <span id="currentStep">1</span> / 4
+                </div>
+            </div>
+
+            <!-- ============================================
+                 STEP 1: 기본 정보 (성별/연령대/지역)
+            ============================================ -->
+            <section class="survey-step active" id="step1">
+                <h2>기본 정보를 알려주세요</h2>
+                <p class="step-desc">맞춤 추천을 위해 필요한 정보입니다</p>
+
+                <div class="form-group">
+                    <label>성별</label>
+                    <div class="gender-options">
+                        <label class="radio-option">
+                            <input type="radio" name="gender" value="M">
+                            <span class="gender-with-icon">
+                                <img th:src="@{/images/male-icon.png}" alt="남성" class="gender-icon">
+                                남성
+                            </span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="gender" value="F">
+                            <span class="gender-with-icon">
+                                <img th:src="@{/images/female-icon.png}" alt="여성" class="gender-icon">
+                                여성
+                            </span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>연령대</label>
+                    <div class="age-options">
+                        <label class="age-option">
+                            <input type="radio" name="ageGroup" value="10s">
+                            <span>10대</span>
+                        </label>
+                        <label class="age-option">
+                            <input type="radio" name="ageGroup" value="20s">
+                            <span>20대</span>
+                        </label>
+                        <label class="age-option">
+                            <input type="radio" name="ageGroup" value="30s">
+                            <span>30대</span>
+                        </label>
+                        <label class="age-option">
+                            <input type="radio" name="ageGroup" value="40s">
+                            <span>40대</span>
+                        </label>
+                        <label class="age-option">
+                            <input type="radio" name="ageGroup" value="50s_plus">
+                            <span>50대 이상</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>지역 선택 (시/도)</label>
+                    <select id="regionLevel1" name="regionLevel1" class="select-field">
+                        <option value="">시/도 선택</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>상세 지역 (시/군/구)</label>
+                    <select id="regionLevel2" name="regionLevel2" class="select-field">
+                        <option value="">시/군/구 선택</option>
+                    </select>
+                </div>
+
+                <div class="button-group">
+                    <button type="button" class="btn-next" onclick="goToStep(2)">다음 단계 →</button>
+                </div>
+            </section>
+
+            <!-- ============================================
+                 STEP 2: 음식 선호도
+            ============================================ -->
+            <section class="survey-step" id="step2">
+                <h2>지금 어떤 음식이 당기나요?</h2>
+                <p class="step-desc">원하는 음식 스타일을 선택해주세요</p>
+
+                <div class="option-grid">
+                    <label class="option-card">
+                        <input type="radio" name="foodType" value="light">
+                        <div class="option-content">
+                            <div class="option-icon">🥗</div>
+                            <div class="option-text">가벼운 음식</div>
+                        </div>
+                    </label>
+                    <label class="option-card">
+                        <input type="radio" name="foodType" value="heavy">
+                        <div class="option-content">
+                            <div class="option-icon">🍖</div>
+                            <div class="option-text">든든한 식사</div>
+                        </div>
+                    </label>
+                    <label class="option-card">
+                        <input type="radio" name="foodType" value="spicy">
+                        <div class="option-content">
+                            <div class="option-icon">🌶️</div>
+                            <div class="option-text">매운 음식</div>
+                        </div>
+                    </label>
+                    <label class="option-card">
+                        <input type="radio" name="foodType" value="dessert">
+                        <div class="option-content">
+                            <div class="option-icon">🍰</div>
+                            <div class="option-text">달달한 디저트</div>
+                        </div>
+                    </label>
+                </div>
+
+                <div class="button-group">
+                    <button type="button" class="btn-prev" onclick="goToStep(1)">← 이전</button>
+                    <button type="button" class="btn-next" onclick="goToStep(3)">다음 단계 →</button>
+                </div>
+            </section>
+
+            <!-- ============================================
+                 STEP 3: 현재 기분
+            ============================================ -->
+            <section class="survey-step" id="step3">
+                <h2>지금 기분은 어떠신가요?</h2>
+                <p class="step-desc">기분에 맞는 맛집을 추천해드려요</p>
+
+                <div class="option-grid">
+                    <label class="option-card">
+                        <input type="radio" name="mood" value="tired">
+                        <div class="option-content">
+                            <div class="option-icon">😴</div>
+                            <div class="option-text">피곤함</div>
+                        </div>
+                    </label>
+                    <label class="option-card">
+                        <input type="radio" name="mood" value="stressed">
+                        <div class="option-content">
+                            <div class="option-icon">😤</div>
+                            <div class="option-text">스트레스</div>
+                        </div>
+                    </label>
+                    <label class="option-card">
+                        <input type="radio" name="mood" value="happy">
+                        <div class="option-content">
+                            <div class="option-icon">😊</div>
+                            <div class="option-text">기분 좋음</div>
+                        </div>
+                    </label>
+                    <label class="option-card">
+                        <input type="radio" name="mood" value="hungry">
+                        <div class="option-content">
+                            <div class="option-icon">🤤</div>
+                            <div class="option-text">배고픔</div>
+                        </div>
+                    </label>
+                </div>
+
+                <div class="button-group">
+                    <button type="button" class="btn-prev" onclick="goToStep(2)">← 이전</button>
+                    <button type="button" class="btn-next" onclick="goToStep(4)">다음 단계 →</button>
+                </div>
+            </section>
+
+            <!-- ============================================
+                 STEP 4: 인원 수
+            ============================================ -->
+            <section class="survey-step" id="step4">
+                <h2>누구와 함께 식사하시나요?</h2>
+                <p class="step-desc">인원에 맞는 맛집을 찾아드릴게요</p>
+
+                <div class="option-grid">
+                    <label class="option-card">
+                        <input type="radio" name="withWho" value="alone">
+                        <div class="option-content">
+                            <div class="option-icon">🧍</div>
+                            <div class="option-text">혼자</div>
+                        </div>
+                    </label>
+                    <label class="option-card">
+                        <input type="radio" name="withWho" value="couple">
+                        <div class="option-content">
+                            <div class="option-icon">👫</div>
+                            <div class="option-text">2명</div>
+                        </div>
+                    </label>
+                    <label class="option-card">
+                        <input type="radio" name="withWho" value="small">
+                        <div class="option-content">
+                            <div class="option-icon">👨‍👩‍👧</div>
+                            <div class="option-text">3~4명</div>
+                        </div>
+                    </label>
+                    <label class="option-card">
+                        <input type="radio" name="withWho" value="group">
+                        <div class="option-content">
+                            <div class="option-icon">👥</div>
+                            <div class="option-text">단체</div>
+                        </div>
+                    </label>
+                </div>
+
+                <div class="button-group">
+                    <button type="button" class="btn-prev" onclick="goToStep(3)">← 이전</button>
+                    <button type="button" class="btn-submit" onclick="submitSurvey()">AI 추천 시작 →</button>
+                </div>
+            </section>
+            
+            <!-- Hidden inputs for form submission -->
+            <input type="hidden" id="hiddenGender" name="gender">
+            <input type="hidden" id="hiddenAgeGroup" name="ageGroup">
+            <input type="hidden" id="hiddenRegion" name="region">
+            <input type="hidden" id="hiddenDistrict" name="district">
+            <input type="hidden" id="hiddenCraving" name="craving">
+            <input type="hidden" id="hiddenMood" name="mood">
+            <input type="hidden" id="hiddenWithWho" name="withWho">
+
+        </div>
+        
+        </form>
+
+        <!-- ============================================
+             로딩 오버레이
+        ============================================ -->
+        <div class="loading-overlay" id="loadingOverlay">
+            <div class="loading-content">
+                <div class="loading-spinner"></div>
+                <h3>AI가 맛집을 찾고 있어요...</h3>
+                <p>잠시만 기다려주세요</p>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- 공통 푸터 -->
+    <div th:replace="layout/footer :: footer"></div>
+
+    <script th:src="@{/js/recommend.js}"></script>
 </body>
 </html>
