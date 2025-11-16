@@ -133,7 +133,7 @@
         <![CDATA[
             UPDATE user
             SET 
-                is_deleted = 'Y'
+                is_deleted = 'Y',
                 email = CONCAT(email, '_deleted_', NOW())
             WHERE id = #{id}
         ]]>

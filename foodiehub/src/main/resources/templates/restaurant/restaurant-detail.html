@@ -154,8 +154,9 @@
 				
 				    <div class="review-content-wrapper">
 				        <div th:each="review, stat : ${reviews}" 
-				             th:classappend="${stat.index == 0} ? 'active' : ''"
-				             class="review-item">
+						     th:id="'review-' + ${review.id}"
+						     th:classappend="${stat.index == 0} ? 'active' : ''"
+						     class="review-item">
 				             
 				            <div class="review-header">
 				                <strong th:text="${review.userName}"></strong>

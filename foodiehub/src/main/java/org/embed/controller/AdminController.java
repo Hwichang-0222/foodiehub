@@ -101,29 +101,6 @@ public class AdminController {
         return "admin/admin-dashboard";
     }
 
-    // 미답변 요청 조회 (관리자만 접근 가능)
-    @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping("/admin/requests")
-    public String getAdminRequests(
-            @RequestParam(name = "filter", required = false) String filter,
-            @RequestParam(name = "page", defaultValue = "1") int page,
-            Model model) {
-
-        int limit = 10;
-        int offset = (page - 1) * limit;
-
-        List<BoardDTO> requests = boardService.findUnansweredRequests(offset, limit, filter);
-        int totalCount = boardService.countUnansweredRequests(filter);
-
-        model.addAttribute("requests", requests);
-        model.addAttribute("filter", filter);
-        model.addAttribute("currentPage", page);
-        model.addAttribute("totalPages", calculateTotalPages(totalCount, limit));
-        model.addAttribute("totalCount", totalCount);
-
-        return "admin/admin-requests";
-    }
-
     /* ============================================
        권한 관리
     ============================================ */

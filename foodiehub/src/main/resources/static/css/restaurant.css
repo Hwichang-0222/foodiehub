@@ -48,7 +48,7 @@
 .basic-info { width:100%; background-color:#fafafa; border-radius:10px; padding:18px 20px; box-shadow:0 1px 4px rgba(0,0,0,0.05); }
 .basic-info h2 { font-size:1.5rem; font-weight:800; margin-bottom:12px; color:#1e2a38; }
 .basic-info p { margin:6px 0; color:#555; font-size:0.95rem; }
-.stats { margin-top:10px; font-size:0.95rem; font-weight:600; color: #fff; }
+.stats { margin-top:10px; font-size:0.95rem; font-weight:600; color: #000; }
 
 /* 오른쪽 상세 */
 .detail-right { display:flex; flex-direction:column; }

@@ -18,6 +18,30 @@ document.addEventListener('DOMContentLoaded', () => {
 			if (tab.dataset.tab === 'map') initMap();
 		});
 	});
+	
+	/* ---------------------------------------------------
+		[1-2] URL 해시로 탭 자동 활성화
+		--------------------------------------------------- */
+		const hash = window.location.hash; // 예: #reviews
+		if (hash && hash.startsWith('#')) {
+			const tabName = hash.substring(1); // 'reviews'
+			const targetTab = document.querySelector(`.tab[data-tab="${tabName}"]`);
+			if (targetTab) {
+				// 기존 활성 탭 제거
+				tabs.forEach(t => t.classList.remove('active'));
+				contents.forEach(c => c.classList.remove('active'));
+				
+				// 해시에 해당하는 탭 활성화
+				targetTab.classList.add('active');
+				const targetContent = document.getElementById(tabName);
+				if (targetContent) {
+					targetContent.classList.add('active');
+				}
+				
+				// 지도 탭이면 지도 초기화
+				if (tabName === 'map') initMap();
+			}
+		}
 
 
 	/* ---------------------------------------------------

@@ -446,11 +446,11 @@
                         <td th:text="${notice.createdAt != null ? #temporals.format(notice.createdAt, 'yyyy-MM-dd') : '-'}"></td>
                         <!-- 관리 버튼 -->
                         <td>
-                            <!-- 수정 버튼 -->
-                            <a th:href="@{/admin/notice/edit/{id}(id=${notice.id})}" class="btn">수정</a>
-                            <!-- 삭제 버튼 -->
-                            <a th:href="@{/admin/notice/delete/{id}(id=${notice.id})}" class="btn delete">삭제</a>
-                        </td>
+						    <a th:href="@{/board/edit/{id}(id=${notice.id})}" class="btn">수정</a>
+						    <form method="post" th:action="@{/board/delete/{id}(id=${notice.id})}" style="display:inline;">
+						        <button type="submit" class="btn delete" onclick="return confirm('정말 삭제하시겠습니까?');">삭제</button>
+						    </form>
+						</td>
                     </tr>
                 </tbody>
             </table>

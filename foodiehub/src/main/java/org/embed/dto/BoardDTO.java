@@ -17,4 +17,5 @@ public class BoardDTO {
     private int viewCount;
     // join용
     private String userName;
+    private int displayNumber;
 }

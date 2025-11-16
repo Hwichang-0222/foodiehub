@@ -221,7 +221,7 @@ public class RestaurantController {
 	    // 권한 체크 (ADMIN 또는 해당 식당의 OWNER만)
 	    if (!hasEditPermission(user, restaurant)) {
 	        redirectAttributes.addFlashAttribute("errorMessage", "수정 권한이 없습니다.");
-	        return "redirect:/restaurant/detail/" + id;
+	        return "redirect:/restaurant/restaurant-detail/" + id;
 	    }
 	    
 	    model.addAttribute("restaurant", restaurant);

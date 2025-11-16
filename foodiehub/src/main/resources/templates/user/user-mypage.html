@@ -79,8 +79,8 @@
 				
 				    <div class="scroll-list">
 				        <a th:each="r : ${reviews}"
-				           th:href="@{'/review/detail/' + ${r.id}}"
-				           class="item-card">
+						   th:href="@{'/restaurant/detail/' + ${r.restaurantId} + '#reviews'}"
+						   class="item-card">
 				            <p class="item-title" th:text="${r.restaurantName}"></p>
 				            <p class="item-content" th:text="${r.content}"></p>
 				            <small th:text="${#temporals.format(r.createdAt, 'yyyy-MM-dd HH:mm')}"></small>

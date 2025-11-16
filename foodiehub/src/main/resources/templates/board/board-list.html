@@ -78,7 +78,7 @@
 				<th:block th:each="board, boardStat : ${parentPosts}">
 					<!-- 부모글 행 -->
 					<tr th:classappend="${board.category == 'QUESTION'} ? 'question-row' : 'post-row'">
-						<td class="col-num" th:text="${startNumber - boardStat.count + 1}"></td>
+						<td class="col-num" th:text="${board.displayNumber}"></td>
 						<td class="col-notice">
 							<span th:if="${board.Category == 'QUESTION'}" class="badge-question">요청</span>
 							<span th:if="${board.Category == 'SUGGESTION'}" class="badge-suggestion">추천</span>
@@ -94,7 +94,7 @@
 
 					<!-- 이 부모글의 답글들 -->
 					<tr th:each="reply : ${boards}" th:if="${reply.parentId == board.id}" class="reply-row">
-						<td class="col-num"></td>
+						<td class="col-num" th:text="${reply.displayNumber}"></td>
 						<td class="col-notice"><span class="badge-reply">답글</span></td>
 						<td class="col-title">
 							<div class="reply-indent">

@@ -32,10 +32,14 @@
 			INNER JOIN user u ON b.user_id = u.id
 			WHERE b.category = #{category}
 			  AND b.category NOT IN ('NOTICE', 'NOTICE_GENERAL', 'NOTICE_QUESTION', 'NOTICE_SUGGESTION')
-			ORDER BY IF(b.parent_id IS NULL, b.id, b.parent_id) DESC, 
-			         b.parent_id IS NULL DESC, 
-			         b.created_at DESC
-			LIMIT #{offset}, #{limit}
+			ORDER BY 
+	            (SELECT p.created_at 
+	             FROM board p 
+	             WHERE p.id = COALESCE(b.parent_id, b.id)) DESC,
+	            COALESCE(b.parent_id, b.id) DESC,
+	            b.parent_id IS NULL DESC,
+	            b.id ASC
+	        LIMIT #{offset}, #{limit}
 		]]>
 	</select>
 
@@ -44,8 +48,7 @@
 		<![CDATA[
 			SELECT COUNT(*)
 			FROM board b
-			WHERE b.parent_id IS NULL
-			  AND b.category = #{category}
+			WHERE b.category = #{category}
 			  AND b.category NOT IN ('NOTICE', 'NOTICE_GENERAL', 'NOTICE_QUESTION', 'NOTICE_SUGGESTION')
 		]]>
 	</select>
@@ -71,28 +74,35 @@
 					OR b.content LIKE CONCAT('%', #{keyword}, '%')
 					OR u.name LIKE CONCAT('%', #{keyword}, '%')
 			  )
-			ORDER BY IF(b.parent_id IS NULL, b.id, b.parent_id) DESC, 
-			         b.parent_id IS NULL DESC, 
-			         b.created_at DESC
-			LIMIT #{offset}, #{limit}
+			ORDER BY 
+	            (SELECT p.created_at 
+	             FROM board p 
+	             WHERE p.id = COALESCE(b.parent_id, b.id)) DESC,
+	            COALESCE(b.parent_id, b.id) DESC,
+	            b.parent_id IS NULL DESC,
+	            b.id ASC
+	        LIMIT #{offset}, #{limit}
 		]]>
 	</select>
 
 	<!-- 5. 검색 결과 총 개수 조회 -->
 	<select id="countSearchBoards" resultType="int">
-		<![CDATA[
-			SELECT COUNT(*)
-			FROM board b
-			INNER JOIN user u ON b.user_id = u.id
-			WHERE b.parent_id IS NULL
-			AND b.category = #{category}
-			AND b.category NOT IN ('NOTICE', 'NOTICE_GENERAL', 'NOTICE_QUESTION', 'NOTICE_SUGGESTION')
-			AND (
-				b.title LIKE CONCAT('%', #{keyword}, '%')
-				OR b.content LIKE CONCAT('%', #{keyword}, '%')
-				OR u.name LIKE CONCAT('%', #{keyword}, '%')
-			)
-		]]>
+	    <![CDATA[
+	        SELECT COUNT(*)
+	        FROM board b
+	        INNER JOIN user u ON b.user_id = u.id
+	        WHERE b.category NOT IN ('NOTICE', 'NOTICE_GENERAL', 'NOTICE_QUESTION', 'NOTICE_SUGGESTION')
+	          AND (
+	                (#{category} = 'GENERAL' AND b.category = 'GENERAL')
+	             OR (#{category} = 'QUESTION' AND b.category = 'QUESTION')
+	             OR (#{category} = 'SUGGESTION' AND b.category = 'SUGGESTION')
+	          )
+	          AND (
+	                b.title LIKE CONCAT('%', #{keyword}, '%')
+	                OR b.content LIKE CONCAT('%', #{keyword}, '%')
+	                OR u.name LIKE CONCAT('%', #{keyword}, '%')
+	          )
+	    ]]>
 	</select>
 
 	<!-- ========================================

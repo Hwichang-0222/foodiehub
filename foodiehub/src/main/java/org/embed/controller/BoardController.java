@@ -54,83 +54,87 @@ public class BoardController {
 	// 게시판 목록 조회 (카테고리별, 페이지네이션)
 	@GetMapping("/list")
 	public String getBoardList(
-			@RequestParam(name = "category", defaultValue = "GENERAL") String category,
-			@RequestParam(name = "page", defaultValue = "1") int page,
-			HttpSession session,
-			Model model) {
-		
-		int limit = 10;
-		int offset = (page - 1) * limit;
+	        @RequestParam(name = "category", defaultValue = "GENERAL") String category,
+	        @RequestParam(name = "page", defaultValue = "1") int page,
+	        HttpSession session,
+	        Model model) {
+	    
+	    int limit = 10;
+	    int offset = (page - 1) * limit;
 
-		// 공지사항 조회
-		List<BoardDTO> notices = boardService.findNoticesByCategory(category);
-		// 일반 게시글 조회
-		List<BoardDTO> boards = boardService.findNormalPostsByCategory(category, offset, limit);
-		// 일반 게시글 총 개수
-		int totalCount = boardService.countNormalPostsByCategory(category);
-		int totalPages = (int) Math.ceil((double) totalCount / limit);
-		int startNumber = totalCount - offset;
+	    List<BoardDTO> notices = boardService.findNoticesByCategory(category);
+	    List<BoardDTO> boards = boardService.findNormalPostsByCategory(category, offset, limit);
+	    int totalCount = boardService.countNormalPostsByCategory(category);
+	    int totalPages = (int) Math.ceil((double) totalCount / limit);
+	    int startNumber = totalCount - offset;
 
-		// 부모글만 필터링
-		List<BoardDTO> parentPosts = boards.stream()
-			.filter(b -> b.getParentId() == null)
-			.collect(Collectors.toList());
+	    // 각 글에 번호 부여
+	    for (int i = 0; i < boards.size(); i++) {
+	        boards.get(i).setDisplayNumber(startNumber - i);
+	    }
 
-		UserDTO user = getSessionUser(session);
+	    // 부모글만 필터링
+	    List<BoardDTO> parentPosts = boards.stream()
+	        .filter(b -> b.getParentId() == null)
+	        .collect(Collectors.toList());
 
-		model.addAttribute("boards", boards);
-		model.addAttribute("parentPosts", parentPosts);
-		model.addAttribute("notices", notices);
-		model.addAttribute("category", category);
-		model.addAttribute("currentPage", page);
-		model.addAttribute("totalPages", totalPages);
-		model.addAttribute("totalCount", totalCount);
-		model.addAttribute("startNumber", startNumber);
-		model.addAttribute("user", user);
+	    UserDTO user = getSessionUser(session);
 
-		return "board/board-list";
+	    model.addAttribute("boards", boards);
+	    model.addAttribute("parentPosts", parentPosts);
+	    model.addAttribute("notices", notices);
+	    model.addAttribute("category", category);
+	    model.addAttribute("currentPage", page);
+	    model.addAttribute("totalPages", totalPages);
+	    model.addAttribute("totalCount", totalCount);
+	    model.addAttribute("startNumber", startNumber);
+	    model.addAttribute("user", user);
+
+	    return "board/board-list";
 	}
 
 	// 게시판 검색 (카테고리 + 키워드)
 	@GetMapping("/search")
 	public String searchBoard(
-			@RequestParam(name = "category", defaultValue = "GENERAL") String category,
-			@RequestParam(name = "keyword", required = false) String keyword,
-			@RequestParam(name = "page", defaultValue = "1") int page,
-			HttpSession session,
-			Model model) {
+	        @RequestParam(name = "category", defaultValue = "GENERAL") String category,
+	        @RequestParam(name = "keyword", required = false) String keyword,
+	        @RequestParam(name = "page", defaultValue = "1") int page,
+	        HttpSession session,
+	        Model model) {
 
-		int limit = 10;
-		int offset = (page - 1) * limit;
+	    int limit = 10;
+	    int offset = (page - 1) * limit;
 
-		// 검색 결과 조회
-		List<BoardDTO> boards = boardService.searchBoard(category, keyword, offset, limit);
-		// 공지사항 조회
-		List<BoardDTO> notices = boardService.findNoticesByCategory(category);
-		// 검색 결과 총 개수
-		int totalCount = boardService.countSearchBoards(category, keyword);
-		int totalPages = (int) Math.ceil((double) totalCount / limit);
-		int startNumber = totalCount - offset;
+	    List<BoardDTO> boards = boardService.searchBoard(category, keyword, offset, limit);
+	    List<BoardDTO> notices = boardService.findNoticesByCategory(category);
+	    int totalCount = boardService.countSearchBoards(category, keyword);
+	    int totalPages = (int) Math.ceil((double) totalCount / limit);
+	    int startNumber = totalCount - offset;
 
-		// 부모글만 필터링
-		List<BoardDTO> parentPosts = boards.stream()
-			.filter(b -> b.getParentId() == null)
-			.collect(Collectors.toList());
+	    // 🔥 각 글에 번호 부여
+	    for (int i = 0; i < boards.size(); i++) {
+	        boards.get(i).setDisplayNumber(startNumber - i);
+	    }
 
-		UserDTO user = getSessionUser(session);
+	    // 부모글만 필터링
+	    List<BoardDTO> parentPosts = boards.stream()
+	        .filter(b -> b.getParentId() == null)
+	        .collect(Collectors.toList());
 
-		model.addAttribute("boards", boards);
-		model.addAttribute("parentPosts", parentPosts);
-		model.addAttribute("notices", notices);
-		model.addAttribute("category", category);
-		model.addAttribute("keyword", keyword);
-		model.addAttribute("currentPage", page);
-		model.addAttribute("totalPages", totalPages);
-		model.addAttribute("totalCount", totalCount);
-		model.addAttribute("startNumber", startNumber);
-		model.addAttribute("user", user);
+	    UserDTO user = getSessionUser(session);
 
-		return "board/board-list";
+	    model.addAttribute("boards", boards);
+	    model.addAttribute("parentPosts", parentPosts);
+	    model.addAttribute("notices", notices);
+	    model.addAttribute("category", category);
+	    model.addAttribute("keyword", keyword);
+	    model.addAttribute("currentPage", page);
+	    model.addAttribute("totalPages", totalPages);
+	    model.addAttribute("totalCount", totalCount);
+	    model.addAttribute("startNumber", startNumber);
+	    model.addAttribute("user", user);
+
+	    return "board/board-list";
 	}
 
 	/* ============================================
@@ -319,34 +323,4 @@ public class BoardController {
 		return "redirect:/board/list?category=" + post.getCategory();
 	}
 
-	/* ============================================
-	   공지사항 목록 (일반 사용자용)
-	============================================ */
-
-	// 공지사항 목록 조회
-	@GetMapping("/notices")
-	public String getAllNotices(
-			@RequestParam(name = "page", defaultValue = "1") int page,
-			HttpSession session,
-			Model model) {
-
-		int limit = 10;
-		int offset = (page - 1) * limit;
-
-		// 공지사항 조회
-		List<BoardDTO> notices = boardService.findAllNotices(offset, limit);
-		// 공지사항 총 개수
-		int totalCount = boardService.countAllNotices();
-		int totalPages = (int) Math.ceil((double) totalCount / limit);
-
-		UserDTO user = getSessionUser(session);
-
-		model.addAttribute("notices", notices);
-		model.addAttribute("currentPage", page);
-		model.addAttribute("totalPages", totalPages);
-		model.addAttribute("totalCount", totalCount);
-		model.addAttribute("user", user);
-
-		return "board/board-notices";
-	}
 }
