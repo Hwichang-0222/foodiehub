@@ -8,7 +8,7 @@
     <!-- 공통 주소/지역 JS -->
     <script th:src="@{/js/user-address.js}" defer></script>
 
-    <!-- 수정 페이지 전용 validation -->
+    <!-- 회원정보 수정 전용 validation -->
     <script th:src="@{/js/edit-validation.js}" defer></script>
 </head>
 <body>
@@ -21,29 +21,78 @@
             <button type="button" class="btn-back-nav" onclick="history.back()">← 뒤로가기</button>
             <h2>회원정보 수정</h2>
 
+            <!-- ============================================
+                 SNS 로그인 배지 표시
+            ============================================ -->
+            <div th:if="${user.provider != null}" class="account-badge" 
+                 th:classappend="${user.provider == 'kakao' ? 'badge-kakao' : 'badge-naver'}">
+                <img th:if="${user.provider == 'kakao'}" 
+                     th:src="@{/images/kakao-logo.png}" 
+                     alt="카카오" class="badge-logo">
+                <img th:if="${user.provider == 'naver'}" 
+                     th:src="@{/images/naver-logo.png}" 
+                     alt="네이버" class="badge-logo">
+                <span th:text="${user.provider == 'kakao' ? '카카오' : '네이버'}"></span> 계정으로 연동됨
+            </div>
+
             <form th:action="@{/user/update}" method="post" 
-                  th:object="${user}" enctype="multipart/form-data" id="updateForm">
+                  th:object="${user}" enctype="multipart/form-data" id="signupForm">
 
-                <!-- 현재 비밀번호 -->
-                <label>현재 비밀번호</label>
-                <input type="password" name="currentPassword" id="currentPassword"
-                       placeholder="현재 비밀번호를 입력하세요" required>
+                <!-- ============================================
+                     비밀번호 필드 (일반 로그인만)
+                ============================================ -->
+                <div th:if="${user.provider == null}">
+                    <!-- 현재 비밀번호 -->
+                    <label>현재 비밀번호 <span class="required">*</span></label>
+                    <input type="password" name="currentPassword" id="currentPassword"
+                           placeholder="현재 비밀번호를 입력하세요" required>
 
-                <!-- 새 비밀번호 -->
-                <label>새 비밀번호</label>
-                <input type="password" name="newPassword" id="newPassword"
-                       placeholder="변경 시에만 입력">
+                    <!-- 새 비밀번호 -->
+                    <label>새 비밀번호</label>
+                    <div class="password-box">
+                        <input type="password" name="newPassword" id="password"
+                               placeholder="변경 시에만 입력 (8~20자, 영문+숫자)">
+                        <button type="button" class="toggle-btn" id="togglePassword">보기</button>
+                    </div>
+                    <p id="passwordRuleMsg" class="validation-msg"></p>
+
+                    <!-- 새 비밀번호 확인 -->
+                    <label>새 비밀번호 확인</label>
+                    <div class="password-box">
+                        <input type="password" id="passwordConfirm"
+                               placeholder="새 비밀번호 다시 입력">
+                    </div>
+                    <p id="passwordMatchMsg" class="validation-msg"></p>
+                </div>
+
+                <!-- ============================================
+                     SNS 계정 안내 (SNS 로그인만)
+                ============================================ -->
+                <div th:if="${user.provider != null}" class="info-box">
+                    <p>💡 소셜 계정은 비밀번호 변경이 불가능합니다.</p>
+                    <p>비밀번호 변경은 
+                        <span th:text="${user.provider == 'kakao' ? '카카오' : '네이버'}"></span>에서 
+                        진행해주세요.
+                    </p>
+                </div>
+
+                <!-- ============================================
+                     기본 정보
+                ============================================ -->
 
                 <!-- 이름 -->
-                <label>이름</label>
-                <input type="text" th:field="*{name}" required>
+                <label>이름 <span class="required">*</span></label>
+                <input type="text" th:field="*{name}" id="name" required>
 
                 <!-- 휴대폰 번호 -->
-                <label>휴대폰 번호</label>
-                <input type="tel" th:field="*{phone}" placeholder="010-1234-5678" required>
+                <label>휴대폰 번호 <span class="required">*</span></label>
+                <input type="tel" th:field="*{phone}" id="phone" 
+                       placeholder="010-1234-5678" required>
 
-                <!-- 주소 (3단 구성) -->
-                <label>주소</label>
+                <!-- ============================================
+                     주소 (3단 구성)
+                ============================================ -->
+                <label>주소 <span class="required">*</span></label>
 
                 <!-- 1) 우편번호 -->
                 <div class="inline-input">
@@ -65,30 +114,28 @@
                 <input type="hidden" th:field="*{regionLevel2}" id="region_level2">
                 <input type="hidden" th:field="*{regionLevel3}" id="region_level3">
 
-                <!-- 프로필 이미지 -->
+                <!-- ============================================
+                     프로필 이미지
+                ============================================ -->
                 <label>프로필 이미지</label>
                 <input type="file" name="profileImage" accept="image/*">
 
-                <button type="submit" class="submit-btn">수정 완료</button>
+                <!-- ============================================
+                     제출 버튼
+                ============================================ -->
+                <button type="submit" class="submit-btn" id="signupBtn">수정 완료</button>
 
+                <!-- 에러 메시지 -->
                 <p th:if="${error}" th:text="${error}" class="error-message"></p>
+                
+                <!-- 성공 메시지 -->
+                <p th:if="${successMessage}" th:text="${successMessage}" class="success-message"></p>
             </form>
         </section>
     </main>
 
     <!-- 공통 푸터 -->
     <div th:replace="layout/footer :: footer"></div>
-
-    <!-- 현재 비밀번호 미입력 방지 -->
-    <script>
-        document.querySelector("#updateForm").addEventListener("submit", e => {
-            const currentPw = document.getElementById("currentPassword").value.trim();
-            if (!currentPw) {
-                alert("현재 비밀번호를 입력해야 수정할 수 있습니다.");
-                e.preventDefault();
-            }
-        });
-    </script>
 
 </body>
 </html>

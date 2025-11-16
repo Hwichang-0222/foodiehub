@@ -87,17 +87,31 @@ public class OAuthController {
             
             UserDTO user = userService.findByEmail(email);
             
+            // 신규 회원
             if (user == null) {
-                System.out.println(">>> 신규 회원 가입 시작");
+                System.out.println(">>> 신규 회원 - 최소 정보만 저장");
                 user = new UserDTO();
                 user.setEmail(email);
                 user.setName(nickname);
                 user.setProvider("kakao");
                 user.setRole("ROLE_USER");
+                user.setIsDeleted("N");
+                
+                // 최소 정보만 DB에 저장
                 userService.insertUser(user);
+                
+                // DB에서 다시 조회 (ID 포함)
+                user = userService.findByEmail(email);
+                
+                // 세션에 임시 저장
+                session.setAttribute("tempUser", user);
+                System.out.println(">>> 추가 정보 입력 페이지로 이동");
+                
+                return "redirect:/user/sns-additional-info";
             }
             
-            // Spring Security와 Session 연결
+            // 기존 회원
+            System.out.println(">>> 기존 회원 로그인");
             authenticateAndSaveSession(user, email, session);
             
             return "redirect:/";
@@ -188,17 +202,31 @@ public class OAuthController {
             
             UserDTO user = userService.findByEmail(email);
             
+            // 신규 회원
             if (user == null) {
-                System.out.println(">>> 신규 회원 가입 시작");
+                System.out.println(">>> 신규 회원 - 최소 정보만 저장");
                 user = new UserDTO();
                 user.setEmail(email);
                 user.setName(nickname);
                 user.setProvider("naver");
                 user.setRole("ROLE_USER");
+                user.setIsDeleted("N");
+                
+                // 최소 정보만 DB에 저장
                 userService.insertUser(user);
+                
+                // DB에서 다시 조회 (ID 포함)
+                user = userService.findByEmail(email);
+                
+                // 세션에 임시 저장
+                session.setAttribute("tempUser", user);
+                System.out.println(">>> 추가 정보 입력 페이지로 이동");
+                
+                return "redirect:/user/sns-additional-info";
             }
             
-            // Spring Security와 Session 연결
+            // 기존 회원
+            System.out.println(">>> 기존 회원 로그인");
             authenticateAndSaveSession(user, email, session);
             
             return "redirect:/";
@@ -246,34 +274,34 @@ public class OAuthController {
     }
 
     /* ============================================
-       공통: Spring Security와 Session 연결 (수정됨)
+       공통: Spring Security와 Session 연결
     ============================================ */
     
     private void authenticateAndSaveSession(UserDTO user, String email, HttpSession session) {
-        // 1. 권한(Role) 객체 생성
+        // 권한(Role) 객체 생성
         Collection<GrantedAuthority> authorities = new ArrayList<>();
         authorities.add(new SimpleGrantedAuthority(user.getRole()));
         System.out.println("권한 설정: " + user.getRole());
         
-        // 2. Authentication 객체 생성
+        // Authentication 객체 생성
         Authentication authentication = new UsernamePasswordAuthenticationToken(
-            email,                      // principal (사용자 식별자)
-            null,                       // credentials (OAuth는 비밀번호 없음)
-            authorities                 // authorities (권한 목록)
+            email,
+            null,
+            authorities
         );
         System.out.println("Authentication 객체 생성");
         
-        // 3. SecurityContext 생성 및 저장
+        // SecurityContext 생성 및 저장
         SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
         securityContext.setAuthentication(authentication);
         SecurityContextHolder.setContext(securityContext);
         System.out.println("SecurityContext에 인증 정보 저장");
         
-        // 4. 세션에 저장 (Thymeleaf 템플릿에서 사용)
+        // 세션에 저장 (Thymeleaf 템플릿에서 사용)
         session.setAttribute("user", user);
         System.out.println("세션에 사용자 정보 저장");
         
         session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, securityContext);
-        System.out.println("SecurityContext를 세션에 저장 (다음 요청에서 복원 가능)");
+        System.out.println("SecurityContext를 세션에 저장");
     }
 }

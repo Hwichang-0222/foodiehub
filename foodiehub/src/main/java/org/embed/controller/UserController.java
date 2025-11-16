@@ -266,6 +266,65 @@ public class UserController {
     }
 
     /* ============================================
+       SNS 추가정보 입력
+    ============================================ */
+
+    // SNS 로그인 후 추가 정보 입력 페이지 표시
+    @GetMapping("/sns-additional-info")
+    public String snsAdditionalInfoPage(HttpSession session, Model model) {
+        Object tempUserObj = session.getAttribute("tempUser");
+        if (tempUserObj == null) {
+            return "redirect:/user/login";
+        }
+        
+        UserDTO tempUser = (UserDTO) tempUserObj;
+        model.addAttribute("user", tempUser);
+        return "user/user-sns-additional";
+    }
+
+    // SNS 추가 정보 저장 처리
+    @PostMapping("/sns-additional-info")
+    public String saveSnsAdditionalInfo(@ModelAttribute UserDTO user,
+                                        @RequestParam(value = "profileImage", required = false) MultipartFile profileImage,
+                                        HttpSession session,
+                                        Model model) {
+        
+        Object tempUserObj = session.getAttribute("tempUser");
+        if (tempUserObj == null) {
+            return "redirect:/user/login";
+        }
+        
+        UserDTO tempUser = (UserDTO) tempUserObj;
+        
+        // 프로필 이미지 저장
+        if (profileImage != null && !profileImage.isEmpty()) {
+            String savedPath = saveProfileImage(profileImage);
+            user.setProfileImageUrl(savedPath);
+        } else {
+            user.setProfileImageUrl("/images/default-profile.png");
+        }
+        
+        // 기본 정보 유지
+        user.setId(tempUser.getId());
+        user.setEmail(tempUser.getEmail());
+        user.setName(tempUser.getName());
+        user.setProvider(tempUser.getProvider());
+        user.setRole(tempUser.getRole());
+        user.setIsDeleted("N");
+        
+        // 추가 정보 업데이트
+        userService.updateUser(user);
+        
+        // 세션 정리 및 정식 로그인 처리
+        session.removeAttribute("tempUser");
+        
+        UserDTO finalUser = userService.findByEmail(user.getEmail());
+        setUserAuthentication(finalUser, session);
+        
+        return "redirect:/";
+    }
+
+    /* ============================================
        회원정보 수정
     ============================================ */
 
@@ -283,7 +342,7 @@ public class UserController {
     // 회원정보 수정 처리 - 비밀번호 검증, 프로필 이미지 업로드
     @PostMapping("/update")
     public String updateUser(@ModelAttribute UserDTO user,
-                             @RequestParam("currentPassword") String currentPassword,
+                             @RequestParam(value = "currentPassword", required = false) String currentPassword,
                              @RequestParam(value = "newPassword", required = false) String newPassword,
                              @RequestParam(value = "profileImage", required = false) MultipartFile file,
                              HttpSession session,
@@ -294,20 +353,35 @@ public class UserController {
 
         UserDTO sessionUser = (UserDTO) userObj;
 
-        // 현재 비밀번호 검증 (매우 중요: 보안)
-        boolean isValid = userService.validateLogin(sessionUser.getEmail(), currentPassword);
-        if (!isValid) {
-            model.addAttribute("error", "비밀번호가 올바르지 않습니다.");
-            model.addAttribute("user", sessionUser);
-            return "user/user-edit";
+        // 일반 로그인 회원: 현재 비밀번호 검증 (매우 중요: 보안)
+        if (sessionUser.getProvider() == null) {
+            if (currentPassword == null || currentPassword.isBlank()) {
+                model.addAttribute("error", "현재 비밀번호를 입력해주세요.");
+                model.addAttribute("user", sessionUser);
+                return "user/user-edit";
+            }
+            
+            boolean isValid = userService.validateLogin(sessionUser.getEmail(), currentPassword);
+            if (!isValid) {
+                model.addAttribute("error", "비밀번호가 올바르지 않습니다.");
+                model.addAttribute("user", sessionUser);
+                return "user/user-edit";
+            }
         }
 
-        if (newPassword != null && !newPassword.isBlank()) {
-            user.setPassword(newPassword);
+        // 비밀번호 처리 (일반 로그인만)
+        if (sessionUser.getProvider() == null) {
+            if (newPassword != null && !newPassword.isBlank()) {
+                user.setPassword(newPassword);
+            } else {
+                user.setPassword(sessionUser.getPassword());
+            }
         } else {
-            user.setPassword(sessionUser.getPassword());
+            // SNS 로그인은 비밀번호 없음
+            user.setPassword(null);
         }
 
+        // 프로필 이미지 처리
         if (file != null && !file.isEmpty()) {
             try {
                 String uploadDir = System.getProperty("user.dir") + "/uploads/profile/";
@@ -327,12 +401,11 @@ public class UserController {
             user.setProfileImageUrl(sessionUser.getProfileImageUrl());
         }
 
+        // 기본 정보 유지
         user.setId(sessionUser.getId());
         user.setEmail(sessionUser.getEmail());
         user.setRole(sessionUser.getRole());
         user.setProvider(sessionUser.getProvider());
-        user.setBirthDate(sessionUser.getBirthDate());
-        user.setGender(sessionUser.getGender());
 
         userService.updateUser(user);
         

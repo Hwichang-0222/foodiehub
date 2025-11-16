@@ -27,6 +27,18 @@
                     <h3 th:text="${user.name}"></h3>
                 </div>
 
+                <!-- SNS 로그인 배지 -->
+                <div th:if="${user.provider != null}" class="account-badge" 
+                     th:classappend="${user.provider == 'kakao' ? 'badge-kakao' : 'badge-naver'}">
+                    <img th:if="${user.provider == 'kakao'}" 
+                         th:src="@{/images/kakao-logo.png}" 
+                         alt="카카오" class="badge-logo">
+                    <img th:if="${user.provider == 'naver'}" 
+                         th:src="@{/images/naver-logo.png}" 
+                         alt="네이버" class="badge-logo">
+                    <span th:text="${user.provider == 'kakao' ? '카카오' : '네이버'}"></span> 계정
+                </div>
+
                 <div class="mypage-info">
                     <p><strong>이메일:</strong> <span th:text="${user.email}"></span></p>
                     <p><strong>전화번호:</strong> <span th:text="${user.phone}"></span></p>
