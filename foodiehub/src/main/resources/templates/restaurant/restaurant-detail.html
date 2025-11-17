@@ -171,7 +171,6 @@
 				                <div th:each="reply : ${review.replies}" class="comment-item">
 				                    <p>
 				                        <strong th:text="${reply.userName}"></strong>
-				                        <img th:if="${reply.role=='ROLE_OWNER'}" class="owner-badge" src="/images/owner-badge.png" style="width: 10px; height: 10px;">사장님
 				                        <small th:text="${#temporals.format(reply.createdAt, 'yyyy-MM-dd HH:mm')}"></small>
 				                    </p>
 				                    <p th:text="${reply.content}"></p>
