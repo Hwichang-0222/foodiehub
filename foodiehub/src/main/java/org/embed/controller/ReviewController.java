@@ -87,7 +87,7 @@ public class ReviewController {
 		// 성공 메시지 설정
         redirectAttributes.addFlashAttribute("message", "리뷰와 이미지가 등록되었습니다!");
 		// 식당 상세페이지로 리다이렉트
-        return "redirect:/restaurant/detail/" + restaurantId;
+        return "redirect:/restaurant/detail/" + restaurantId + "#reviews";
     }
 
 	// 댓글 작성
@@ -129,7 +129,54 @@ public class ReviewController {
 		}
 
 		// 식당 상세페이지로 리다이렉트
-		return "redirect:/restaurant/detail/" + parentReview.getRestaurantId();
+		return "redirect:/restaurant/detail/" + parentReview.getRestaurantId() + "#reviews";
+	}
+	
+	// 리뷰 수정
+	@PostMapping("/update")
+	public String updateReview(
+	        @RequestParam("id") Long id,
+	        @RequestParam("rating") int rating,
+	        @RequestParam("content") String content,
+	        HttpSession session,
+	        RedirectAttributes redirectAttributes) {
+	    
+	    UserDTO user = (UserDTO) session.getAttribute("user");
+	    ReviewDTO review = reviewService.findReviewWithUser(id);
+	    
+	    // 권한 체크 (본인만 수정 가능)
+	    if (!review.getUserId().equals(user.getId())) {
+	        redirectAttributes.addFlashAttribute("error", "수정 권한이 없습니다.");
+	        return "redirect:/user/mypage";
+	    }
+	    
+	    review.setRating(rating);
+	    review.setContent(content);
+	    reviewService.updateReview(review);
+	    
+	    redirectAttributes.addFlashAttribute("message", "리뷰가 수정되었습니다.");
+	    return "redirect:/user/mypage";
+	}
+
+	// 리뷰 삭제
+	@PostMapping("/delete")
+	public String deleteReview(
+	        @RequestParam("id") Long id,
+	        HttpSession session,
+	        RedirectAttributes redirectAttributes) {
+	    
+	    UserDTO user = (UserDTO) session.getAttribute("user");
+	    ReviewDTO review = reviewService.findReviewWithUser(id);
+	    
+	    // 권한 체크 (본인만 삭제 가능)
+	    if (!review.getUserId().equals(user.getId())) {
+	        redirectAttributes.addFlashAttribute("error", "삭제 권한이 없습니다.");
+	        return "redirect:/user/mypage";
+	    }
+	    
+	    reviewService.deleteReview(id);
+	    redirectAttributes.addFlashAttribute("message", "리뷰가 삭제되었습니다.");
+	    return "redirect:/user/mypage";
 	}
 
 }

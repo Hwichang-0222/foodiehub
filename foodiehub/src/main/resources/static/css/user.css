@@ -133,3 +133,14 @@
 .item-card .item-title { font-weight:600; color:#1e2a38; margin-bottom:4px; }
 .item-card .item-content { color:#555; font-size:0.95rem; margin-bottom:4px; }
 .item-card small { color:#777; font-size:0.85rem; }
+
+/* ============================================
+   리뷰 수정/삭제
+============================================ */
+.review-actions { margin-top:10px; display:flex; gap:10px; }
+.item-card .btn-edit,
+.item-card .btn-delete { padding:6px 12px; font-size:13px; border:none; border-radius:4px; cursor:pointer; transition:all 0.2s ease; font-weight:600; }
+.item-card .btn-edit { background-color:#36d1b6; color:#fff; }
+.item-card .btn-edit:hover { background-color:#2db49d; transform:translateY(-1px); box-shadow:0 2px 6px rgba(54,209,182,0.3); }
+.item-card .btn-delete { background-color:#e74c3c; color:#fff; }
+.item-card .btn-delete:hover { background-color:#c0392b; transform:translateY(-1px); box-shadow:0 2px 6px rgba(231,76,60,0.3); }

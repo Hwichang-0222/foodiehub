@@ -1,4 +1,25 @@
 /* --------------------------------------
+   메뉴 관리 완료 후 이동
+-------------------------------------- */
+function completeMenuManage() {
+    const userRole = document.getElementById('userRole').value;
+    const restaurantId = document.getElementById('restaurantId').value;
+    
+    // 역할에 따라 다른 페이지로 이동
+    if (userRole === 'ADMIN') {
+        // 관리자 → 관리자 대시보드
+        window.location.href = '/admin/dashboard';
+    } else if (userRole === 'OWNER') {
+        // 식당 사장 → 해당 식당 상세 페이지
+        window.location.href = '/restaurant/detail/' + restaurantId;
+    } else {
+        // 기타 → 메인 페이지
+        window.location.href = '/';
+    }
+}
+
+
+/* --------------------------------------
    메뉴 추가 AJAX 
 -------------------------------------- */
 document.getElementById("addMenuForm").addEventListener("submit", async function(e) {
@@ -43,56 +64,58 @@ function appendMenuToTable(menu) {
 
 
 /* --------------------------------------
-   메뉴 수정 모달 열기 
+   메뉴 수정 모달 열기 (HTML 모달 활용)
 -------------------------------------- */
 function openEditMenu(menuId) {
-    // 기존 모달이 있으면 제거
-    const existingModal = document.getElementById('editMenuModal');
-    if (existingModal) {
-        existingModal.remove();
-    }
-
     // 행에서 데이터 가져오기
     const row = document.getElementById(`menuRow-${menuId}`);
     const name = row.dataset.menuName;
     const price = row.dataset.menuPrice;
     const description = row.dataset.menuDescription || '';
 
-    // 모달 생성
-    const modal = document.createElement('div');
-    modal.id = 'editMenuModal';
-    modal.className = 'modal-overlay';
+    // 모달 폼에 데이터 채우기
+    document.getElementById('editMenuId').value = menuId;
+    document.getElementById('editMenuName').value = name;
+    document.getElementById('editMenuPrice').value = price;
+    document.getElementById('editMenuDescription').value = description;
+
+    // 모달 열기
+    const modal = document.getElementById('editMenuModal');
+    modal.classList.add('active');
+}
+
+
+/* --------------------------------------
+   메뉴 수정 모달 이벤트 (DOMContentLoaded)
+-------------------------------------- */
+document.addEventListener('DOMContentLoaded', function() {
     
-    modal.innerHTML = `
-        <div class="modal-content">
-            <h3>메뉴 수정</h3>
-            <form id="editMenuForm">
-                <input type="hidden" name="id" value="${menuId}">
-                <input type="hidden" name="restaurantId" value="${document.querySelector('input[name="restaurantId"]').value}">
-                
-                <label>메뉴명</label>
-                <input type="text" name="name" value="${name}" required>
-                
-                <label>설명</label>
-                <textarea name="description" rows="3">${description}</textarea>
-                
-                <label>가격</label>
-                <input type="number" name="price" value="${price}" required>
-                
-                <div class="modal-buttons">
-                    <button type="submit" class="btn btn-create">수정</button>
-                    <button type="button" class="btn btn-danger" onclick="closeEditModal()">취소</button>
-                </div>
-            </form>
-        </div>
-    `;
+    // 메뉴 수정 모달
+    const editModal = document.getElementById('editMenuModal');
+    const editModalClose = editModal.querySelector('.modal-close');
+    const editModalCancel = editModal.querySelector('.btn-cancel');
     
-    document.body.appendChild(modal);
+    // 모달 닫기 버튼
+    editModalClose.addEventListener('click', function() {
+        editModal.classList.remove('active');
+    });
+    
+    // 모달 취소 버튼
+    editModalCancel.addEventListener('click', function() {
+        editModal.classList.remove('active');
+    });
     
     // 모달 외부 클릭 시 닫기
-    modal.addEventListener('click', function(e) {
-        if (e.target === modal) {
-            closeEditModal();
+    editModal.addEventListener('click', function(e) {
+        if (e.target === editModal) {
+            editModal.classList.remove('active');
+        }
+    });
+    
+    // ESC 키로 모달 닫기
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && editModal.classList.contains('active')) {
+            editModal.classList.remove('active');
         }
     });
     
@@ -121,21 +144,29 @@ function openEditMenu(menuId) {
             row.dataset.menuPrice = menu.price;
             row.dataset.menuDescription = menu.description || '';
             
-            closeEditModal();
+            editModal.classList.remove('active');
             alert('메뉴가 수정되었습니다.');
         } else {
             alert('수정에 실패했습니다.');
         }
     });
-}
 
-// 모달 닫기
-function closeEditModal() {
-    const modal = document.getElementById('editMenuModal');
-    if (modal) {
-        modal.remove();
-    }
-}
+    // 이미지 미리보기 모달
+    const imageModal = document.getElementById('imagePreviewModal');
+    const imageModalClose = imageModal.querySelector('.modal-close');
+    
+    // 이미지 모달 닫기
+    imageModalClose.addEventListener('click', function() {
+        imageModal.classList.remove('active');
+    });
+    
+    // 이미지 모달 외부 클릭 시 닫기
+    imageModal.addEventListener('click', function(e) {
+        if (e.target === imageModal || e.target.closest('.modal-content')) {
+            imageModal.classList.remove('active');
+        }
+    });
+});
 
 
 /* --------------------------------------
@@ -237,22 +268,12 @@ async function deleteMenuImage(id) {
 
 
 /* --------------------------------------
-   이미지 모달 (크게 보기)
+   이미지 모달 (크게 보기) - HTML 모달 활용
 -------------------------------------- */
 function openImageModal(src) {
-    const modal = document.createElement('div');
-    modal.className = 'modal-overlay';
-    modal.style.cursor = 'pointer';
+    const modal = document.getElementById('imagePreviewModal');
+    const img = document.getElementById('previewImage');
     
-    modal.innerHTML = `
-        <div style="max-width: 90%; max-height: 90%; overflow: auto;">
-            <img src="${src}" style="width: 100%; height: auto; display: block;">
-        </div>
-    `;
-    
-    modal.addEventListener('click', function() {
-        modal.remove();
-    });
-    
-    document.body.appendChild(modal);
+    img.src = src;
+    modal.classList.add('active');
 }

@@ -3,11 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <title>메뉴 관리</title>
+    <link rel="stylesheet" th:href="@{/css/modal.css}">
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
-	<!-- 로그인 상태 전달 (JavaScript에서 사용) -->
-	<input type="hidden" name="userLoggedIn" th:value="${user != null}">
+	<!-- 로그인 상태 및 역할 전달 (JavaScript에서 사용) -->
+	<input type="hidden" id="userLoggedIn" th:value="${user != null}">
+	<input type="hidden" id="userRole" th:value="${user != null ? user.role : ''}">
 	
     <!-- 공통 헤더 -->
     <div th:replace="layout/header :: header"></div>
@@ -109,7 +111,61 @@
 	        </form>
 	    </div>
 	
+	    <!-- ▣ 완료 버튼 영역 -->
+	    <div class="menu-complete-section">
+	        <input type="hidden" id="restaurantId" th:value="${restaurantId}">
+	        <button type="button" class="btn-complete" onclick="completeMenuManage()">완료</button>
+	    </div>
+	
 	</div>
+
+    <!-- 메뉴 수정 모달 -->
+    <div id="editMenuModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>메뉴 수정</h3>
+                <button type="button" class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="editMenuForm">
+                    <input type="hidden" name="id" id="editMenuId">
+                    <input type="hidden" name="restaurantId" th:value="${restaurantId}">
+                    
+                    <div class="form-group">
+                        <label class="form-label">메뉴명</label>
+                        <input type="text" name="name" id="editMenuName" class="form-control" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">설명</label>
+                        <textarea name="description" id="editMenuDescription" class="form-control form-textarea" rows="3"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">가격</label>
+                        <input type="number" name="price" id="editMenuPrice" class="form-control" required>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="btn-submit">수정</button>
+                        <button type="button" class="btn-cancel">취소</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 이미지 미리보기 모달 -->
+    <div id="imagePreviewModal" class="modal">
+        <div class="modal-content" style="max-width: 90%; background: transparent; box-shadow: none;">
+            <div class="modal-header" style="border: none; padding: 10px; justify-content: flex-end;">
+                <button type="button" class="modal-close" style="font-size: 40px; color: white;">&times;</button>
+            </div>
+            <div class="modal-body" style="padding: 0; text-align: center;">
+                <img id="previewImage" src="" style="max-width: 100%; max-height: 80vh; border-radius: 8px;">
+            </div>
+        </div>
+    </div>
 
     <!-- 공통 푸터 -->
     <div th:replace="layout/footer :: footer"></div>

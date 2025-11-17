@@ -52,40 +52,4 @@
 ============================================ */
 .notice-header { display:flex; justify-content:flex-end; align-items:center; margin-bottom:10px; }
 
-/* ============================================
-   모달 (댓글 작성용)
-============================================ */
-
-/* 모달 배경 */
-.modal { position:fixed; z-index:1000; left:0; top:0; width:100%; height:100%; background-color:rgba(0,0,0,0.4); display:flex; align-items:center; justify-content:center; }
-
-/* 모달 콘텐츠 */
-.modal-content { background-color:#fff; padding:0; border-radius:12px; box-shadow:0 4px 20px rgba(0,0,0,0.15); width:90%; max-width:600px; max-height:90vh; overflow-y:auto; }
-
-/* 모달 헤더 */
-.modal-header { display:flex; justify-content:space-between; align-items:center; padding:20px 30px; border-bottom:1px solid #eee; }
-.modal-header h3 { margin:0; font-size:20px; font-weight:700; color:#1e2a38; }
-
-/* 모달 닫기 버튼 */
-.modal-close { background:none; border:none; font-size:28px; font-weight:300; cursor:pointer; color:#999; padding:0; width:30px; height:30px; display:flex; align-items:center; justify-content:center; transition:color 0.2s ease; }
-.modal-close:hover { color:#333; }
-
-/* 모달 폼 */
 #reply-form { padding:30px; }
-/* 폼 그룹 */
-.modal-content .form-group { margin-bottom:20px; display:flex; flex-direction:column; }
-/* 폼 라벨 */
-.modal-content .form-label { font-weight:600; color:#333; margin-bottom:8px; font-size:14px; }
-/* 폼 입력 요소 */
-.modal-content .form-control { width:100%; padding:12px 14px; border:1.5px solid #ddd; border-radius:8px; font-size:14px; font-family:inherit; transition:all 0.2s ease; box-sizing:border-box; }
-.modal-content .form-control:focus { outline:none; border-color:#36d1b6; box-shadow:0 0 6px rgba(54,209,182,0.3); }
-/* 폼 텍스트영역 */
-.modal-content .form-textarea { resize:vertical; min-height:150px; }
-/* 폼 액션 버튼 */
-.modal-content .form-actions { display:flex; justify-content:center; gap:15px; margin-top:30px; padding-top:30px; border-top:1px solid #eee; }
-/* 제출 버튼 */
-.modal-content .btn-submit { background-color:#36d1b6; color:#fff; padding:12px 40px; border:none; border-radius:8px; font-size:15px; font-weight:700; cursor:pointer; transition:background-color 0.25s ease; text-decoration:none; display:inline-block; }
-.modal-content .btn-submit:hover { background-color:#2cb59c; }
-/* 취소 버튼 */
-.modal-content .btn-cancel { background-color:#999; color:#fff; padding:12px 40px; border:none; text-decoration:none; border-radius:8px; font-size:15px; font-weight:700; text-align:center; display:inline-block; transition:background-color 0.25s ease; cursor:pointer; }
-.modal-content .btn-cancel:hover { background-color:#777; }

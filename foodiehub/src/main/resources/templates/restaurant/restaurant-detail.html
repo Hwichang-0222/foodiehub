@@ -38,19 +38,13 @@
             <div class="restaurant-actions"
                 th:if="${user != null and user.role == 'ROLE_OWNER' and user.id == restaurant.ownerId}">
                 <a th:href="@{/restaurant/edit/{id}(id=${restaurant.id})}" class="btn btn-create">수정하기</a>
+                <a th:href="@{/menu/manage(restaurantId=${restaurant.id})}" class="btn btn-create">메뉴 관리</a>
             </div>
             
-	        <a th:href="@{/menu/manage(restaurantId=${restaurant.id})}"
-	           class="btn btn-create"
-	           style="width:100%; margin-top:10px;">
-	           메뉴 관리
-	        </a>
- 
             <!-- AI 요약 생성 버튼 (ADMIN 또는 OWNER) -->
             <div class="restaurant-actions" style="margin-top: 10px;"
                 th:if="${user != null and (user.role == 'ROLE_ADMIN' or (user.role == 'ROLE_OWNER' and user.id == restaurant.ownerId))}">
-               <form th:action="@{/restaurant/generate-ai-summary/{id}(id=${restaurant.id})}" method="post" style="margin: 0;"
-                      onsubmit="console.log('Form submitting with method:', this.method); alert('Form 제출 중... Method: ' + this.method); return true;">
+               <form th:action="@{/restaurant/generate-ai-summary/{id}(id=${restaurant.id})}" method="post" style="margin: 0;">
                     <button type="submit" class="btn btn-create" style="width: 100%;">🤖 AI 리뷰 요약 생성</button>
                 </form>
             </div>
@@ -177,6 +171,7 @@
 				                <div th:each="reply : ${review.replies}" class="comment-item">
 				                    <p>
 				                        <strong th:text="${reply.userName}"></strong>
+				                        <img th:if="${reply.role=='ROLE_OWNER'}" class="owner-badge" src="/images/owner-badge.png" style="width: 10px; height: 10px;">사장님
 				                        <small th:text="${#temporals.format(reply.createdAt, 'yyyy-MM-dd HH:mm')}"></small>
 				                    </p>
 				                    <p th:text="${reply.content}"></p>
@@ -219,7 +214,7 @@
                             <label>리뷰 내용</label>
                             <textarea name="content" rows="5" placeholder="리뷰를 입력하세요" required></textarea>
 
-                            <label>이미지 업로드</label>
+                            <label>이미지 업로드(최대 10MB)</label>
                             <input type="file" name="files" multiple accept="image/*">
 
                             <button type="submit" class="submit-btn">등록하기</button>
