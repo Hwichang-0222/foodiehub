@@ -67,17 +67,6 @@
 					<textarea id="content" name="content" class="form-control form-textarea" placeholder="내용을 입력하세요" required rows="15"></textarea>
 				</div>
 
-				<!-- 비공개 여부 (등급요청/맛집추천 카테고리에서만 표시) -->
-				<div class="form-group" id="privateGroup" style="display:none;">
-					<!-- 비공개 체크박스 -->
-					<label class="form-checkbox">
-						<!-- 비공개 체크박스 입력 -->
-						<input type="checkbox" name="isPrivate" class="checkbox-input">
-						<!-- 비공개 설명 텍스트 -->
-						<span>비공개로 작성하기 (내용이 공개되지 않습니다)</span>
-					</label>
-				</div>
-
 				<!-- 폼 액션 버튼 -->
 				<div class="form-actions">
 					<!-- 작성 버튼 -->
@@ -95,29 +84,6 @@
 	<div th:replace="layout/footer :: footer"></div>
 
 	<!-- 카테고리별 비공개 옵션 표시/숨김 스크립트 -->
-	<script>
-		// 페이지 로드 시 카테고리 변경 이벤트 핸들러 등록
-		document.addEventListener('DOMContentLoaded', function() {
-			// 카테고리 선택 요소 가져오기
-			const categorySelect = document.getElementById('category');
-			// 비공개 그룹 요소 가져오기
-			const privateGroup = document.getElementById('privateGroup');
-
-			// 카테고리 변경 이벤트 리스너
-			categorySelect.addEventListener('change', function() {
-				// 등급요청 또는 맛집추천 카테고리일 때 비공개 옵션 표시
-				if (this.value === 'QUESTION' || this.value === 'SUGGESTION') {
-					privateGroup.style.display = 'block';
-				} else {
-					// 다른 카테고리일 때 비공개 옵션 숨김
-					privateGroup.style.display = 'none';
-				}
-			});
-
-			// 초기 상태 설정 (페이지 로드 시 카테고리에 따라 비공개 옵션 표시/숨김)
-			categorySelect.dispatchEvent(new Event('change'));
-		});
-	</script>
-
+	
 </body>
 </html>

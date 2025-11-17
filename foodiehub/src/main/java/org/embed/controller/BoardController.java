@@ -162,7 +162,7 @@ public class BoardController {
 		UserDTO user = getSessionUser(session);
 		
 		// GENERAL 카테고리 - 로그인 필수
-		if ("GENERAL".equals(post.getCategory())) {
+		if ("GENERAL".equals(post.getCategory()) || "SUGGESTION".equals(post.getCategory())) {
 			if (user == null) {
 				redirectAttributes.addFlashAttribute("errorMessage", "로그인 후 이용 부탁드립니다.");
 		        return "redirect:/board/list?category=" + post.getCategory();
@@ -170,7 +170,7 @@ public class BoardController {
 		}
 
 		// QUESTION, SUGGESTION 카테고리 - 작성자와 관리자만 조회 가능
-		if ("QUESTION".equals(post.getCategory()) || "SUGGESTION".equals(post.getCategory())) {
+		if ("QUESTION".equals(post.getCategory())) {
 		    if (!canView(user, post)) {
 		        // 권한 없음 → 목록으로 명확하게 리다이렉트
 		        redirectAttributes.addFlashAttribute("errorMessage", "조회할 수 없는 게시물입니다.");
@@ -179,7 +179,7 @@ public class BoardController {
 		}
 
 		// 댓글인 경우 - 부모글 작성자와 관리자만 조회 가능
-		if (post.getParentId() != null) {
+		if (post.getParentId() != null && "QUESTION".equals(post.getCategory())) {
 			BoardDTO parentPost = boardService.findById(post.getParentId());
 			if (parentPost != null && !canView(user, parentPost)) {
 				redirectAttributes.addFlashAttribute("errorMessage", "조회할 수 없는 게시물입니다.");

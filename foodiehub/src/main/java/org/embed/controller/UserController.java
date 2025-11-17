@@ -12,9 +12,13 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.embed.dto.BoardDTO;
+import org.embed.dto.MenuDTO;
+import org.embed.dto.RestaurantDTO;
 import org.embed.dto.ReviewDTO;
 import org.embed.dto.UserDTO;
 import org.embed.service.BoardService;
+import org.embed.service.MenuService;
+import org.embed.service.RestaurantService;
 import org.embed.service.ReviewService;
 import org.embed.service.UserService;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -45,6 +49,8 @@ public class UserController {
     private final UserService userService;
     private final ReviewService reviewService;
     private final BoardService boardService;
+    private final RestaurantService restaurantService;
+    private final MenuService menuService;
 
     /* ============================================
        Spring Security 인증 처리
@@ -261,6 +267,16 @@ public class UserController {
         model.addAttribute("totalBoards", totalBoards);
         model.addAttribute("boardCurrentPage", boardPage);
         model.addAttribute("boardTotalPages", (int) Math.ceil((double) totalBoards / boardLimit));
+        
+        if ("ROLE_OWNER".equals(user.getRole())) {
+            RestaurantDTO restaurant = restaurantService.findByOwnerId(user.getId());
+            model.addAttribute("restaurant", restaurant);
+            
+            if (restaurant != null) {
+                List<MenuDTO> menus = menuService.findByRestaurantId(restaurant.getId());
+                model.addAttribute("menus", menus);
+            }
+        }
 
         return "user/user-mypage";
     }
@@ -372,6 +388,13 @@ public class UserController {
         // 비밀번호 처리 (일반 로그인만)
         if (sessionUser.getProvider() == null) {
             if (newPassword != null && !newPassword.isBlank()) {
+                // 새 비밀번호가 현재 비밀번호와 같은지 확인
+                boolean isSamePassword = userService.validateLogin(sessionUser.getEmail(), newPassword);
+                if (isSamePassword) {
+                    model.addAttribute("error", "새 비밀번호는 현재 비밀번호와 달라야 합니다.");
+                    model.addAttribute("user", sessionUser);
+                    return "user/user-edit";
+                }
                 user.setPassword(newPassword);
             } else {
                 user.setPassword(sessionUser.getPassword());

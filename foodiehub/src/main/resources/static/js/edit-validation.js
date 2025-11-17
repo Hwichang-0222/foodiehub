@@ -4,6 +4,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const phoneInput = document.getElementById("phone");
     
     // 비밀번호 관련 요소
+    const currentPasswordInput = document.getElementById("currentPassword");  // ✨ 추가
     const passwordInput = document.getElementById("password");
     const passwordConfirmInput = document.getElementById("passwordConfirm");
     const togglePasswordBtn = document.getElementById("togglePassword");
@@ -56,12 +57,18 @@ document.addEventListener("DOMContentLoaded", function () {
         // 새 비밀번호가 없으면 검증 안 함 (선택사항)
         if (!passwordInput || !passwordConfirmInput) return;
 
+        const currentPw = currentPasswordInput ? currentPasswordInput.value : "";  // ✨ 추가
         const pw = passwordInput.value;
         const pwC = passwordConfirmInput.value;
 
         // 1) 비밀번호 유효성 검사 (입력된 경우에만)
         if (pw.length === 0) {
             if (passwordRuleMsg) passwordRuleMsg.textContent = "";
+        } else if (currentPw && pw === currentPw) {  // ✨ 추가: 현재 비밀번호와 같은지 체크
+            if (passwordRuleMsg) {
+                passwordRuleMsg.textContent = "새 비밀번호는 현재 비밀번호와 달라야 합니다.";
+                passwordRuleMsg.style.color = "red";
+            }
         } else if (!validatePasswordStrength(pw)) {
             if (passwordRuleMsg) {
                 passwordRuleMsg.textContent = "비밀번호는 8~20자, 영문 + 숫자 포함해야 합니다.";
@@ -97,14 +104,16 @@ document.addEventListener("DOMContentLoaded", function () {
     if (passwordConfirmInput) {
         passwordConfirmInput.addEventListener("input", checkPassword);
     }
+    // ✨ 추가: 현재 비밀번호 입력 시에도 체크
+    if (currentPasswordInput) {
+        currentPasswordInput.addEventListener("input", checkPassword);
+    }
 
     // ============================================
     // 폼 제출 검증
     // ============================================
     if (updateForm) {
         updateForm.addEventListener("submit", function(e) {
-            const currentPasswordInput = document.getElementById("currentPassword");
-            
             // 일반 로그인 사용자: 현재 비밀번호 필수
             if (currentPasswordInput && currentPasswordInput.offsetParent !== null) {
                 const currentPw = currentPasswordInput.value.trim();
@@ -117,10 +126,18 @@ document.addEventListener("DOMContentLoaded", function () {
 
             // 새 비밀번호 입력한 경우: 확인 일치 체크
             if (passwordInput && passwordConfirmInput) {
+                const currentPw = currentPasswordInput ? currentPasswordInput.value : "";
                 const pw = passwordInput.value;
                 const pwC = passwordConfirmInput.value;
 
                 if (pw.length > 0) {
+                    // ✨ 추가: 현재 비밀번호와 같은지 체크
+                    if (currentPw && pw === currentPw) {
+                        e.preventDefault();
+                        alert("새 비밀번호는 현재 비밀번호와 달라야 합니다.");
+                        return false;
+                    }
+
                     if (!validatePasswordStrength(pw)) {
                         e.preventDefault();
                         alert("비밀번호는 8~20자, 영문 + 숫자를 포함해야 합니다.");

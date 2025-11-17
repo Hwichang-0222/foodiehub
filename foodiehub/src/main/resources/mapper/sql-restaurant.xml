@@ -302,6 +302,20 @@
 		    ORDER BY r.id ASC
 	    ]]>
 	</select>
-
+	
+	<!-- Owner ID로 식당 조회 -->
+	<select id="findByOwnerId" parameterType="long" resultType="org.embed.dto.RestaurantDTO">
+	    <![CDATA[
+	        SELECT
+	            r.*,
+	            COALESCE(ROUND(AVG(rv.rating), 1), 0) AS avg_rating,
+	            COALESCE(COUNT(rv.id), 0) AS review_count
+	        FROM restaurant r
+	        LEFT JOIN review rv ON r.id = rv.restaurant_id
+	        WHERE r.owner_id = #{ownerId}
+	        GROUP BY r.id
+	        LIMIT 1
+	    ]]>
+	</select>
 
 </mapper>

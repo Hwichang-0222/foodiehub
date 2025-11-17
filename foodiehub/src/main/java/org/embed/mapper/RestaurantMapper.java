@@ -62,5 +62,7 @@ public interface RestaurantMapper {
     
     // 오너 배정된 유저 ID 목록
     List<Long> findAssignedOwnerIds();
+    
+    RestaurantDTO findByOwnerId(@Param("ownerId") Long ownerId); 
 
 }

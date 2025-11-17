@@ -36,5 +36,7 @@ public interface RestaurantService {
     
     // AI 전용 메서드
     List<RestaurantDTO> findAllForAI();
+    
+    RestaurantDTO findByOwnerId(Long ownerId);
 
 }

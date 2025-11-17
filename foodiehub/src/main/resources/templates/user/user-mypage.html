@@ -64,6 +64,7 @@
                 <div class="tab-menu">
                     <button class="tab-btn" data-tab="reviews">내가 쓴 리뷰</button>
                     <button class="tab-btn" data-tab="boards">내가 쓴 게시글</button>
+                    <button th:if="${user.role == 'ROLE_OWNER'}" class="tab-btn" data-tab="restaurant">내 식당 관리</button>
                 </div>
 
                 <!-- 리뷰 탭 -->
@@ -110,7 +111,6 @@
 				           th:href="@{/user/mypage(reviewPage=${reviewCurrentPage + 1}, boardPage=${boardCurrentPage})}">다음</a>
 				    </div>
 				</div>
-				
 				<!-- 게시글 탭 -->
 				<div id="boards" class="tab-content">
 				    <div class="tab-content-header">
@@ -139,6 +139,49 @@
 				        <span th:text="${boardCurrentPage} + ' / ' + ${boardTotalPages}"></span>
 				        <a th:if="${boardCurrentPage < boardTotalPages}"
 				           th:href="@{/user/mypage(reviewPage=${reviewCurrentPage}, boardPage=${boardCurrentPage + 1})}">다음</a>
+				    </div>
+				</div>
+				<!-- 내 식당 관리 탭 (OWNER 전용) -->
+				<div th:if="${user.role == 'ROLE_OWNER'}" id="restaurant" class="tab-content">
+				    <div class="tab-content-header">
+				        <h3>내 식당 관리</h3>
+				    </div>
+				
+				    <div th:if="${restaurant == null}" class="empty-box">
+				        <p>아직 할당된 식당이 없습니다.</p>
+				    </div>
+				
+				    <div th:if="${restaurant != null}" class="restaurant-manage">
+				        <div class="restaurant-info-card">
+				            <img th:src="${restaurant.mainImageUrl}"
+							     onerror="this.onerror=null; this.src='/images/default-thumbnail.png';"
+							     alt="식당 이미지"
+							     style="max-width: 200px;">
+				            <div class="restaurant-details">
+				                <h4 th:text="${restaurant.name}"></h4>
+				                <p><strong>주소:</strong> <span th:text="${restaurant.address}"></span></p>
+				                <p><strong>카테고리:</strong> <span th:text="${restaurant.category}"></span></p>
+				                <p><strong>평점:</strong> <span th:text="${restaurant.avgRating}">0</span> ⭐</p>
+				            </div>
+				        </div>
+				
+				        <div class="restaurant-actions">
+				            <a th:href="@{'/restaurant/edit/' + ${restaurant.id}}" class="btn btn-primary">식당 정보 수정</a>
+				            <a th:href="@{/menu/manage(restaurantId=${restaurant.id})}" class="btn btn-primary">메뉴 관리</a>
+				        </div>
+				
+				        <div class="menu-list">
+				            <h4>등록된 메뉴</h4>
+				            <div th:if="${menus == null || #lists.isEmpty(menus)}" class="empty-box">
+				                <p>등록된 메뉴가 없습니다.</p>
+				            </div>
+				            <div th:if="${menus != null}" class="scroll-list">
+				                <div th:each="menu : ${menus}" class="item-card">
+				                    <p class="item-title" th:text="${menu.name}"></p>
+				                    <p th:text="${menu.price != null ? #numbers.formatInteger(menu.price, 0, 'COMMA') + '원' : '가격 미정'}"></p>
+				                </div>
+				            </div>
+				        </div>
 				    </div>
 				</div>
             </section>

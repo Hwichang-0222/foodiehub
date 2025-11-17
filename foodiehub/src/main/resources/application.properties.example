@@ -1,0 +1,72 @@
+spring.application.name=foodiehub
+
+# ======================================
+# DATABASE (HikariCP + MySQL 8.0.34)
+# ======================================
+spring.datasource.hikari.driver-class-name=com.mysql.cj.jdbc.Driver
+spring.datasource.hikari.jdbc-url=jdbc:mysql://localhost:3306/your_database_name
+spring.datasource.hikari.username=your_username
+spring.datasource.hikari.password=your_password
+spring.datasource.hikari.connection-test-query=SELECT 1
+
+# ======================================
+# MyBatis Configuration
+# ======================================
+mybatis.mapper-locations=classpath:mapper/sql-*.xml
+mybatis.type-aliases-package=org.embed.dto
+mybatis.configuration.map-underscore-to-camel-case=true
+mybatis.configuration.cache-enabled=false
+mybatis.configuration.jdbc-type-for-null=NULL
+
+# ======================================
+# Thymeleaf Configuration
+# ======================================
+spring.thymeleaf.prefix=classpath:/templates/
+spring.thymeleaf.suffix=.html
+spring.thymeleaf.cache=false
+
+# ======================================
+# Logging Level (for debugging)
+# ======================================
+logging.level.root=info
+logging.level.org.embed=debug
+#logging.level.org.mybatis=debug
+#logging.level.org.springframework.jdbc=debug
+#logging.level.com.zaxxer.hikari=debug
+logging.level.org.mybatis=error
+logging.level.org.springframework.jdbc=error
+logging.level.com.zaxxer.hikari=error
+
+# ======================================
+# File Upload Size Limit
+# ======================================
+spring.servlet.multipart.max-file-size=10MB
+spring.servlet.multipart.max-request-size=20MB
+
+# ======================================
+# Kakao Map API Configuration
+# ======================================
+kakao.map.api.key=your_kakao_maps_api_key
+
+# Error Page Configuration
+server.error.path=/error
+
+# ============================================
+# OAuth Configuration
+# ============================================
+
+# Kakao
+kakao.client.id=your_kakao_client_id
+kakao.redirect.uri=http://localhost:8080/oauth/kakao/callback
+
+# Naver
+naver.client.id=your_naver_client_id
+naver.client.secret=your_naver_client_secret
+naver.redirect.uri=http://localhost:8080/oauth/naver/callback
+
+# ============================================
+# Naver Clova Studio API Configuration
+# ============================================
+
+clova.api.key=your_clova_api_key
+clova.api.endpoint=https://clovastudio.stream.ntruss.com/v3/chat-completions/HCX-005

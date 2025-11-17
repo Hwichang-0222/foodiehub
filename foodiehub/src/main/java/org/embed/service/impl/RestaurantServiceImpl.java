@@ -83,5 +83,11 @@ public class RestaurantServiceImpl implements RestaurantService {
     	// TODO Auto-generated method stub
     	return restaurantMapper.findAllForAI();
     }
+    
+    @Override
+    public RestaurantDTO findByOwnerId(Long ownerId) {
+    	// TODO Auto-generated method stub
+    	return restaurantMapper.findByOwnerId(ownerId);
+    }
 
 }
