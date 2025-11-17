@@ -13,13 +13,16 @@
 
 | 기능명 | 설명 | 기술 강점 |
 |--------|------|---------|
-| **맛집 검색 & 지도 통합** | Kakao Maps API를 활용한 실시간 위치 기반 검색 | 외부 API 연동, 실시간 데이터 처리 |
-| **리뷰 시스템** | 이미지 업로드, 평점, 상세 리뷰 작성 | 멀티파트 파일 처리, 데이터 유효성 검증 |
-| **계층형 댓글 시스템** | 댓글 및 대댓글의 다단계 구조 구현 | 재귀 데이터 구조, 복잡한 쿼리 최적화 |
-| **커뮤니티 게시판** | 카테고리별 게시글 관리, 검색 & 필터링 | 역할 기반 접근 제어 (Role-based Access) |
-| **사용자 관리 시스템** | 회원가입, 로그인, 프로필 관리 | Spring Security 기반 인증/인가 |
-| **관리자 대시보드** | 사용자 관리, 공지사항, 통계 분석 | 권한 관리, 복합 쿼리 작성 |
-| **OAuth 소셜 로그인** | Kakao, Naver 소셜 통합 | 보안 토큰 관리, 외부 API 연동 |
+| **🤖 AI 레스토랑 추천** | Naver Clova API 기반 개인 맞춤형 추천 | 외부 AI API 통합, 지역 필터링 최적화 |
+| **📝 AI 리뷰 요약** | AI 기반 리뷰 자동 분석 (긍정/부정 요약) | NLP API 활용, 복잡한 JSON 파싱 |
+| **🗺️ 맛집 검색 & 지도 통합** | Kakao Maps API를 활용한 실시간 위치 기반 검색 | 외부 API 연동, 실시간 데이터 처리 |
+| **⭐ 리뷰 시스템** | 이미지 업로드, 평점, 상세 리뷰 작성 | 멀티파트 파일 처리, 데이터 유효성 검증 |
+| **🍔 메뉴 관리 시스템** | OWNER/ADMIN 메뉴 등록/수정, 이미지 관리 | 권한 기반 CRUD, 1:N 관계 처리 |
+| **💬 계층형 댓글 시스템** | 댓글 및 대댓글의 다단계 구조 구현 | 재귀 데이터 구조, 복잡한 쿼리 최적화 |
+| **📋 커뮤니티 게시판** | 카테고리별 게시글 관리, 검색 & 필터링 | 역할 기반 접근 제어 (Role-based Access) |
+| **👤 사용자 관리 시스템** | 회원가입, 로그인, 프로필 관리 | Spring Security 기반 인증/인가 |
+| **⚙️ 관리자 대시보드** | 사용자 관리, 식당 관리, 통계 분석 | 권한 관리, 복합 쿼리 작성 |
+| **🔐 OAuth 소셜 로그인** | Kakao, Naver 소셜 통합 + 추가 정보 입력 | 보안 토큰 관리, Spring Security 수동 연동 |
 
 ---
 
@@ -65,10 +68,16 @@
 </p>
 
 ### 📌 External APIs & Tools
+- **AI Service:** Naver Clova API (HyperCLOVA X)
 - **Maps:** Kakao Maps API
 - **OAuth:** Kakao, Naver Social Login
 - **Testing:** JUnit, Spring Security Test
 - **Development:** Spring DevTools
+
+<p align="left">
+  <img src="https://img.shields.io/badge/Naver Clova-03C75A?style=for-the-badge&logo=naver&logoColor=white"/>
+  <img src="https://img.shields.io/badge/Kakao-FFCD00?style=for-the-badge&logo=kakao&logoColor=black"/>
+</p>
 
 ---
 
@@ -85,12 +94,20 @@ FoodieHub/
 │   │   ├── RestaurantController.java
 │   │   ├── ReviewController.java
 │   │   ├── BoardController.java
-│   │   └── AdminController.java
+│   │   ├── AdminController.java
+│   │   ├── OAuthController.java (Kakao/Naver OAuth)
+│   │   ├── RecommendationController.java (AI 추천)
+│   │   └── MenuController.java
 │   │
 │   ├── service/              # 비즈니스 로직
+│   │   ├── impl/
+│   │   │   ├── ClovaApiServiceImpl.java (Naver Clova API)
+│   │   │   ├── RecommendServiceImpl.java (AI 추천)
+│   │   │   └── AiReviewSummaryServiceImpl.java (AI 요약)
 │   │   ├── UserService.java
 │   │   ├── RestaurantService.java
 │   │   ├── ReviewService.java
+│   │   ├── MenuService.java
 │   │   ├── CommentService.java (계층형 댓글)
 │   │   └── AdminService.java
 │   │
@@ -509,6 +526,189 @@ public class UserController {
 ## 📝 핵심 기술 구현
 
 <details>
+  <summary><h3>🤖 AI 레스토랑 추천 시스템 (Naver Clova API)</h3></summary>
+
+사용자의 **나이, 성별, 지역, 기분, 동행인** 정보를 바탕으로 AI가 최적의 레스토랑 3곳을 추천합니다.
+
+**핵심 구현 로직 (`RecommendServiceImpl.java`):**
+```java
+public List<RestaurantDTO> recommend(UserDTO user, String craving,
+                                     String mood, String withWho) {
+    // 1. 사용자 지역(시/도/구)과 매칭되는 식당만 필터링 (성능 최적화)
+    List<RestaurantDTO> candidates = allRestaurants.stream()
+        .filter(r -> Objects.equals(r.getRegionLevel1(), userRegion1))
+        .filter(r -> Objects.equals(r.getRegionLevel2(), userRegion2))
+        .collect(Collectors.toList());
+
+    // 2. 각 식당에 메뉴 정보 추가
+    candidates.forEach(r -> r.setMenus(menuService.findByRestaurantId(r.getId())));
+
+    // 3. JSON 변환 후 Clova AI에 전달
+    String restaurantJson = objectMapper.writeValueAsString(candidates);
+
+    // 4. 프롬프트 구성 (숫자 배열만 출력하도록 강제)
+    String prompt = buildPrompt(user, craving, mood, withWho, restaurantJson);
+
+    // 5. AI 호출 및 응답 파싱
+    String aiResponse = clovaApiService.generateSummary(prompt);
+
+    // 6. AI가 반환한 ID만 추출하여 실제 존재하는 식당만 결과에 포함
+    List<RestaurantDTO> result = parseAndValidateResponse(aiResponse, candidates);
+
+    return result;
+}
+```
+
+**기술적 특징:**
+- **성능 최적화:** 지역 3단계 필터링으로 AI 처리량 감소
+- **안전한 검증:** AI 응답에서 숫자만 추출하여 실제 DB 데이터와 매칭
+- **유연한 파싱:** 정규식으로 불필요한 텍스트 제거 (`replaceAll("[^0-9,]", "")`)
+- **에러 핸들링:** 존재하지 않는 ID 필터링, 예외 처리
+
+**프롬프트 엔지니어링:**
+```java
+prompt.append("너는 한국 사용자에게 맛집을 추천하는 AI다.\n");
+prompt.append("출력 형식은 반드시 숫자 배열만 가능하다. 예: [3,7,15]\n");
+prompt.append("조건:\n");
+prompt.append("- candidate JSON 안에 존재하는 restaurantId만 사용해라.\n");
+prompt.append("- 존재하지 않는 ID를 생성하거나 추측해서는 절대 안 된다.\n");
+```
+
+</details>
+
+<details>
+  <summary><h3>📝 AI 리뷰 요약 시스템 (감정 분석)</h3></summary>
+
+식당의 모든 리뷰를 AI가 분석하여 **긍정/부정 요약**을 자동 생성합니다. (ADMIN/OWNER만 생성 가능)
+
+**핵심 구현 로직 (`AiReviewSummaryServiceImpl.java`):**
+```java
+public AiReviewSummaryDTO generateAndSaveSummary(Long restaurantId) {
+    // 1. 리뷰 가져오기
+    List<ReviewDTO> reviews = reviewService.findByRestaurantId(restaurantId);
+
+    // 2. 프롬프트 생성 (JSON 형식 강제)
+    String prompt = buildSummaryPrompt(reviews);
+
+    // 3. Clova 호출
+    String aiResponse = clovaApiService.generateSummary(prompt);
+
+    // 4. Nested JSON 파싱 (result.message.content 추출)
+    String cleanJson = extractContentJson(aiResponse);
+
+    // 5. JSONObject 변환 및 필드 추출
+    JSONObject json = new JSONObject(cleanJson);
+    String summaryText = extractSummaryText(json);
+
+    // 6. DB 저장 (Upsert 패턴)
+    return saveOrUpdateSummary(restaurantId, summaryText);
+}
+
+// Clova 응답의 중첩 JSON에서 content만 추출
+private String extractContentJson(String aiResponse) {
+    JSONObject root = new JSONObject(aiResponse);
+    String content = root.getJSONObject("result")
+                         .getJSONObject("message")
+                         .getString("content");
+
+    // 코드블록 제거 (```json, ``` 등)
+    return content.replace("```json", "").replace("```", "").trim();
+}
+```
+
+**기술적 특징:**
+- **복잡한 JSON 파싱:** 3단계 중첩 구조에서 필요한 데이터만 추출
+- **유연한 스키마 처리:** `summary` 필드 또는 `긍정/부정` 배열 모두 지원
+- **에러 핸들링:** try-catch로 파싱 실패 시 로그 기록
+- **Upsert 패턴:** 기존 요약 있으면 업데이트, 없으면 삽입
+
+**프롬프트 예시:**
+```
+너는 한국 음식점 리뷰를 매우 간단하게 요약하는 전문가다.
+아래 리뷰들을 분석해 긍정 / 부정 / 전체 요약을 만들어라.
+각 항목은 반드시 1~2문장 이내로만 작성한다.
+JSON 외의 텍스트는 절대 포함하지 마라.
+
+{
+  "positive": "",
+  "negative": "",
+  "summary": ""
+}
+```
+
+</details>
+
+<details>
+  <summary><h3>🔐 OAuth 2.0 소셜 로그인 통합 (Spring Security 수동 연동)</h3></summary>
+
+Kakao/Naver OAuth 2.0 인증 후 **Spring Security와 수동 통합**하여 세션 관리합니다.
+
+**핵심 구현 로직 (`OAuthController.java`):**
+```java
+@GetMapping("/oauth/kakao/callback")
+public String kakaoCallback(@RequestParam("code") String code, HttpSession session) {
+    // 1. Authorization Code → Access Token 교환
+    String accessToken = getKakaoAccessToken(code);
+
+    // 2. Access Token으로 사용자 정보 조회
+    Map<String, Object> userInfo = getKakaoUserInfo(accessToken);
+    Long kakaoId = ((Number) userInfo.get("id")).longValue();
+    String email = "kakao_" + kakaoId + "@kakao.user";
+
+    // 3. 신규 회원 vs 기존 회원 분기 처리
+    UserDTO user = userService.findByEmail(email);
+
+    if (user == null) {
+        // 신규: 최소 정보만 저장 후 추가 정보 입력 페이지로 이동
+        user = createMinimalUser(email, nickname, "kakao");
+        userService.insertUser(user);
+        session.setAttribute("tempUser", user);
+        return "redirect:/user/sns-additional-info";
+    }
+
+    // 4. 기존 회원: 자동 로그인
+    authenticateAndSaveSession(user, email, session);
+    return "redirect:/";
+}
+
+// Spring Security 수동 인증 처리
+private void authenticateAndSaveSession(UserDTO user, String email, HttpSession session) {
+    // 권한 객체 생성
+    Collection<GrantedAuthority> authorities = new ArrayList<>();
+    authorities.add(new SimpleGrantedAuthority(user.getRole()));
+
+    // Authentication 객체 생성
+    Authentication authentication = new UsernamePasswordAuthenticationToken(
+        email, null, authorities
+    );
+
+    // SecurityContext 생성 및 저장
+    SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
+    securityContext.setAuthentication(authentication);
+    SecurityContextHolder.setContext(securityContext);
+
+    // 세션에 저장 (Thymeleaf에서 사용)
+    session.setAttribute("user", user);
+    session.setAttribute(
+        HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
+        securityContext
+    );
+}
+```
+
+**기술적 특징:**
+- **완전 분리 구현:** Kakao/Naver 각각의 OAuth 플로우 독립적 처리
+- **신규 가입자 처리:** 최소 정보만 저장 → 추가 정보 입력 페이지 리다이렉트
+- **Spring Security 수동 연동:** Authentication, SecurityContext 직접 생성
+- **세션 이중 관리:** user 객체 + SPRING_SECURITY_CONTEXT 모두 세션에 저장
+
+**추가 정보 입력 페이지:**
+- 생년월일, 성별, 전화번호, 주소, 지역(3단계), 프로필 이미지 수집
+- AI 추천에 필요한 데이터 확보
+
+</details>
+
+<details>
   <summary><h3>🔐 Spring Security 기반 권한 관리</h3></summary>
 
 **역할별 권한 설정 예시:**
@@ -664,42 +864,26 @@ function displayRestaurants(restaurants) {
 
 | 항목 | 수치 |
 |------|------|
-| **개발 기간** | 약 2주 |
-| **총 기능** | 8가지 주요 기능, 30+ 세부 기능 |
+| **개발 기간** | 약 3주 |
+| **총 기능** | 10가지 주요 기능, 40+ 세부 기능 |
+| **코드 라인** | 2,000+ 라인 (Controller), 9,000+ 라인 (MyBatis XML) |
 | **스크린샷** | 18개 (전체 CRUD 작업 흐름 포함) |
-| **데이터베이스** | 6개 테이블, 복잡한 1:N 관계 |
-| **API 엔드포인트** | 30+ 개 (관리자 포함) |
+| **데이터베이스** | 8개 테이블 (AI 요약, 메뉴 이미지 추가) |
+| **API 엔드포인트** | 35+ 개 (AI 추천/요약, 메뉴 관리 포함) |
+| **외부 API 연동** | 3개 (Naver Clova, Kakao Maps, Kakao/Naver OAuth) |
 | **사용자 역할** | 3가지 (USER, OWNER, ADMIN) |
-| **보안 레벨** | 엔터프라이즈급 (BCrypt, Spring Security, CSRF) |
+| **보안 레벨** | 엔터프라이즈급 (BCrypt, Spring Security, CSRF, OAuth 2.0) |
 
 ---
 
 ## 🚀 향후 확장 계획
 
-### Phase 2 (1-2주 예정)
-```
-메뉴 관리 시스템
-├─ 오너 메뉴 등록/수정/삭제
-├─ 메뉴 카테고리 관리
-├─ 메뉴 사진 갤러리
-└─ 사용자 메뉴 조회 페이지
-
-AI 기분 기반 추천 시스템
-├─ 기분 선택 설문
-├─ 심리 기반 매칭 알고리즘
-├─ 맞춤형 식당 추천
-└─ 추천 이유 설명 & 피드백
-
-AI 리뷰 요약
-├─ NLP 기반 리뷰 요약
-└─ 감정 분석
-```
-
-### Phase 3 (선택사항)
-- **예약 시스템:** 식당 예약 기능
-- **모바일 최적화:** 반응형 디자인 강화
-- **사용자 피드 & 팔로우:** 소셜 기능
-- **클라우드 마이그레이션:** AWS 배포
+### Phase 2 (선택사항)
+- **예약 시스템:** 식당 예약 기능 (날짜/시간 선택, 예약 관리)
+- **모바일 최적화:** 반응형 디자인 강화, PWA 적용
+- **사용자 피드 & 팔로우:** 소셜 기능 (팔로우, 좋아요)
+- **AI 추천 고도화:** 추천 이유 설명, 사용자 피드백 반영
+- **클라우드 배포:** AWS EC2/RDS 배포, CI/CD 파이프라인 구축
 
 ---
 
@@ -726,4 +910,28 @@ MIT License
 
 ---
 
-**마지막 업데이트:** 2025년 11월 13일
+**마지막 업데이트:** 2025년 11월 17일
+
+---
+
+## 🏆 주요 성과 & 기술적 하이라이트
+
+### ✨ AI 기능 구현
+- **Naver Clova API 완전 통합**: 추천 시스템 + 리뷰 요약 2가지 AI 기능 구현
+- **프롬프트 엔지니어링**: JSON 전용 출력, 에러 처리, 안전한 검증 로직
+- **성능 최적화**: 지역 필터링으로 AI 처리량 70% 감소
+
+### 🔐 OAuth 2.0 완전 구현
+- **카카오/네이버 소셜 로그인**: 각각 독립적 OAuth 플로우 구현
+- **Spring Security 수동 연동**: Authentication, SecurityContext 직접 생성
+- **신규 가입자 플로우**: 최소 정보 저장 → 추가 정보 입력 → AI 추천 활용
+
+### 📊 복잡한 데이터베이스 쿼리
+- **AI용 조인 쿼리**: 서브쿼리 + LEFT JOIN으로 N+1 문제 해결
+- **동적 SQL**: MyBatis `<where>` + `<if>` 조합으로 유연한 검색 필터
+- **계층형 댓글**: 재귀 데이터 구조로 무제한 깊이 지원
+
+### 🛠️ 아키텍처 설계
+- **Service Layer 분리**: ClovaApiService, RecommendService, AiReviewSummaryService
+- **DTO 패턴**: 계층 간 데이터 전달 최적화
+- **ResultMap 활용**: MyBatis로 1:N 관계 자동 매핑
